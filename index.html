@@ -1235,7 +1235,7 @@
     rows[h].forEach(function(x,k){var m=/(\d{4})/.exec(x||''); if(k>=2&&m){yrs.push(+m[1]);cols.push(k);}});
     var exams=[];
     for(var i=h+1;i<rows.length&&(rows[i][1]||'').trim();i++){
-      if(/wilayah/i.test(rows[i][1]))continue;
+      if(/wilayah|kunjungan/i.test(rows[i][1]))continue;
       exams.push([rows[i][1].trim(), cols.map(function(k){return num(rows[i][k]);})]);
     }
     if(!exams.length) throw new Error('data tidak lengkap');
