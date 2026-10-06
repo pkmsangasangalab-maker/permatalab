@@ -449,6 +449,22 @@
 
     /* ===== Latar malam: bintang & bintang jatuh (tidak mengubah desain lain) ===== */
     #nightSky { position:fixed; inset:0; width:100%; height:100%; z-index:-1; pointer-events:none; }
+
+    /* ===== Stok reagensia (live dari Google Sheets) ===== */
+    #stokLive { margin:0 0 18px; }
+    .stok-tools { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+    .stok-tools select, .stok-tools input { background:rgba(255,255,255,.08); border:1px solid var(--glass-border); color:var(--text-light); border-radius:8px; padding:8px 10px; font-size:.85rem; }
+    .stok-tools select option { color:#0f172a; }
+    .stok-tools input { flex:1; min-width:160px; }
+    .stok-kpi { display:flex; gap:16px; flex-wrap:wrap; font-size:.8rem; color:var(--text-sub); margin-bottom:10px; }
+    .stok-kpi b { color:#fff; }
+    .stok-wrap { max-height:460px; overflow:auto; border-radius:8px; }
+    #stokTbl { width:100%; border-collapse:collapse; font-size:.82rem; }
+    #stokTbl th { position:sticky; top:0; background:#0f172a; text-align:left; padding:8px; color:var(--accent-color); font-size:.72rem; text-transform:uppercase; white-space:nowrap; }
+    #stokTbl td { padding:7px 8px; border-top:1px solid rgba(255,255,255,.08); }
+    #stokTbl .num { text-align:right; font-variant-numeric:tabular-nums; }
+    .stok-badge { padding:2px 9px; border-radius:999px; font-weight:700; font-size:.7rem; color:#0f172a; }
+    .st-habis { background:#f87171; } .st-menipis { background:#f59e0b; } .st-aman { background:#10b981; }
     /* ===== LOGIN ===== */
     body.locked > *:not(#loginOverlay) { display: none !important; }
     #loginOverlay { position: fixed; inset: 0; z-index: 5000; display: none; align-items: center; justify-content: center; padding: 20px;
@@ -914,6 +930,22 @@
       </div>
       <p id="ringkasanNote">Memuat data…</p>
     </div>
+
+    <!-- Stok reagensia (hanya Mode petugas) -->
+    <section id="stokLive">
+      <div class="section-title"><i class="fa-solid fa-boxes-stacked"></i> STOK REAGENSIA (DATA LANGSUNG)</div>
+      <div class="chart-card">
+        <div class="stok-tools">
+          <select id="stokBulan" aria-label="Pilih bulan"></select>
+          <input id="stokCari" type="search" placeholder="Cari nama reagen…">
+          <select id="stokStatus" aria-label="Filter status"><option value="">Semua status</option><option value="Habis">Habis</option><option value="Menipis">Menipis</option><option value="Aman">Aman</option></select>
+          <button class="btn-action" id="stokMuat" type="button">🔄 Muat ulang</button>
+        </div>
+        <div class="stok-kpi"><span>Jenis reagen: <b id="stokN">–</b></span><span>Habis: <b id="stokH">–</b></span><span>Menipis: <b id="stokM">–</b></span></div>
+        <div class="stok-wrap"><table id="stokTbl"><thead><tr><th>Nama reagen</th><th>Sumber</th><th class="num">Stok awal</th><th class="num">Masuk</th><th class="num">Keluar</th><th class="num">Stok akhir</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+        <p id="stokNote">Memuat data…</p>
+      </div>
+    </section>
 
 
   <!-- Dashboard Tasks -->
@@ -1453,6 +1485,79 @@ var PANDUAN = [
   function all(){document.querySelectorAll('a[href]').forEach(fix);}
   all();
   new MutationObserver(all).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+
+<script>
+// Stok reagensia: dibaca langsung dari Google Sheets (sheet harus bisa dilihat siapa pun yang punya link)
+(function(){
+  var SID='1cwQoPEtHT33xWXUfFA05P14LKhrZje438RFLBFmNRts', GID='2044629781';
+  var URL_CSV='https://docs.google.com/spreadsheets/d/'+SID+'/gviz/tq?tqx=out:csv&gid='+GID;
+  var URL_SHEET='https://docs.google.com/spreadsheets/d/'+SID+'/edit?gid='+GID;
+  var AMBANG=0.25; // "Menipis" bila stok akhir <= 25% dari (stok awal + penerimaan)
+  var $=function(i){return document.getElementById(i);}, bulan=[], loaded=false, timer=null;
+  var esc=function(t){return String(t).replace(/[&<>"]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m];});};
+  function csv(t){var r=[],row=[],c='',q=false,i,ch;
+    for(i=0;i<t.length;i++){ch=t[i];
+      if(q){if(ch=='"'){if(t[i+1]=='"'){c+='"';i++;}else q=false;}else c+=ch;}
+      else if(ch=='"')q=true; else if(ch==','){row.push(c);c='';}
+      else if(ch=='\n'||ch=='\r'){if(ch=='\r'&&t[i+1]=='\n')i++;row.push(c);r.push(row);row=[];c='';}
+      else c+=ch;}
+    if(c||row.length){row.push(c);r.push(row);} return r;}
+  function num(v){var x=String(v==null?'':v).replace(/[^\d-]/g,''); if(!x||x==='-')return null; return parseInt(x,10);}
+  function parse(rows){
+    var out=[],cur=null,col=null,sumber='';
+    rows.forEach(function(r){
+      var a=(r[0]||'').trim();
+      if(/^periode$/i.test(a)){var m=r.slice(1).filter(function(x){return x&&x.trim();})[0];
+        cur={name:(m||'').trim(),items:[]};out.push(cur);col=null;sumber='';return;}
+      if(!cur)return;
+      if(/^no$/i.test(a)){col={};r.forEach(function(x,k){var h=(x||'').trim().toLowerCase();
+        if(h==='sumber')col.s=k;else if(h==='nama reagen')col.n=k;else if(h==='stok awal')col.a=k;
+        else if(h==='jumlah penerimaan')col.i=k;else if(h==='jumlah pengeluaran')col.o=k;else if(h==='stok akhir')col.e=k;});return;}
+      if(!col||col.n==null)return;
+      var nm=(r[col.n]||'').trim(); if(!nm)return;
+      if(col.s!=null&&(r[col.s]||'').trim())sumber=r[col.s].trim();
+      var aw=num(r[col.a]),mi=num(r[col.i]),ke=num(r[col.o]),ak=num(r[col.e]);
+      if(aw==null&&mi==null&&ke==null&&ak==null)return; // belum ada data
+      cur.items.push({n:nm,s:sumber,a:aw||0,i:mi||0,o:ke||0,e:ak==null?0:ak});
+    });
+    return out.filter(function(m){return m.items.length;});
+  }
+  function status(x){ if(x.e<=0)return 'Habis'; if(x.e<=(x.a+x.i)*AMBANG)return 'Menipis'; return 'Aman'; }
+  function render(){
+    var m=bulan[$('stokBulan').selectedIndex]; if(!m)return;
+    var q=$('stokCari').value.toLowerCase().trim(), f=$('stokStatus').value, h=0, w=0, rows='';
+    m.items.forEach(function(x){var st=status(x); if(st==='Habis')h++; if(st==='Menipis')w++;
+      if((q&&x.n.toLowerCase().indexOf(q)<0)||(f&&st!==f))return;
+      rows+='<tr><td>'+esc(x.n)+'</td><td>'+esc(x.s)+'</td><td class="num">'+x.a+'</td><td class="num">'+x.i+'</td><td class="num">'+x.o+'</td><td class="num"><b>'+x.e+'</b></td><td><span class="stok-badge st-'+st.toLowerCase()+'">'+st+'</span></td></tr>';});
+    $('stokTbl').tBodies[0].innerHTML=rows||'<tr><td colspan="7">Tidak ada reagen yang cocok.</td></tr>';
+    $('stokN').textContent=m.items.length; $('stokH').textContent=h; $('stokM').textContent=w;
+  }
+  function load(){
+    $('stokNote').textContent='Memuat data…';
+    fetch(URL_CSV+'&_='+Date.now()).then(function(r){if(!r.ok)throw 0;return r.text();}).then(function(t){
+      var d=parse(csv(t)); if(!d.length)throw 0;
+      var keep=bulan.length?$('stokBulan').selectedIndex:-1; bulan=d;
+      $('stokBulan').innerHTML=d.map(function(x,i){return '<option>'+esc(x.name)+'</option>';}).join('');
+      var def=d.length-1; for(var i=d.length-1;i>=0;i--){if(d[i].items.some(function(x){return x.o>0||x.i>0;})){def=i;break;}}
+      $('stokBulan').selectedIndex=keep>=0&&keep<d.length?keep:def; render();
+      $('stokNote').innerHTML='Diperbarui '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+' dari Google Sheets. <a href="'+URL_SHEET+'" target="_blank" rel="noopener noreferrer">Buka spreadsheet</a>';
+      loaded=true;
+    }).catch(function(){
+      $('stokNote').innerHTML='Data stok gagal dimuat. Pastikan sheet bisa dilihat siapa pun yang punya link. <a href="'+URL_SHEET+'" target="_blank" rel="noopener noreferrer">Buka spreadsheet</a>';
+    });
+  }
+  function sync(){
+    var on=!!(window._staff!==undefined?window._staff:document.getElementById('staffNotice').style.display==='block');
+    $('stokLive').style.display=on?'block':'none';
+    if(on&&!loaded)load();
+    clearInterval(timer); if(on)timer=setInterval(load,300000);
+  }
+  ['stokBulan','stokStatus'].forEach(function(i){$(i).addEventListener('change',render);});
+  $('stokCari').addEventListener('input',render); $('stokMuat').addEventListener('click',load);
+  var _t=window.toggleStaff; window.toggleStaff=function(){_t.apply(this,arguments);sync();};
+  window.__stokParse=parse; window.__stokCsv=csv;
 })();
 </script>
 </body>
