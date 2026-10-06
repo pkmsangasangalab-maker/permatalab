@@ -464,7 +464,7 @@
     #stokTbl td { padding:7px 8px; border-top:1px solid rgba(255,255,255,.08); }
     #stokTbl .num { text-align:right; font-variant-numeric:tabular-nums; }
     .stok-badge { padding:2px 9px; border-radius:999px; font-weight:700; font-size:.7rem; color:#0f172a; }
-    .st-habis { background:#f87171; } .st-menipis { background:#f59e0b; } .st-aman { background:#10b981; }
+    .st-habis { background:#f87171; } .st-order { background:#f59e0b; } .st-aman { background:#10b981; } .st-tanpabuffer { background:#94a3b8; }
     /* ===== LOGIN ===== */
     body.locked > *:not(#loginOverlay) { display: none !important; }
     #loginOverlay { position: fixed; inset: 0; z-index: 5000; display: none; align-items: center; justify-content: center; padding: 20px;
@@ -938,11 +938,12 @@
         <div class="stok-tools">
           <select id="stokBulan" autocomplete="off" aria-label="Pilih bulan"></select>
           <input id="stokCari" autocomplete="off" type="search" placeholder="Cari nama reagen…">
-          <select id="stokStatus" autocomplete="off" aria-label="Filter status"><option value="">Semua status</option><option value="Habis">Habis</option><option value="Menipis">Menipis</option><option value="Aman">Aman</option></select>
+          <select id="stokStatus" autocomplete="off" aria-label="Filter status"><option value="">Semua status</option><option value="Order">Perlu order</option><option value="Habis">Habis</option><option value="Aman">Aman</option></select>
           <button class="btn-action" id="stokMuat" type="button">🔄 Muat ulang</button>
+          <button class="btn-action sky" id="stokSalin" type="button">📋 Salin daftar order</button>
         </div>
-        <div class="stok-kpi"><span>Jenis reagen: <b id="stokN">–</b></span><span>Habis: <b id="stokH">–</b></span><span>Menipis: <b id="stokM">–</b></span></div>
-        <div class="stok-wrap"><table id="stokTbl"><thead><tr><th>Nama reagen</th><th>Sumber</th><th class="num">Stok awal</th><th class="num">Masuk</th><th class="num">Keluar</th><th class="num">Stok akhir</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+        <div class="stok-kpi"><span>Jenis reagen: <b id="stokN">–</b></span><span>Habis: <b id="stokH">–</b></span><span>Perlu order: <b id="stokM">–</b></span></div>
+        <div class="stok-wrap"><table id="stokTbl"><thead><tr><th>Nama reagen</th><th>Sumber</th><th class="num">Stok awal</th><th class="num">Masuk</th><th class="num">Keluar</th><th class="num">Stok akhir</th><th class="num">Buffer</th><th>Status</th></tr></thead><tbody></tbody></table></div>
         <p id="stokNote">Memuat data…</p>
       </div>
     </section>
@@ -1494,7 +1495,7 @@ var PANDUAN = [
   var SID='1cwQoPEtHT33xWXUfFA05P14LKhrZje438RFLBFmNRts', GID='2044629781';
   var URL_CSV='https://docs.google.com/spreadsheets/d/'+SID+'/gviz/tq?tqx=out:csv&gid='+GID;
   var URL_SHEET='https://docs.google.com/spreadsheets/d/'+SID+'/edit?gid='+GID;
-  var AMBANG=0.25; // "Menipis" bila stok akhir <= 25% dari (stok awal + penerimaan)
+  // Aturan order mengikuti sheet: kolom "Keterangan" = ORDER bila stok akhir <= buffer stok (tab BUFFER).
   var $=function(i){return document.getElementById(i);}, bulan=[], loaded=false, timer=null;
   var esc=function(t){return String(t).replace(/[&<>"]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m];});};
   function csv(t){var r=[],row=[],c='',q=false,i,ch;
@@ -1515,29 +1516,46 @@ var PANDUAN = [
       if(n>=0){
         var bln=''; for(var b=ri-1;b>=Math.max(0,ri-3)&&!bln;b--){rows[b].forEach(function(x){if(!bln&&BLN.indexOf((x||'').trim().toUpperCase())>=0)bln=x.trim();});}
         cur={name:bln||BLN[nb%12],items:[]};nb++;out.push(cur);sumber='';
-        col={n:n,s:n-1,a:n+4,i:n+67,o:n+68,e:n+69};
+        col={n:n,s:n-1,a:n+4,i:n+67,o:n+68,e:n+69,b:n+70,k:n+71};
         r.forEach(function(x,k){var h=(x||'').trim().toLowerCase();
           if(h==='sumber')col.s=k;else if(h==='stok awal')col.a=k;else if(h==='jumlah penerimaan')col.i=k;
-          else if(h==='jumlah pengeluaran')col.o=k;else if(h==='stok akhir')col.e=k;});
+          else if(h==='jumlah pengeluaran')col.o=k;else if(h==='stok akhir')col.e=k;
+          else if(h==='buffer stok')col.b=k;else if(/^keterangan/.test(h))col.k=k;});
         return;}
       if(!col)return;
       var nm=(r[col.n]||'').trim(); if(!nm)return;
       if((r[col.s]||'').trim())sumber=r[col.s].trim();
       var aw=num(r[col.a]),mi=num(r[col.i]),ke=num(r[col.o]),ak=num(r[col.e]);
       if(aw==null&&mi==null&&ke==null&&ak==null)return; // belum ada data
-      cur.items.push({n:nm,s:sumber,a:aw||0,i:mi||0,o:ke||0,e:ak==null?0:ak});
+      var bf=num(r[col.b]),kt=(r[col.k]||'').trim().toUpperCase();
+      cur.items.push({n:nm,s:sumber,a:aw||0,i:mi||0,o:ke||0,e:ak==null?0:ak,b:bf,k:kt});
     });
     return out.filter(function(m){return m.items.length;});
   }
-  function status(x){ if(x.e<=0)return 'Habis'; if(x.e<=(x.a+x.i)*AMBANG)return 'Menipis'; return 'Aman'; }
+  function status(x){
+    if(x.e<=0)return 'Habis';
+    if(x.k==='ORDER'||(!x.k&&x.b!=null&&x.e<=x.b))return 'Order';
+    if(x.k==='AMAN'||x.b!=null)return 'Aman';
+    return 'Tanpa buffer';
+  }
   function render(){
     var m=bulan[$('stokBulan').selectedIndex]; if(!m)return;
     var q=$('stokCari').value.toLowerCase().trim(), f=$('stokStatus').value, h=0, w=0, rows='';
-    m.items.forEach(function(x){var st=status(x); if(st==='Habis')h++; if(st==='Menipis')w++;
-      if((q&&x.n.toLowerCase().indexOf(q)<0)||(f&&st!==f))return;
-      rows+='<tr><td>'+esc(x.n)+'</td><td>'+esc(x.s)+'</td><td class="num">'+x.a+'</td><td class="num">'+x.i+'</td><td class="num">'+x.o+'</td><td class="num"><b>'+x.e+'</b></td><td><span class="stok-badge st-'+st.toLowerCase()+'">'+st+'</span></td></tr>';});
-    $('stokTbl').tBodies[0].innerHTML=rows||'<tr><td colspan="7">Tidak ada reagen yang cocok.</td></tr>';
+    m.items.forEach(function(x){var st=status(x); if(st==='Habis')h++; if(st==='Habis'||st==='Order')w++;
+      var ok=!f||(f==='Order'?(st==='Habis'||st==='Order'):st===f);
+      if((q&&x.n.toLowerCase().indexOf(q)<0)||!ok)return;
+      rows+='<tr><td>'+esc(x.n)+'</td><td>'+esc(x.s)+'</td><td class="num">'+x.a+'</td><td class="num">'+x.i+'</td><td class="num">'+x.o+'</td><td class="num"><b>'+x.e+'</b></td><td class="num">'+(x.b==null?'–':x.b)+'</td><td><span class="stok-badge st-'+st.toLowerCase().replace(/\s/g,'')+'">'+st+'</span></td></tr>';});
+    $('stokTbl').tBodies[0].innerHTML=rows||'<tr><td colspan="8">Tidak ada reagen yang cocok.</td></tr>';
     $('stokN').textContent=m.items.length; $('stokH').textContent=h; $('stokM').textContent=w;
+  }
+  function salin(){
+    var m=bulan[$('stokBulan').selectedIndex]; if(!m)return;
+    var l=m.items.filter(function(x){var s=status(x);return s==='Habis'||s==='Order';});
+    var t='Daftar order reagen '+m.name+' (stok akhir sudah di bawah atau sama dengan buffer):\n'+(l.length?l.map(function(x,i){
+      return (i+1)+'. '+x.n+' - stok akhir '+x.e+(x.b!=null?', buffer '+x.b+(x.b>x.e?' (kurang '+(x.b-x.e)+')':''):'');}).join('\n'):'Tidak ada reagen yang perlu diorder.');
+    var b=$('stokSalin'),o=b.textContent,ok=function(){b.textContent='✔ Tersalin';setTimeout(function(){b.textContent=o;},1800);};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok,function(){prompt('Salin teks ini:',t);});}
+    else prompt('Salin teks ini:',t);
   }
   function load(){
     $('stokNote').textContent='Memuat data…';
@@ -1561,7 +1579,7 @@ var PANDUAN = [
     clearInterval(timer); if(on)timer=setInterval(load,300000);
   }
   ['stokBulan','stokStatus'].forEach(function(i){$(i).addEventListener('change',render);});
-  $('stokCari').addEventListener('input',render); $('stokMuat').addEventListener('click',load);
+  $('stokCari').addEventListener('input',render); $('stokMuat').addEventListener('click',load); $('stokSalin').addEventListener('click',salin);
   var _t=window.toggleStaff; window.toggleStaff=function(){_t.apply(this,arguments);sync();};
   window.__stokParse=parse; window.__stokCsv=csv;
 })();
