@@ -95,6 +95,15 @@
       letter-spacing: 1.5px;
     }
 
+
+    /* Teks berjalan di header */
+    .marquee { overflow:hidden; width:min(520px, calc(100vw - 150px)); white-space:nowrap; }
+    .marquee-track { display:flex; width:max-content; animation:marqueeMove 24s linear infinite; }
+    .marquee-track span { padding-right:3rem; }
+    .marquee:hover .marquee-track { animation-play-state:paused; }
+    @keyframes marqueeMove { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+    @media (prefers-reduced-motion: reduce) { .marquee-track { animation:none; } .marquee-track span + span { display:none; } .marquee { white-space:normal; } }
+
     /* Action Buttons in Header */
     .header-actions {
       display: flex;
@@ -437,6 +446,9 @@
       .footer-wrapper { flex-direction: column; align-items: flex-start; }
     }
   
+
+    /* ===== Latar malam: bintang & bintang jatuh (tidak mengubah desain lain) ===== */
+    #nightSky { position:fixed; inset:0; width:100%; height:100%; z-index:-1; pointer-events:none; }
     /* ===== LOGIN ===== */
     body.locked > *:not(#loginOverlay) { display: none !important; }
     #loginOverlay { position: fixed; inset: 0; z-index: 5000; display: none; align-items: center; justify-content: center; padding: 20px;
@@ -470,6 +482,7 @@
     .fa-solid::before, .fa-brands::before { display:inline-block; font-style:normal; font-weight:700; line-height:1; }
     .fa-lock::before { content:'🔒'; }
     .fa-whatsapp::before { content:'💬'; }
+    .fa-envelope::before { content:'✉️'; }
     .fa-xmark::before { content:'✕'; }
     .fa-user::before { content:'👤'; }
     .fa-note-sticky::before { content:'📝'; }
@@ -556,6 +569,7 @@
 </style>
 </head>
 <body class="locked">
+  <canvas id="nightSky" aria-hidden="true"></canvas>
 
   <div id="loginOverlay">
     <div class="login-box">
@@ -575,7 +589,7 @@
       <div id="loginPanel">
         <button class="login-btn" onclick="doLogin()"><i class="fa-solid fa-right-to-bracket"></i> Masuk</button>
         <button type="button" class="forgot-link" onclick="showReset(true)">Lupa password?</button>
-        <a class="forgot-link" id="waLink" href="#" target="_blank" rel="noopener" style="text-decoration:none;margin-top:6px"><i class="fa-brands fa-whatsapp"></i> Hubungi Admin</a>
+        <a class="forgot-link" id="waLink" href="#" style="text-decoration:none;margin-top:6px"><i class="fa-solid fa-envelope"></i> Hubungi Admin</a>
       </div>
       <div id="resetPanel">
         <p class="reset-note">Masukkan <b>kode pemulihan</b> dari admin lab, lalu buat username &amp; password baru.</p>
@@ -594,7 +608,7 @@
         <div id="resetOk" class="reset-ok"></div>
         <button class="login-btn" onclick="doReset()"><i class="fa-solid fa-rotate"></i> Atur Ulang Password</button>
         <p class="reset-sep">Tidak punya kode atau jawabannya?</p>
-        <a class="wa-btn" id="waBtn" href="#" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Hubungi Admin via WhatsApp</a>
+        <a class="wa-btn" id="waBtn" href="#"><i class="fa-solid fa-envelope"></i> Hubungi Admin via Email</a>
         <button type="button" class="forgot-link" onclick="showReset(false)">← Kembali ke halaman masuk</button>
       </div>
     </div>
@@ -607,7 +621,7 @@
         <img class="logo-img" src="data:image/jpeg;base64,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" alt="Logo Puskesmas Sanga-sanga" style="object-fit:cover;padding:0;background:#fff;width:60px;height:60px;">
         <div>
           <h1>PERMATA LAB</h1>
-          <p>PERMUDAH MENDAPATKAN DATA LABORATORIUM — UPTD PUSKESMAS SANGA-SANGA 2026</p>
+          <div class="marquee" aria-label="PERMUDAH MENDAPATKAN DATA LABORATORIUM — UPTD PUSKESMAS SANGA-SANGA 2026"><p class="marquee-track" aria-hidden="true"><span>PERMUDAH MENDAPATKAN DATA LABORATORIUM — UPTD PUSKESMAS SANGA-SANGA 2026</span><span>PERMUDAH MENDAPATKAN DATA LABORATORIUM — UPTD PUSKESMAS SANGA-SANGA 2026</span></p></div>
         </div>
       </div>
       <div class="header-actions">
@@ -649,56 +663,56 @@
       <i class="fa-solid fa-chart-line"></i> LAPORAN & PROFIL
     </div>
     <div class="horizontal-grid" data-group="laporan">
-      <a href="https://docs.google.com/spreadsheets/d/1K332LzWdG6W4S7eOYeVjq2rZHHgtEnR9-bqdUOObHHA/edit?gid=1810939200#gid=1810939200" target="_blank" class="card">
+      <a rel="noopener noreferrer" href="https://docs.google.com/spreadsheets/d/1K332LzWdG6W4S7eOYeVjq2rZHHgtEnR9-bqdUOObHHA/edit?gid=1810939200#gid=1810939200" target="_blank" class="card">
         <div class="icon">📑</div>
         <div>
           <h3>LAPORAN TAHUNAN LAB</h3>
           <p>Spreadsheet Google Sheets</p>
         </div>
       </a>
-      <a href="https://docs.google.com/spreadsheets/d/1B-t4mJUyoYu9nfMaUtUBodXyAyhjAQt9SM8aZPrp1eo/edit?pli=1&gid=926263035#gid=926263035" target="_blank" class="card">
+      <a rel="noopener noreferrer" href="https://docs.google.com/spreadsheets/d/1B-t4mJUyoYu9nfMaUtUBodXyAyhjAQt9SM8aZPrp1eo/edit?pli=1&gid=926263035#gid=926263035" target="_blank" class="card">
         <div class="icon">📈</div>
         <div>
           <h3>LAPORAN LAB DINKES 2025</h3>
           <p>Spreadsheet Google Sheets</p>
         </div>
       </a>
-      <a href="https://docs.google.com/spreadsheets/d/1PkluZtQhLRpKCHIXZB0O_bZYO1Zu_InMjYQ0mz1mc64/edit?gid=1422117293#gid=1422117293" target="_blank" class="card">
+      <a rel="noopener noreferrer" href="https://docs.google.com/spreadsheets/d/1PkluZtQhLRpKCHIXZB0O_bZYO1Zu_InMjYQ0mz1mc64/edit?gid=1422117293#gid=1422117293" target="_blank" class="card">
         <div class="icon">📉</div>
         <div>
           <h3>LAPORAN LAB DINKES 2026</h3>
           <p>Spreadsheet Google Sheets</p>
         </div>
       </a>
-      <a href="https://docs.google.com/spreadsheets/d/1FhQ2jCshZnxTlpWAaSbmGYWH-4pds9_BZakWUj0fPgA/edit?gid=75482110#gid=75482110" target="_blank" class="card">
+      <a rel="noopener noreferrer" href="https://docs.google.com/spreadsheets/d/1FhQ2jCshZnxTlpWAaSbmGYWH-4pds9_BZakWUj0fPgA/edit?gid=75482110#gid=75482110" target="_blank" class="card">
         <div class="icon">🏥</div>
         <div>
           <h3>PROFIL LABKESMAS 2025</h3>
           <p>Spreadsheet Google Sheets</p>
         </div>
       </a>
-      <a data-internal href="https://docs.google.com/spreadsheets/d/1zCCMZsa4Fcf-pYirrqIpPws3VdZFYW3eo-2VDhH4y0I/edit?gid=1156050446#gid=1156050446" target="_blank" class="card">
+      <a rel="noopener noreferrer" data-internal href="https://docs.google.com/spreadsheets/d/1zCCMZsa4Fcf-pYirrqIpPws3VdZFYW3eo-2VDhH4y0I/edit?gid=1156050446#gid=1156050446" target="_blank" class="card">
         <div class="icon">🏭</div>
         <div>
           <h3>LOGBOOK ALAT LAB</h3>
           <p>Spreadsheet Google Sheets</p>
         </div>
       </a>
-      <a data-internal target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/12CArNFYDd0HzPs9nB-735EVE9pbyY3AatEq6xuG13W4/edit?gid=707316538#gid=707316538" class="card">
+      <a rel="noopener noreferrer" data-internal target="_blank" href="https://docs.google.com/spreadsheets/d/12CArNFYDd0HzPs9nB-735EVE9pbyY3AatEq6xuG13W4/edit?gid=707316538#gid=707316538" class="card">
         <div class="icon">🛰️</div>
         <div>
           <h3>FORM HASIL LAB PKM SANGA-SANGA</h3>
           <p>Spreadsheet Google Sheets</p>
         </div>
       </a>
-      <a href="https://drive.google.com/drive/folders/15PPx5AWBJ66Hf7Cwf3jChfQY-aADDKRw?usp=drive_link" target="_blank" class="card">
+      <a rel="noopener noreferrer" href="https://drive.google.com/drive/folders/15PPx5AWBJ66Hf7Cwf3jChfQY-aADDKRw?usp=drive_link" target="_blank" class="card">
         <div class="icon">🏪</div>
         <div>
           <h3>PROFIL LAB 2017-2019</h3>
           <p>Google Drive Folder</p>
         </div>
       </a>
-      <a href="https://drive.google.com/drive/folders/1LxOXeWpnMWY8SFb89Jv6JrLBKikapMYn?usp=drive_link" target="_blank" class="card">
+      <a rel="noopener noreferrer" href="https://drive.google.com/drive/folders/1LxOXeWpnMWY8SFb89Jv6JrLBKikapMYn?usp=drive_link" target="_blank" class="card">
         <div class="icon">🛰️</div>
         <div>
           <h3>FORM PEMETAAN LAB 2020-2025</h3>
@@ -712,56 +726,56 @@
       <i class="fa-solid fa-laptop-code"></i> APLIKASI & SISTEM INPUT PELAPORAN
     </div>
     <div class="horizontal-grid" data-group="aplikasi">
-      <a href="https://kutaikartanegara.epuskesmas.id/laboratorium" target="_blank" class="card">
+      <a rel="noopener noreferrer" href="https://kutaikartanegara.epuskesmas.id/laboratorium" target="_blank" class="card">
         <div class="icon">🖥️</div>
         <div>
           <h3>E PUSKESMAS</h3>
           <p>Sistem Informasi Puskesmas</p>
         </div>
       </a>
-      <a href="https://kalimantan.sitb.id/sitb2024/app" target="_blank" class="card">
+      <a rel="noopener noreferrer" href="https://kalimantan.sitb.id/sitb2024/app" target="_blank" class="card">
         <div class="icon">📋</div>
         <div>
           <h3>INPUT SITB</h3>
           <p>Sistem Informasi Tuberkulosis</p>
         </div>
       </a>
-      <a href="https://sihapims2.kemkes.go.id/home" target="_blank" class="card">
+      <a rel="noopener noreferrer" href="https://sihapims2.kemkes.go.id/home" target="_blank" class="card">
         <div class="icon">💉</div>
         <div>
           <h3>INPUT SIHA</h3>
           <p>Sistem Informasi HIV AIDS</p>
         </div>
       </a>
-      <a href="https://sihepi.kemkes.go.id/login" target="_blank" class="card">
+      <a rel="noopener noreferrer" href="https://sihepi.kemkes.go.id/login" target="_blank" class="card">
         <div class="icon">🧪</div>
         <div>
           <h3>INPUT SIHEPI</h3>
           <p>Sistem Hepatitis & PIMS</p>
         </div>
       </a>
-      <a data-internal href="https://docs.google.com/spreadsheets/d/1trrjzvtV7DNd8Iz-GWLps1plGz1XpPB9u20azQvE8yA/edit?gid=456419856#gid=456419856" target="_blank" class="card">
+      <a rel="noopener noreferrer" data-internal href="https://docs.google.com/spreadsheets/d/1trrjzvtV7DNd8Iz-GWLps1plGz1XpPB9u20azQvE8yA/edit?gid=456419856#gid=456419856" target="_blank" class="card">
         <div class="icon">🧫</div>
         <div>
           <h3>REGISTER TCM DAN FOLLOW UP</h3>
           <p>Spreadsheet Google Sheets</p>
         </div>
       </a>
-      <a href="http://etb12app.sitb.id/login" target="_blank" class="card">
+      <a rel="noopener noreferrer" href="http://etb12app.sitb.id/login" target="_blank" class="card">
         <div class="icon">🗂️</div>
         <div>
           <h3>ETB 12</h3>
           <p>Formulir Pelaporan TB</p>
         </div>
       </a>
-      <a data-internal href="https://docs.google.com/spreadsheets/d/1y-YBm1BIy4meDpYETcJHnM1T-uscCVfA/edit?gid=122836114#gid=122836114" target="_blank" class="card">
+      <a rel="noopener noreferrer" data-internal href="https://docs.google.com/spreadsheets/d/1y-YBm1BIy4meDpYETcJHnM1T-uscCVfA/edit?gid=122836114#gid=122836114" target="_blank" class="card">
         <div class="icon">🗂️</div>
         <div>
           <h3>REKAP TCM</h3>
           <p>Spreadsheet Google Sheets</p>
         </div>
       </a>
-      <a data-internal href="https://docs.google.com/spreadsheets/d/1RO7pH6r_HMorcMkvhyzXf0XaLW0fG208/edit?gid=725900174#gid=725900174" target="_blank" class="card">
+      <a rel="noopener noreferrer" data-internal href="https://docs.google.com/spreadsheets/d/1RO7pH6r_HMorcMkvhyzXf0XaLW0fG208/edit?gid=725900174#gid=725900174" target="_blank" class="card">
         <div class="icon">🗂️</div>
         <div>
           <h3>CAPAIAN HIV</h3>
@@ -775,21 +789,21 @@
       <i class="fa-solid fa-boxes-stacked"></i> STOK, PERALATAN & KONTROL MUTU
     </div>
     <div class="horizontal-grid" data-group="stok">
-      <a data-internal href="https://docs.google.com/spreadsheets/d/1cwQoPEtHT33xWXUfFA05P14LKhrZje438RFLBFmNRts/edit?gid=1152592586#gid=1152592586" target="_blank" class="card">
+      <a rel="noopener noreferrer" data-internal href="https://docs.google.com/spreadsheets/d/1cwQoPEtHT33xWXUfFA05P14LKhrZje438RFLBFmNRts/edit?gid=1152592586#gid=1152592586" target="_blank" class="card">
         <div class="icon">📦</div>
         <div>
           <h3>REKAP STOK, PENERIMAAN DAN PEMERIKSAAN LAB</h3>
           <p>Logistik & Reagensia</p>
         </div>
       </a>
-      <a data-internal href="https://docs.google.com/spreadsheets/d/1EjhqFF-AkdaHBIsNeOaozPOoH-36YYgIY3zCEk5oxm4/edit?gid=1160961274#gid=1160961274" target="_blank" class="card">
+      <a rel="noopener noreferrer" data-internal href="https://docs.google.com/spreadsheets/d/1EjhqFF-AkdaHBIsNeOaozPOoH-36YYgIY3zCEk5oxm4/edit?gid=1160961274#gid=1160961274" target="_blank" class="card">
         <div class="icon">📊</div>
         <div>
           <h3>PROJECT STANDAR DEVIASI</h3>
           <p>Kendali Mutu Lab</p>
         </div>
       </a>
-      <a data-internal href="https://script.google.com/macros/s/AKfycbyEiD91ZY6ji3D6DPpAOpQHqSSeXJNOTeuPkqSyiJIRXiS0378mK59qPWVU3zVj1sUo/exec?utm_source=google+appscript&utm_medium=social&utm_campaign=optional" target="_blank" class="card">
+      <a rel="noopener noreferrer" data-internal href="https://script.google.com/macros/s/AKfycbyEiD91ZY6ji3D6DPpAOpQHqSSeXJNOTeuPkqSyiJIRXiS0378mK59qPWVU3zVj1sUo/exec?utm_source=google+appscript&utm_medium=social&utm_campaign=optional" target="_blank" class="card">
         <div class="icon">🩺</div>
         <div>
           <h3>MEDICAL EQUIPMENT</h3>
@@ -803,49 +817,70 @@
       <i class="fa-solid fa-link"></i> PORTAL DAERAH & ORGANISASI PROFESI
     </div>
     <div class="horizontal-grid" data-group="link">
-      <a href="https://peci.kukarkab.go.id/login" target="_blank" class="card">
+      <a rel="noopener noreferrer" href="https://peci.kukarkab.go.id/login" target="_blank" class="card">
         <div class="icon">🔬</div>
         <div>
           <h3>SI PECI</h3>
           <p>Kutai Kartanegara</p>
         </div>
       </a>
-      <a href="https://bangkom.kukarkab.go.id/app/dashboard" target="_blank" class="card">
+      <a rel="noopener noreferrer" href="https://bangkom.kukarkab.go.id/app/dashboard" target="_blank" class="card">
         <div class="icon">🎓</div>
         <div>
           <h3>BANGKOM</h3>
           <p>Pengembangan Kompetensi</p>
         </div>
       </a>
-      <a href="https://s.id/link_pelaporan99" target="_blank" class="card">
+      <a rel="noopener noreferrer" href="https://s.id/link_pelaporan99" target="_blank" class="card">
         <div class="icon">🏛️</div>
         <div>
           <h3>LINK PKM SANGA-SANGA</h3>
           <p>Portal Pelaporan Puskesmas</p>
         </div>
       </a>
-      <a href="https://patelki.com/login" target="_blank" class="card">
+      <a rel="noopener noreferrer" href="https://patelki.com/login" target="_blank" class="card">
         <div class="icon">🏥</div>
         <div>
           <h3>SMART PATELKI</h3>
           <p>Organisasi Profesi ATLM</p>
         </div>
       </a>
-      <a href="https://satusehat.kemkes.go.id/sdmk/login" target="_blank" class="card">
+      <a rel="noopener noreferrer" href="https://satusehat.kemkes.go.id/sdmk/login" target="_blank" class="card">
         <div class="icon">🏬</div>
         <div>
           <h3>SATU SEHAT SDMK</h3>
           <p>SDM Kesehatan</p>
+      </div>
+      </a>
+      <a rel="noopener noreferrer" target="_blank" href="https://praktis.kukarkab.go.id/auth/login" class="card">
+        <div class="icon">🕓</div>
+        <div>
+          <h3>PRAKTIS</h3>
+          <p>Absen Praktis</p>
+       </div>
+      </a>
+      <a rel="noopener noreferrer" target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSd2yN1mApB1X_lkKVJ3ikE6SZlufOr5H5A4Nq57rMVd6EjHTg/viewform" class="card">
+        <div class="icon">🆕</div>
+        <div>
+          <h3>Reset Device</h3>
+          <p>Reset Aplikasi</p>
+      </div>
+      </a>
+      <a rel="noopener noreferrer" target="_blank" href="https://docs.google.com/spreadsheets/d/1z5GgDUQt2bkbeXnh4wAoKHW9QtAjob8uxui-lcOG6Iw/edit?gid=531613367#gid=531613367" class="card">
+        <div class="icon">⛱️</div>
+        <div>
+          <h3>Panduan Reset Praktis</h3>
+          <p>Q&A Praktis</p>
         </div>
       </a>
-      <a href="https://calendar.google.com/calendar/u/0/r" target="_blank" class="card">
+      <a rel="noopener noreferrer" href="https://calendar.google.com/calendar/u/0/r" target="_blank" class="card">
         <div class="icon">🚅</div>
         <div>
           <h3>Google Calendar</h3>
           <p>Catatan Kalender</p>
       </div>
       </a>
-      <a href="https://tasks.google.com/tasks/" target="_blank" class="card">
+      <a rel="noopener noreferrer" href="https://tasks.google.com/tasks/" target="_blank" class="card">
         <div class="icon">🚏</div>
         <div>
           <h3>Google Tasks</h3>
@@ -863,7 +898,6 @@
       <div class="section-title"><i class="fa-solid fa-chart-line"></i> RINGKASAN LAPORAN TAHUNAN LAB</div>
       <div class="kpi-grid">
         <div class="kpi"><small id="kpi1t">Total pemeriksaan</small><b id="kpi1">–</b><span id="kpi1s">&nbsp;</span></div>
-        <div class="kpi"><small id="kpi2t">Total kunjungan</small><b id="kpi2">–</b><span id="kpi2s">&nbsp;</span></div>
         <div class="kpi"><small>Pemeriksaan terbanyak</small><b id="kpi3" style="font-size:1.25rem">–</b><span id="kpi3s">&nbsp;</span></div>
         <div class="kpi"><small>Jenis pemeriksaan aktif</small><b id="kpi4">–</b><span id="kpi4s">&nbsp;</span></div>
       </div>
@@ -890,7 +924,7 @@
       </div>
       <div class="task-actions">
         <button class="task-btn primary" onclick="openModal('notesModal')"><i class="fa-solid fa-plus"></i> Tambah Tugas</button>
-        <a class="task-btn" href="https://tasks.google.com/tasks/" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> Google Tasks</a>
+        <a rel="noopener noreferrer" class="task-btn" href="https://tasks.google.com/tasks/" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> Google Tasks</a>
       </div>
     </div>
     <div class="task-summary-grid">
@@ -943,7 +977,9 @@
   <footer>
     <div class="footer-wrapper">
       <div class="footer-title">
-        <h4>UPTD Puskesmas Sanga-sanga</h4>
+        <h4>Unit Laboratorium UPTD Puskesmas Sanga-sanga</h4>
+        <p>Dinas Kesehatan Kutai Kartanegara</p>
+        <p>Dikelola oleh Andi Budiman, ATLM Puskesmas Sanga-sanga</p>
         <p>© 2026 Permata Lab — Kutai Kartanegara, Kalimantan Timur</p>
       </div>
 
@@ -982,13 +1018,14 @@
     // --- Lupa password ---
     // Kode pemulihan disimpan sebagai hash. Ganti dengan: sha256("recovery:KODEBARU")
     const RECOVERY_HASH = '1e59f876b43c54936c4db037df58217cde623762626f3f404824cbafca80a5f6';
-    const ADMIN_WA = '6285332735742';
-    const WA_TEXT = 'Halo Admin, saya lupa username/password PERMATA LAB. Mohon bantuannya.';
+    const ADMIN_EMAIL = 'labpkmsangasanga@gmail.com';
+    const MAIL_SUBJECT = 'Bantuan login PERMATA LAB';
+    const MAIL_TEXT = 'Halo Admin, saya lupa username/password PERMATA LAB. Mohon bantuannya.';
     const SEC_QUESTION = 'Apa kata rahasia lab? (tanya admin)';
     const SEC_ANSWER_HASH = 'b6925d7f31a029a3e90bb78fa58405d935509cf29494d311321ffd512dd634f1'; // sha256("answer:" + jawaban huruf kecil tanpa spasi)
     const normAns = a => a.toLowerCase().replace(/\s+/g, '');
     (function(){
-      const url = 'https://wa.me/' + ADMIN_WA + '?text=' + encodeURIComponent(WA_TEXT);
+      const url = 'mailto:' + ADMIN_EMAIL + '?subject=' + encodeURIComponent(MAIL_SUBJECT) + '&body=' + encodeURIComponent(MAIL_TEXT);
       ['waBtn','waLink'].forEach(id => { const el = document.getElementById(id); if (el) el.href = url; });
       const q = document.getElementById('rcQuestion'); if (q) q.textContent = SEC_QUESTION;
     })();
@@ -1144,28 +1181,25 @@
     // ===== Kontak & Tentang =====
     // ISI DATA RESMI DI SINI. Bagian yang dikosongkan otomatis tidak ditampilkan.
     const CONFIG = {
-      penanggungJawab: '',  // contoh: 'Nama, A.Md.AK'
-      jabatan: '',          // contoh: 'Koordinator Laboratorium'
-      whatsapp: ADMIN_WA,   // diambil dari ADMIN_WA di blok login
-      email: '',
+      penanggungJawab: 'Andi Budiman',  // pengelola portal
+      jabatan: 'ATLM Puskesmas Sanga-sanga',
+      email: ADMIN_EMAIL,   // diambil dari ADMIN_EMAIL di blok login
       instagram: '',        // alamat lengkap profil, https://instagram.com/...
       facebook: '',
       youtube: ''
     };
     (function(){
       const c = CONFIG, e = t => String(t).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
-      const wa = c.whatsapp ? 'https://wa.me/' + c.whatsapp.replace(/\D/g,'') : '';
-      const kontak = [];
-      if (c.penanggungJawab) kontak.push('<li>' + e(c.penanggungJawab) + (c.jabatan ? ', ' + e(c.jabatan) : '') + '</li>');
-      if (wa) kontak.push('<li><a href="' + e(wa) + '" target="_blank" rel="noopener">Hubungi admin via WhatsApp</a></li>');
+            const kontak = [];
+      if (c.penanggungJawab) kontak.push('<li>Dikelola oleh ' + e(c.penanggungJawab) + (c.jabatan ? ', ' + e(c.jabatan) : '') + '</li>');
       if (c.email) kontak.push('<li><a href="mailto:' + e(c.email) + '">' + e(c.email) + '</a></li>');
       let h = '<div class="info-card"><h3>Untuk siapa</h3><p>Petugas laboratorium dan tenaga kesehatan Puskesmas Sanga-sanga yang memerlukan data dan sistem pelaporan laboratorium.</p></div>' +
         '<div class="info-card"><h3>Keamanan data</h3><ul><li>Halaman ini tidak menyimpan data pasien.</li><li>Menu Internal hanya bisa dibuka dengan akun Google yang diizinkan.</li><li>Catatan harian tersimpan di browser perangkat Anda. Jangan menulis nama atau data pasien.</li></ul></div>';
       if (kontak.length) h += '<div class="info-card"><h3>Kontak</h3><ul>' + kontak.join('') + '</ul></div>';
       document.getElementById('aboutGrid').innerHTML = h;
-      const sosial = [['Facebook','fa-facebook',c.facebook],['Instagram','fa-instagram',c.instagram],['YouTube','fa-youtube',c.youtube],['WA','fa-whatsapp',wa]];
+      const sosial = [['Facebook','fa-facebook',c.facebook],['Instagram','fa-instagram',c.instagram],['YouTube','fa-youtube',c.youtube],['Email','fa-envelope',c.email ? 'mailto:' + c.email : '']];
       document.getElementById('socialBar').innerHTML = sosial.filter(x => x[2]).map(x =>
-        '<a href="' + e(x[2]) + '" target="_blank" rel="noopener" class="social-btn' + (x[0]==='WA'?' wa':'') + '"><i class="fa-brands ' + x[1] + '"></i> ' + x[0] + '</a>').join('');
+        '<a href="' + e(x[2]) + '" target="_blank" rel="noopener noreferrer" class="social-btn' + '' + '"><i class="fa-brands ' + x[1] + '"></i> ' + x[0] + '</a>').join('');
       applyFilters();
     })();
   </script>
@@ -1222,10 +1256,6 @@
     $('kpi1t').textContent='Total pemeriksaan '+yrs[yi];
     $('kpi1').textContent=fmt(tot);
     $('kpi1s').innerHTML=prev?('<span class="'+(tot>=prev?'up':'down')+'">'+(tot>=prev?'▲ ':'▼ ')+Math.abs((tot-prev)/prev*100).toFixed(1)+'%</span> dibanding '+yrs[yi-1]):'&nbsp;';
-    var v=d.visits[yi], pv=yi>0?d.visits[yi-1]:null;
-    $('kpi2t').textContent='Total kunjungan '+yrs[yi];
-    $('kpi2').textContent=fmt(v);
-    $('kpi2s').innerHTML=pv?('<span class="'+(v>=pv?'up':'down')+'">'+(v>=pv?'▲ ':'▼ ')+Math.abs((v-pv)/pv*100).toFixed(1)+'%</span> dibanding '+yrs[yi-1]):'&nbsp;';
     var ranked=d.exams.map(function(e){return {n:e[0],v:e[1][yi]};}).sort(function(a,b){return b.v-a.v;});
     $('kpi3').textContent=ranked[0].n; $('kpi3s').textContent=fmt(ranked[0].v)+' pemeriksaan';
     var act=ranked.filter(function(x){return x.v>0;}).length;
@@ -1369,6 +1399,55 @@ var PANDUAN = [
       if(!confirm('Impor akan menimpa catatan, tugas, dan favorit di perangkat ini. Lanjutkan?'))return;
       storeSet('permata_lab_notes',d.notes||'');saveLabTasks(d.tasks||[]);favs=d.favs||[];saveFav();renderTasksDashboard();renderFav();showToast('Backup berhasil dipulihkan.')
     }).catch(function(){showToast('File tidak valid. Pilih file backup Permata Lab (.json).','error')});e.target.value=''});
+})();
+</script>
+
+<script>
+(function(){
+  var cv=document.getElementById('nightSky'); if(!cv||!cv.getContext) return;
+  var cx=cv.getContext('2d'), W=0, H=0, stars=[], shoots=[], last=0, next=0;
+  var still=window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function size(){
+    var d=Math.min(window.devicePixelRatio||1,2);
+    W=innerWidth; H=innerHeight; cv.width=W*d; cv.height=H*d; cx.setTransform(d,0,0,d,0,0);
+    var n=Math.round(W*H/9000); stars=[];
+    for(var i=0;i<n;i++) stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+.2,a:Math.random()*6.28,s:Math.random()*.02+.005});
+  }
+  function spawn(){
+    var ang=Math.PI/4+(Math.random()-.5)*.35, sp=9+Math.random()*6;
+    shoots.push({x:Math.random()*W*1.1,y:-20+Math.random()*H*.3,vx:-Math.cos(ang)*sp,vy:Math.sin(ang)*sp,len:90+Math.random()*90,life:1});
+  }
+  function draw(t){
+    cx.clearRect(0,0,W,H);
+    for(var i=0;i<stars.length;i++){var q=stars[i]; q.a+=q.s;
+      cx.globalAlpha=.35+.55*Math.abs(Math.sin(q.a)); cx.fillStyle='#fff';
+      cx.beginPath(); cx.arc(q.x,q.y,q.r,0,6.283); cx.fill();}
+    if(!still){
+      if(t>next){ spawn(); next=t+1800+Math.random()*3500; }
+      for(var j=shoots.length-1;j>=0;j--){var m=shoots[j];
+        m.x+=m.vx; m.y+=m.vy; m.life-=.012;
+        var mag=Math.hypot(m.vx,m.vy), tx=m.x-m.vx/mag*m.len, ty=m.y-m.vy/mag*m.len;
+        var g=cx.createLinearGradient(m.x,m.y,tx,ty);
+        g.addColorStop(0,'rgba(255,255,255,'+Math.max(m.life,0)+')'); g.addColorStop(1,'rgba(255,255,255,0)');
+        cx.globalAlpha=1; cx.strokeStyle=g; cx.lineWidth=1.8; cx.lineCap='round';
+        cx.beginPath(); cx.moveTo(m.x,m.y); cx.lineTo(tx,ty); cx.stroke();
+        cx.fillStyle='rgba(255,255,255,'+Math.max(m.life,0)+')'; cx.beginPath(); cx.arc(m.x,m.y,1.8,0,6.283); cx.fill();
+        if(m.life<=0||m.x<-200||m.y>H+200) shoots.splice(j,1);}
+    }
+    cx.globalAlpha=1;
+  }
+  function loop(t){ draw(t); if(!still) requestAnimationFrame(loop); }
+  size(); addEventListener('resize',size); requestAnimationFrame(loop);
+})();
+</script>
+
+<script>
+// Semua tautan http/https (termasuk kartu favorit & yang dibuat lewat JS) dibuka di tab baru
+(function(){
+  function fix(a){var h=a.getAttribute('href')||'';if(/^https?:\/\//i.test(h)){a.target='_blank';a.rel='noopener noreferrer';}}
+  function all(){document.querySelectorAll('a[href]').forEach(fix);}
+  all();
+  new MutationObserver(all).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
 </body>

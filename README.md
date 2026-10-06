@@ -1,20 +1,12 @@
 # PERMATA LAB
-UPTD Puskesmas Sanga-sanga 2026
+Unit Laboratorium UPTD Puskesmas Sanga-sanga, Dinas Kesehatan Kutai Kartanegara
+Dikelola oleh Andi Budiman, ATLM Puskesmas Sanga-sanga
 
 Situs statis, dipublikasikan lewat GitHub Pages.
 Letakkan semua file di folder yang sama (index.html, PKM1.jpg, LOGO_PKM_SANGASANGA.jpg, _nojekyll).
 
-## Yang diatur admin (di index.html, cari "PENGATURAN TAMBAHAN")
-- DATA_DIPERBARUI : tanggal data laporan diperbarui admin (opsional)
+## Yang diatur admin (di index.html)
+- ADMIN_EMAIL     : email admin untuk tombol "Hubungi Admin" (labpkmsangasanga@gmail.com)
+- CONFIG          : nama pengelola, jabatan, dan email yang tampil di Tentang & footer
+- DATA_DIPERBARUI : tanggal data laporan diperbarui admin (opsional), cari "PENGATURAN TAMBAHAN"
 - PANDUAN         : isi panduan / SOP
-- STOK_CSV        : link CSV publik dari tab ringkasan stok
-- STOK_DATA       : alternatif, ketik manual bila tidak memakai Google Sheets
-
-## Peringatan ketersediaan reagen (kedaluwarsa tidak dipakai)
-Kolom di tab ringkasan (baris pertama, huruf kecil): nama, stok, min, satuan, keterangan
-- Jika "keterangan" berisi kata "order"/"habis" -> tampil sebagai peringatan
-- Jika "keterangan" berisi "aman" -> dianggap aman
-- Jika "keterangan" kosong -> peringatan dihitung dari stok <= min, atau stok 0
-Nama kolom alternatif juga dikenali: "nama reagen", "stok akhir".
-
-Login, kode pemulihan, dan nomor WhatsApp admin (ADMIN_WA) tidak diubah.
