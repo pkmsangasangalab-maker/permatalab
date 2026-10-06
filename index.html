@@ -898,12 +898,13 @@
       <div class="section-title"><i class="fa-solid fa-chart-line"></i> RINGKASAN LAPORAN TAHUNAN LAB</div>
       <div class="kpi-grid">
         <div class="kpi"><small id="kpi1t">Total pemeriksaan</small><b id="kpi1">–</b><span id="kpi1s">&nbsp;</span></div>
+        <div class="kpi"><small id="kpi2t">Total kunjungan</small><b id="kpi2">–</b><span id="kpi2s">&nbsp;</span></div>
         <div class="kpi"><small>Pemeriksaan terbanyak</small><b id="kpi3" style="font-size:1.25rem">–</b><span id="kpi3s">&nbsp;</span></div>
         <div class="kpi"><small>Jenis pemeriksaan aktif</small><b id="kpi4">–</b><span id="kpi4s">&nbsp;</span></div>
       </div>
       <div class="chart-grid">
         <div class="chart-card">
-          <div class="chart-head"><h3>Tren Tahunan: Total Pemeriksaan</h3></div>
+          <div class="chart-head"><h3>Tren Tahunan: Pemeriksaan &amp; Kunjungan</h3></div>
           <div class="chart-box"><canvas id="chTren"></canvas></div>
         </div>
         <div class="chart-card">
@@ -1215,6 +1216,7 @@
   var YEARS=[2017,2018,2019,2020,2021,2022,2023,2024,2025];
   var FALLBACK={
     exams:[["Darah Lengkap",[558,1260,1560,755,645,769,1105,1471,935]],["HB",[287,1260,1580,288,247,282,795,733,620]],["Gula Darah Sewaktu",[585,578,626,425,386,474,1564,1807,1132]],["Gula Darah Puasa",[28,156,189,80,140,243,297,346,521]],["Gula Darah 2 JPP",[1,7,17,71,3,28,13,12,1]],["Asam Urat",[401,670,635,456,266,487,1134,1348,471]],["Kolesterol",[495,672,779,455,261,593,1102,1363,821]],["Golongan Darah",[282,267,525,557,368,299,502,387,329]],["Widal",[390,422,682,181,101,125,143,145,63]],["Tes Kehamilan",[119,147,305,286,248,239,297,573,278]],["HbsAg",[373,336,613,567,490,556,535,626,472]],["Anti HIV",[373,368,578,436,446,570,534,532,478]],["Sifilis",[49,60,373,552,508,522,510,532,450]],["Rapid Ag Covid-19",[0,0,0,0,0,768,78,2,0]],["Malaria RDT",[0,0,0,12,22,0,64,0,23]],["TCM",[0,0,0,50,46,46,239,0,479]],["BTA Follow Up",[30,50,29,44,50,50,42,44,38]],["Napza 1 Parameter",[260,313,356,283,106,464,0,0,0]],["Napza 3 Parameter",[0,0,0,6,0,0,422,210,741]],["3 Parameter (Urine Rutin)",[320,239,374,450,377,376,445,559,449]],["10 Parameter (Urine Lengkap)",[51,71,99,113,71,124,110,93,68]],["Sedimen Urin",[51,71,92,108,68,107,68,66,59]]],
+    visits:[2148,2360,3392,4850,4309,3698,4192,4690,3542]
   };
   var fmt=function(n){return Number(n).toLocaleString('id-ID');};
   var charts={}, D=FALLBACK, $=function(id){return document.getElementById(id);};
@@ -1238,8 +1240,9 @@
       if(/wilayah|kunjungan/i.test(rows[i][1]))continue;
       exams.push([rows[i][1].trim(), cols.map(function(k){return num(rows[i][k]);})]);
     }
-    if(!exams.length) throw new Error('data tidak lengkap');
-    return {years:yrs, exams:exams};
+    var tv=rows.find(function(r){return /^total kunjungan/i.test((r[1]||'').trim());});
+    if(!exams.length||!tv) throw new Error('data tidak lengkap');
+    return {years:yrs, exams:exams, visits:cols.map(function(k){return num(tv[k]);})};
   }
 
   function sumYear(d,yi){return d.exams.reduce(function(a,e){return a+e[1][yi];},0);}
@@ -1254,6 +1257,10 @@
     $('kpi1t').textContent='Total pemeriksaan '+yrs[yi];
     $('kpi1').textContent=fmt(tot);
     $('kpi1s').innerHTML=prev?('<span class="'+(tot>=prev?'up':'down')+'">'+(tot>=prev?'▲ ':'▼ ')+Math.abs((tot-prev)/prev*100).toFixed(1)+'%</span> dibanding '+yrs[yi-1]):'&nbsp;';
+    var v=d.visits[yi], pv=yi>0?d.visits[yi-1]:null;
+    $('kpi2t').textContent='Total kunjungan '+yrs[yi];
+    $('kpi2').textContent=fmt(v);
+    $('kpi2s').innerHTML=pv?('<span class="'+(v>=pv?'up':'down')+'">'+(v>=pv?'▲ ':'▼ ')+Math.abs((v-pv)/pv*100).toFixed(1)+'%</span> dibanding '+yrs[yi-1]):'&nbsp;';
     var ranked=d.exams.map(function(e){return {n:e[0],v:e[1][yi]};}).sort(function(a,b){return b.v-a.v;});
     $('kpi3').textContent=ranked[0].n; $('kpi3s').textContent=fmt(ranked[0].v)+' pemeriksaan';
     var act=ranked.filter(function(x){return x.v>0;}).length;
@@ -1264,7 +1271,8 @@
     var grid={color:'rgba(255,255,255,.08)'};
     if(charts.tren) charts.tren.destroy(); if(charts.top) charts.top.destroy();
     charts.tren=new Chart($('chTren'),{data:{labels:yrs,datasets:[
-      {type:'bar',label:'Total pemeriksaan',data:totals,backgroundColor:yrs.map(function(_,i){return i==yi?'#38bdf8':'rgba(56,189,248,.45)';}),borderRadius:6,order:2}]},
+      {type:'bar',label:'Total pemeriksaan',data:totals,backgroundColor:yrs.map(function(_,i){return i==yi?'#38bdf8':'rgba(56,189,248,.45)';}),borderRadius:6,order:2},
+      {type:'line',label:'Total kunjungan',data:d.visits,borderColor:'#10b981',backgroundColor:'#10b981',tension:.3,pointRadius:4,order:1}]},
       options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
         scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:grid,ticks:{callback:fmt}}},
         plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmt(c.parsed.y);}}}}}});
