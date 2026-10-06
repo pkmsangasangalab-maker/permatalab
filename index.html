@@ -1536,16 +1536,17 @@ var PANDUAN = [
   }
   function load(){
     $('stokNote').textContent='Memuat data…';
-    fetch(URL_CSV+'&_='+Date.now()).then(function(r){if(!r.ok)throw 0;return r.text();}).then(function(t){
-      var d=parse(csv(t)); if(!d.length)throw 0;
+    fetch(URL_CSV+'&_='+Date.now()).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();}).then(function(t){
+      if(/^\s*</.test(t))throw new Error('Google meminta login, sheet belum publik');
+      var d=parse(csv(t)); if(!d.length)throw new Error('baris PERIODE/Nama Reagen tidak terbaca, '+t.length+' karakter diterima');
       var keep=bulan.length?$('stokBulan').selectedIndex:-1; bulan=d;
       $('stokBulan').innerHTML=d.map(function(x,i){return '<option>'+esc(x.name)+'</option>';}).join('');
       var def=d.length-1; for(var i=d.length-1;i>=0;i--){if(d[i].items.some(function(x){return x.o>0||x.i>0;})){def=i;break;}}
       $('stokBulan').selectedIndex=keep>=0&&keep<d.length?keep:def; render();
       $('stokNote').innerHTML='Diperbarui '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+' dari Google Sheets. <a href="'+URL_SHEET+'" target="_blank" rel="noopener noreferrer">Buka spreadsheet</a>';
       loaded=true;
-    }).catch(function(){
-      $('stokNote').innerHTML='Data stok gagal dimuat. Pastikan sheet bisa dilihat siapa pun yang punya link. <a href="'+URL_SHEET+'" target="_blank" rel="noopener noreferrer">Buka spreadsheet</a>';
+    }).catch(function(e){
+      $('stokNote').innerHTML='Data stok gagal dimuat ['+esc(e&&e.message?e.message:'gagal terhubung')+']. Pastikan sheet bisa dilihat siapa pun yang punya link. <a href="'+URL_SHEET+'" target="_blank" rel="noopener noreferrer">Buka spreadsheet</a>';
     });
   }
   function sync(){
