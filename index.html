@@ -582,6 +582,21 @@
     .task-meta{display:block;font-size:.68rem;color:var(--text-sub);margin-top:2px}.task-meta .late{color:#f87171;font-weight:700}.pr-Tinggi{color:#f87171}.pr-Sedang{color:#fbbf24}
     .task-delete{background:none;border:none;color:#94a3b8;cursor:pointer;font-size:.9rem}
     @media(max-width:760px){.task-form{grid-template-columns:1fr 1fr}.task-form input:first-child{grid-column:1/-1}}
+
+    /* ===== Tampilan awal = dashboard saja; menu & alat kerja hanya di Mode petugas ===== */
+    body:not(.staff) .staff-only,
+    body:not(.staff) .section-title[data-category],
+    body:not(.staff) .horizontal-grid[data-group],
+    body:not(.staff) #favWrap,
+    body:not(.staff) #emptyMsg { display:none !important; }
+    .chart-note { font-size:.72rem; color:var(--text-sub); margin-top:8px; }
+    .chart-card.wide { grid-column:1 / -1; }
+    .stok-charts { display:grid; grid-template-columns:1fr; gap:16px; margin:14px 0; }
+    @media(min-width:992px){ .stok-charts { grid-template-columns:1fr 1fr; } }
+    .stok-charts .chart-card { background:rgba(255,255,255,.04); }
+    .stok-charts .chart-box { height:270px; }
+    .chart-head select { background:rgba(255,255,255,.08); border:1px solid var(--glass-border); color:var(--text-light); border-radius:8px; padding:6px 10px; font-size:.82rem; max-width:100%; }
+    .chart-head select option { color:#0f172a; }
 </style>
 </head>
 <body class="locked">
@@ -643,7 +658,7 @@
       <div class="header-actions">
         <a class="btn-action" href="#tentang" style="text-decoration:none">ℹ️ Tentang</a>
         <button class="btn-action" id="staffBtn" onclick="toggleStaff()">🔒 Mode petugas</button>
-        <button class="btn-action sky" onclick="openModal('notesModal')">
+        <button class="btn-action sky staff-only" onclick="openModal('notesModal')">
           <i class="fa-solid fa-note-sticky"></i> Catatan Harian
         </button>
         <button class="btn-action logout" onclick="doLogout()">
@@ -656,7 +671,7 @@
   <div class="dashboard-container">
 
     <!-- Control & Search Panel -->
-    <div class="control-panel">
+    <div class="control-panel staff-only">
       <div class="search-box">
         <i class="fa-solid fa-magnifying-glass"></i>
         <input type="text" id="searchInput" oninput="filterCards()" placeholder="Cari laporan, aplikasi, TCM, SITB, stok...">
@@ -927,6 +942,7 @@
         <div class="kpi"><small id="kpi2t">Total kunjungan</small><b id="kpi2">–</b><span id="kpi2s">&nbsp;</span></div>
         <div class="kpi"><small>Pemeriksaan terbanyak</small><b id="kpi3" style="font-size:1.25rem">–</b><span id="kpi3s">&nbsp;</span></div>
         <div class="kpi"><small>Jenis pemeriksaan aktif</small><b id="kpi4">–</b><span id="kpi4s">&nbsp;</span></div>
+        <div class="kpi"><small id="kpi5t">Pemeriksaan per kunjungan</small><b id="kpi5">–</b><span id="kpi5s">&nbsp;</span></div>
       </div>
       <div class="chart-grid">
         <div class="chart-card">
@@ -937,11 +953,30 @@
           <div class="chart-head"><h3>10 Jenis Pemeriksaan Terbanyak</h3><select id="yearSel" aria-label="Pilih tahun"></select></div>
           <div class="chart-box"><canvas id="chTop"></canvas></div>
         </div>
+        <div class="chart-card wide">
+          <div class="chart-head"><h3>Tren per Jenis Pemeriksaan</h3><select id="examSel" aria-label="Pilih jenis pemeriksaan"></select></div>
+          <div class="chart-box"><canvas id="chExam"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-head"><h3>Rasio Pemeriksaan per Kunjungan</h3></div>
+          <div class="chart-box"><canvas id="chRasio"></canvas></div>
+          <p class="chart-note">Rata-rata jumlah pemeriksaan yang diterima tiap kunjungan pasien. Garis putus-putus = rata-rata seluruh tahun.</p>
+        </div>
+        <div class="chart-card">
+          <div class="chart-head"><h3 id="kelTitle">Komposisi Kelompok Pemeriksaan</h3></div>
+          <div class="chart-box"><canvas id="chKel"></canvas></div>
+          <p class="chart-note">Mengikuti tahun yang dipilih di grafik "10 Jenis Pemeriksaan Terbanyak".</p>
+        </div>
+        <div class="chart-card wide">
+          <div class="chart-head"><h3>Tren Kelompok Pemeriksaan per Tahun</h3></div>
+          <div class="chart-box"><canvas id="chKelTren"></canvas></div>
+          <p class="chart-note">Kelompok: Hematologi, Kimia Klinik, Urinalisis, Imunoserologi &amp; Skrining, TB. Jenis pemeriksaan baru yang belum dikelompokkan masuk "Lainnya".</p>
+        </div>
       </div>
       <p id="ringkasanNote">Memuat data…</p>
     </div>
 
-    <!-- Stok reagensia (hanya Mode petugas) -->
+    <!-- Stok reagensia (dashboard, tampil di tampilan awal) -->
     <section id="stokLive">
       <div class="section-title"><i class="fa-solid fa-boxes-stacked"></i> STOK REAGENSIA (DATA LANGSUNG)</div>
       <div class="chart-card">
@@ -950,9 +985,19 @@
           <input id="stokCari" autocomplete="off" type="search" placeholder="Cari nama reagen…">
           <select id="stokStatus" autocomplete="off" aria-label="Filter status"><option value="">Semua status</option><option value="Order">Perlu order</option><option value="Habis">Habis</option><option value="Aman">Aman</option></select>
           <button class="btn-action" id="stokMuat" type="button">🔄 Muat ulang</button>
-          <button class="btn-action sky" id="stokSalin" type="button">📋 Salin daftar order</button>
+          <button class="btn-action sky staff-only" id="stokSalin" type="button">📋 Salin daftar order</button>
         </div>
-        <div class="stok-kpi"><span>Jenis reagen: <b id="stokN">–</b></span><span>Habis: <b id="stokH">–</b></span><span>Perlu order: <b id="stokM">–</b></span></div>
+        <div class="stok-kpi"><span>Jenis reagen: <b id="stokN">–</b></span><span>Habis: <b id="stokH">–</b></span><span>Perlu order: <b id="stokM">–</b></span><span>Aman: <b id="stokA">–</b></span></div>
+        <div class="stok-charts">
+          <div class="chart-card"><div class="chart-head"><h3>Status Stok Reagen</h3></div><div class="chart-box"><canvas id="chStokStatus"></canvas></div></div>
+          <div class="chart-card"><div class="chart-head"><h3>10 Reagen Paling Kritis (stok akhir dibanding buffer)</h3></div><div class="chart-box"><canvas id="chStokKritis"></canvas></div></div>
+        </div>
+        <div class="stok-charts">
+          <div class="chart-card"><div class="chart-head"><h3>Pemakaian Bulanan per Reagen</h3><select id="stokReagen" aria-label="Pilih reagen"></select></div><div class="chart-box"><canvas id="chStokPakai"></canvas></div>
+            <p class="chart-note">Keluar = pemakaian, Masuk = penerimaan, garis = stok akhir tiap bulan.</p></div>
+          <div class="chart-card"><div class="chart-head"><h3>Perkiraan Stok Cukup (bulan) – 10 Terendah</h3></div><div class="chart-box"><canvas id="chStokCover"></canvas></div>
+            <p class="chart-note" id="stokCoverNote">Stok akhir dibagi rata-rata pemakaian 3 bulan terakhir, untuk bulan yang dipilih.</p></div>
+        </div>
         <div class="stok-wrap"><table id="stokTbl"><thead><tr><th>Nama reagen</th><th>Sumber</th><th class="num">Stok awal</th><th class="num">Masuk</th><th class="num">Keluar</th><th class="num">Stok akhir</th><th class="num">Buffer</th><th>Status</th></tr></thead><tbody></tbody></table></div>
         <p id="stokNote">Memuat data…</p>
       </div>
@@ -960,7 +1005,7 @@
 
 
   <!-- Dashboard Tasks -->
-  <section id="tasksDashboard" class="tasks-dashboard">
+  <section id="tasksDashboard" class="tasks-dashboard staff-only">
     <div class="tasks-dashboard-head">
       <div>
         <div class="section-title" style="margin-bottom:6px;"><i class="fa-solid fa-list-check"></i> DASHBOARD TASKS LAB</div>
@@ -983,6 +1028,7 @@
   </section>
 
 
+    <div class="staff-only">
     <!-- Backup -->
     <div class="section-title">💾 BACKUP & IMPOR CATATAN</div>
     <div class="info-card" style="margin-bottom:20px"><p style="margin-bottom:10px">Catatan harian, tugas, dan favorit tersimpan di browser perangkat ini. Ekspor backup secara berkala, lalu impor di perangkat lain untuk memindahkan data. <b id="backupInfo"></b></p>
@@ -990,6 +1036,7 @@
     <!-- Panduan -->
     <div class="section-title">📘 PANDUAN</div>
     <div class="guide" id="guideBox" style="margin-bottom:20px"></div>
+    </div>
     <!-- Tentang -->
     <div class="section-title" id="tentang">ℹ️ TENTANG PERMATA LAB</div>
     <p class="about-intro">Portal kerja Laboratorium UPTD Puskesmas Sanga-sanga untuk membuka laporan, sistem input, stok reagensia, dan kendali mutu dari satu halaman.</p>
@@ -1186,6 +1233,7 @@
     }
     function toggleStaff() {
       _staff = !_staff;
+      document.body.classList.toggle('staff', _staff);
       document.getElementById('staffNotice').style.display = _staff ? 'block' : 'none';
       document.getElementById('staffBtn').textContent = _staff ? '🔓 Mode petugas aktif' : '🔒 Mode petugas';
       applyFilters();
@@ -1288,6 +1336,11 @@
     return {years:yrs, exams:exams, visits:cols.map(function(k){return num(tv[k]);})};
   }
 
+  // Pengelompokan jenis pemeriksaan (ubah di sini bila perlu). Urutan penting: yang cocok lebih dulu dipakai.
+  var KELOMPOK=[['Hematologi',/darah lengkap|^hb$|golongan darah/i],['Kimia Klinik',/gula darah|asam urat|kolesterol/i],
+    ['Urinalisis',/\(urine|sedimen/i],['Imunoserologi & Skrining',/widal|kehamilan|hbsag|hiv|sifilis|covid|malaria|napza/i],['TB (TCM & BTA)',/tcm|bta/i]];
+  var WARNA=['#38bdf8','#10b981','#f59e0b','#a78bfa','#fb7185','#94a3b8'];
+  function kelompok(n){for(var i=0;i<KELOMPOK.length;i++){if(KELOMPOK[i][1].test(n))return KELOMPOK[i][0];}return 'Lainnya';}
   function sumYear(d,yi){return d.exams.reduce(function(a,e){return a+e[1][yi];},0);}
 
   function render(d,live){
@@ -1324,12 +1377,45 @@
       options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
         scales:{x:{beginAtZero:true,grid:grid,ticks:{callback:fmt}},y:{grid:{display:false}}},
         plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return fmt(c.parsed.x)+' pemeriksaan';}}}}}});
+    /* ---- Rasio pemeriksaan per kunjungan ---- */
+    var rat=yrs.map(function(_,i){return d.visits[i]>0?totals[i]/d.visits[i]:0;});
+    var ratOk=rat.filter(function(x){return x>0;}), avgR=ratOk.length?ratOk.reduce(function(a,b){return a+b;},0)/ratOk.length:0;
+    var f2=function(n){return Number(n).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2});};
+    $('kpi5t').textContent='Pemeriksaan per kunjungan '+yrs[yi];
+    $('kpi5').textContent=f2(rat[yi]);
+    $('kpi5s').innerHTML=(yi>0&&rat[yi-1]>0)?('<span class="'+(rat[yi]>=rat[yi-1]?'up':'down')+'">'+(rat[yi]>=rat[yi-1]?'▲ ':'▼ ')+Math.abs(rat[yi]-rat[yi-1]).toFixed(2).replace('.',',')+'</span> dibanding '+yrs[yi-1]):'&nbsp;';
+    if(charts.rasio) charts.rasio.destroy();
+    charts.rasio=new Chart($('chRasio'),{data:{labels:yrs,datasets:[
+      {type:'bar',label:'Pemeriksaan per kunjungan',data:rat,backgroundColor:yrs.map(function(_,i){return i==yi?'#a78bfa':'rgba(167,139,250,.45)';}),borderRadius:6,order:2},
+      {type:'line',label:'Rata-rata semua tahun',data:yrs.map(function(){return avgR;}),borderColor:'#f59e0b',borderDash:[6,5],pointRadius:0,borderWidth:2,order:1}]},
+      options:{responsive:true,maintainAspectRatio:false,scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:grid}},
+        plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+f2(c.parsed.y);}}}}}});
+    /* ---- Kelompok pemeriksaan ---- */
+    var gNames=[], gData={};
+    d.exams.forEach(function(e){var g=kelompok(e[0]); if(!gData[g]){gData[g]=yrs.map(function(){return 0;});gNames.push(g);} e[1].forEach(function(v,i){gData[g][i]+=v;});});
+    var order=KELOMPOK.map(function(k){return k[0];}).concat(['Lainnya']).filter(function(n){return gData[n];});
+    $('kelTitle').textContent='Komposisi Kelompok Pemeriksaan '+yrs[yi];
+    if(charts.kel) charts.kel.destroy(); if(charts.kelTren) charts.kelTren.destroy();
+    charts.kel=new Chart($('chKel'),{type:'doughnut',data:{labels:order,datasets:[{data:order.map(function(n){return gData[n][yi];}),backgroundColor:order.map(function(n,i){return WARNA[i%WARNA.length];}),borderWidth:0}]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:function(c){var t=c.dataset.data.reduce(function(a,b){return a+b;},0);return c.label+': '+fmt(c.parsed)+(t?' ('+(c.parsed/t*100).toFixed(1).replace('.',',')+'%)':'');}}}}}});
+    charts.kelTren=new Chart($('chKelTren'),{type:'bar',data:{labels:yrs,datasets:order.map(function(n,i){return {label:n,data:gData[n],backgroundColor:WARNA[i%WARNA.length],borderRadius:3};})},
+      options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,beginAtZero:true,grid:grid,ticks:{callback:fmt}}},
+        plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmt(c.parsed.y);}}}}}});
+    var es=$('examSel'), curE=es.value;
+    es.innerHTML=''; ranked.forEach(function(x){var o=document.createElement('option');o.value=x.n;o.textContent=x.n;es.appendChild(o);});
+    if(curE&&ranked.some(function(x){return x.n===curE;}))es.value=curE;
+    var ex=d.exams.filter(function(e){return e[0]===es.value;})[0]||d.exams[0];
+    if(charts.exam) charts.exam.destroy();
+    charts.exam=new Chart($('chExam'),{type:'line',data:{labels:yrs,datasets:[{label:ex[0],data:ex[1],borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,.18)',fill:true,tension:.3,pointRadius:4}]},
+      options:{responsive:true,maintainAspectRatio:false,scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:grid,ticks:{callback:fmt}}},
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return fmt(c.parsed.y)+' pemeriksaan';}}}}}});
     $('ringkasanNote').textContent=(live?'Data langsung dari Google Sheets "Laporan Tahunan Lab".':'Menampilkan data cadangan (sheet tidak dapat dimuat).')+' Periode '+yrs[0]+'–'+yrs[last]+'. '+(live?'Dimuat: '+new Date().toLocaleString('id-ID')+'.':'')+(window.DATA_DIPERBARUI?' Data diperbarui admin: '+window.DATA_DIPERBARUI+'.':'');
   }
 
   FALLBACK.years=YEARS; FALLBACK.exams=FALLBACK.exams.filter(function(e){return !/wilayah/i.test(e[0]);});
   FALLBACK.years=YEARS; FALLBACK.exams=FALLBACK.exams.map(function(e){return [e[0],e[1]];});
   $('yearSel').addEventListener('change',function(){render(D,D.live);});
+  $('examSel').addEventListener('change',function(){render(D,D.live);});
   render(D,false);
   fetch(CSV_URL).then(function(r){if(!r.ok)throw new Error(r.status);return r.text();})
     .then(function(t){D=fromRows(parseCSV(t));D.live=true;render(D,true);})
@@ -1378,6 +1464,7 @@
    ===================================================================== */
 window.DATA_DIPERBARUI = '';   // contoh: '5 Oktober 2026' (tanggal data laporan terakhir diperbarui admin)
 var PANDUAN = [
+  {t:'Tampilan awal dan Mode petugas', b:'Tampilan awal hanya menampilkan dashboard (laporan tahunan dan stok reagensia). Klik Mode petugas untuk memunculkan menu link, pencarian, favorit, Dashboard Tasks, Catatan Harian, backup, dan panduan ini.'},
   {t:'Cara memakai portal ini', b:'Klik kartu menu untuk membuka laporan atau sistem. Klik bintang di kartu untuk menyimpannya ke Favorit. Gunakan kotak cari atau tombol kategori untuk mempersempit menu.'},
   {t:'Di mana catatan dan tugas tersimpan?', b:'Di browser perangkat yang dipakai. Gunakan Ekspor backup secara rutin, lalu Impor backup untuk memulihkan atau memindahkan data ke perangkat lain.'},
   {t:'Tugas berulang', b:'Pilih Harian, Mingguan, atau Bulanan saat menambah tugas. Saat dicentang selesai, tenggatnya otomatis maju ke jadwal berikutnya.'}
@@ -1557,6 +1644,63 @@ var PANDUAN = [
       rows+='<tr><td>'+esc(x.n)+'</td><td>'+esc(x.s)+'</td><td class="num">'+x.a+'</td><td class="num">'+x.i+'</td><td class="num">'+x.o+'</td><td class="num"><b>'+x.e+'</b></td><td class="num">'+(x.b==null?'–':x.b)+'</td><td><span class="stok-badge st-'+st.toLowerCase().replace(/\s/g,'')+'">'+st+'</span></td></tr>';});
     $('stokTbl').tBodies[0].innerHTML=rows||'<tr><td colspan="8">Tidak ada reagen yang cocok.</td></tr>';
     $('stokN').textContent=m.items.length; $('stokH').textContent=h; $('stokM').textContent=w;
+    $('stokA').textContent=m.items.filter(function(x){return status(x)==='Aman';}).length;
+    charts(m); usage();
+  }
+  var sc={};
+  function charts(m){
+    if(typeof Chart==='undefined')return;
+    var cnt={'Habis':0,'Order':0,'Aman':0,'Tanpa buffer':0};
+    m.items.forEach(function(x){cnt[status(x)]++;});
+    var names=Object.keys(cnt).filter(function(k){return cnt[k]>0;});
+    var col={'Habis':'#ef4444','Order':'#f59e0b','Aman':'#10b981','Tanpa buffer':'#94a3b8'};
+    if(sc.s)sc.s.destroy(); if(sc.k)sc.k.destroy();
+    sc.s=new Chart($('chStokStatus'),{type:'doughnut',data:{labels:names,datasets:[{data:names.map(function(k){return cnt[k];}),backgroundColor:names.map(function(k){return col[k];}),borderWidth:0}]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:function(c){return c.label+': '+c.parsed+' reagen';}}}}}});
+    var kr=m.items.filter(function(x){return x.b>0;}).map(function(x){return {n:x.n,e:x.e,b:x.b,p:Math.round(x.e/x.b*100)};})
+      .sort(function(a,b){return a.p-b.p;}).slice(0,10);
+    sc.k=new Chart($('chStokKritis'),{type:'bar',data:{labels:kr.map(function(x){return x.n;}),datasets:[{label:'Stok akhir sebagai % dari buffer',data:kr.map(function(x){return x.p;}),
+        backgroundColor:kr.map(function(x){return x.p<=0?'#ef4444':x.p<=100?'#f59e0b':'#10b981';}),borderRadius:5}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,scales:{x:{beginAtZero:true,grid:{color:'rgba(255,255,255,.08)'},ticks:{callback:function(v){return v+'%';}}},y:{grid:{display:false}}},
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var x=kr[c.dataIndex];return 'Stok '+x.e+' dari buffer '+x.b+' ('+x.p+'%)';}}}}}});
+  }
+  function rkey(x){return x.n+'|'+x.s;}
+  function fillReagen(){
+    var seen={},list=[],cnt={},tot={};
+    bulan.forEach(function(m){m.items.forEach(function(x){var k=rkey(x);
+      if(!seen[k]){seen[k]=1;list.push({k:k,n:x.n,s:x.s});cnt[x.n]=(cnt[x.n]||0)+1;tot[k]=0;} tot[k]+=x.o;});});
+    list.sort(function(a,b){return a.n.localeCompare(b.n);});
+    var sel=$('stokReagen'), cur=sel.value, best=null;
+    list.forEach(function(l){if(best===null||tot[l.k]>tot[best])best=l.k;});
+    sel.innerHTML=list.map(function(l){return '<option value="'+esc(l.k)+'">'+esc(l.n+(cnt[l.n]>1?' ('+l.s+')':''))+'</option>';}).join('');
+    sel.value=(cur&&seen[cur])?cur:(best||'');
+  }
+  var su={};
+  function usage(){
+    if(typeof Chart==='undefined'||!bulan.length)return;
+    var k=$('stokReagen').value, lab=bulan.map(function(m){return m.name;}), o=[],i=[],e=[];
+    bulan.forEach(function(m){var x=m.items.filter(function(y){return rkey(y)===k;})[0]; o.push(x?x.o:null);i.push(x?x.i:null);e.push(x?x.e:null);});
+    var grid={color:'rgba(255,255,255,.08)'};
+    if(su.p)su.p.destroy(); if(su.c)su.c.destroy();
+    su.p=new Chart($('chStokPakai'),{data:{labels:lab,datasets:[
+      {type:'bar',label:'Keluar (pemakaian)',data:o,backgroundColor:'#f59e0b',borderRadius:4,order:2},
+      {type:'bar',label:'Masuk',data:i,backgroundColor:'#38bdf8',borderRadius:4,order:2},
+      {type:'line',label:'Stok akhir',data:e,borderColor:'#10b981',backgroundColor:'#10b981',tension:.3,pointRadius:3,order:1}]},
+      options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:grid}},plugins:{legend:{position:'bottom'}}}});
+    var mi=$('stokBulan').selectedIndex; if(mi<0)return;
+    var cur=bulan[mi], cv=[];
+    cur.items.forEach(function(x){
+      var kk=rkey(x), use=[];
+      for(var j=Math.max(0,mi-2);j<=mi;j++){var y=bulan[j].items.filter(function(z){return rkey(z)===kk;})[0]; if(y)use.push(y.o);}
+      var avg=use.length?use.reduce(function(a,b){return a+b;},0)/use.length:0;
+      if(avg>0)cv.push({n:x.n,c:Math.max(0,x.e)/avg,e:x.e,a:avg});
+    });
+    cv.sort(function(a,b){return a.c-b.c;}); cv=cv.slice(0,10);
+    su.c=new Chart($('chStokCover'),{type:'bar',data:{labels:cv.map(function(x){return x.n;}),datasets:[{label:'Perkiraan cukup (bulan)',data:cv.map(function(x){return Math.round(x.c*10)/10;}),
+        backgroundColor:cv.map(function(x){return x.c<1?'#ef4444':x.c<2?'#f59e0b':'#10b981';}),borderRadius:5}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,scales:{x:{beginAtZero:true,grid:grid},y:{grid:{display:false}}},
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var x=cv[c.dataIndex];return x.c.toFixed(1).replace('.',',')+' bulan (stok '+x.e+', pakai rata-rata '+x.a.toFixed(1).replace('.',',')+'/bulan)';}}}}}});
+    $('stokCoverNote').textContent='Bulan '+cur.name+': stok akhir dibagi rata-rata pemakaian hingga 3 bulan terakhir. Merah = kurang dari 1 bulan, kuning = kurang dari 2 bulan. Reagen yang tidak terpakai tidak ditampilkan.';
   }
   function salin(){
     var m=bulan[$('stokBulan').selectedIndex]; if(!m)return;
@@ -1572,7 +1716,7 @@ var PANDUAN = [
     fetch(URL_CSV+'&_='+Date.now()).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();}).then(function(t){
       if(/^\s*</.test(t))throw new Error('Google meminta login, sheet belum publik');
       var d=parse(csv(t)); if(!d.length)throw new Error('judul "Nama Reagen" tidak ditemukan, '+t.length+' karakter diterima, baris pertama: '+csv(t.slice(0,1500))[0].slice(0,5).join(' | '));
-      var keep=bulan.length?$('stokBulan').selectedIndex:-1; bulan=d;
+      var keep=bulan.length?$('stokBulan').selectedIndex:-1; bulan=d; fillReagen();
       $('stokBulan').innerHTML=d.map(function(x,i){return '<option>'+esc(x.name)+'</option>';}).join('');
       var def=d.length-1; for(var i=d.length-1;i>=0;i--){if(d[i].items.some(function(x){return x.o>0||x.i>0;})){def=i;break;}}
       $('stokBulan').selectedIndex=keep>=0&&keep<d.length?keep:def; render();
@@ -1583,15 +1727,16 @@ var PANDUAN = [
     });
   }
   function sync(){
-    var on=!!(window._staff!==undefined?window._staff:document.getElementById('staffNotice').style.display==='block');
+    var on=true; // dashboard stok tampil di tampilan awal
     $('stokLive').style.display=on?'block':'none';
     if(on&&!loaded)load();
     clearInterval(timer); if(on)timer=setInterval(load,300000);
   }
   ['stokBulan','stokStatus'].forEach(function(i){$(i).addEventListener('change',render);});
-  $('stokCari').addEventListener('input',render); $('stokMuat').addEventListener('click',load); $('stokSalin').addEventListener('click',salin);
+  $('stokCari').addEventListener('input',render); $('stokReagen').addEventListener('change',usage); $('stokMuat').addEventListener('click',load); $('stokSalin').addEventListener('click',salin);
   var _t=window.toggleStaff; window.toggleStaff=function(){_t.apply(this,arguments);sync();};
   window.__stokParse=parse; window.__stokCsv=csv;
+  sync();
 })();
 </script>
 </body>
