@@ -1165,11 +1165,11 @@ body.staff.staff-menu-view .horizontal-grid[data-group] { scroll-margin-top:18px
         </div>
         <div class="kpi-grid" id="mutuKpi"></div>
         <div class="chart-grid">
-          <div class="chart-card wide"><div class="chart-head"><h3>Tren Capaian Indikator Mutu per Bulan (%)</h3></div><div class="chart-box"><canvas id="chMutuTren"></canvas></div>
-            <p class="chart-note">Hijau ≥95% (sangat baik), kuning 80–94,9% (memenuhi), merah &lt;80%. Garis putus-putus: 95% dan 80%. Data diambil dari satu Google Sheets sumber.</p></div>
-          <div class="chart-card wide"><div class="chart-head"><h3>Ringkasan Capaian per Bulan (%)</h3></div><div class="chart-box"><canvas id="chMutuBanding"></canvas></div></div>
+          <div class="chart-card wide"><div class="chart-head"><h3>Tren Kesesuaian Waktu Tunggu 2025–2026 (%)</h3></div><div class="chart-box"><canvas id="chMutuTren"></canvas></div>
+            <p class="chart-note">Hijau ≥95% (sangat baik), kuning 80–94,9% (memenuhi), merah &lt;80%. Garis putus-putus: 95% dan 80%.</p></div>
+          <div class="chart-card wide"><div class="chart-head"><h3>Perbandingan 2025 vs 2026 per Bulan (%)</h3></div><div class="chart-box"><canvas id="chMutuBanding"></canvas></div></div>
         </div>
-        <div class="stok-wrap"><table id="mutuTbl"><thead><tr><th>Bulan</th><th class="num">Capaian (%)</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+        <div class="stok-wrap"><table id="mutuTbl"><thead><tr><th>Bulan</th><th class="num">2025</th><th>Status 2025</th><th class="num">2026</th><th>Status 2026</th><th class="num">Selisih (poin)</th></tr></thead><tbody></tbody></table></div>
         <p id="mutuNote">Memuat data…</p>
       </div>
     </section>
@@ -1941,63 +1941,90 @@ var PANDUAN = [
 })();
 </script>
 <script>
-// ===== Indikator Mutu Lab: sumber tunggal Google Sheets =====
+// ===== Indikator Mutu Lab: Waktu Tunggu =====
 (function(){
-  var SHEET_ID='1QuL2NYnl63D116cG3V9Ggh8gQ7V9yJf3ORcSY2CX9jQ';
+  var ID25='1t06SZQEEscjZ0QScA58ThkzyyDywSl_V3qhzMfhPNdY', ID26='1QuL2NYnl63D116cG3V9Ggh8gQ7V9yJf3ORcSY2CX9jQ';
   var BAIK=95, TARGET=80;
   var BLN=['JANUARI','FEBRUARI','MARET','APRIL','MEI','JUNI','JULI','AGUSTUS','SEPTEMBER','OKTOBER','NOVEMBER','DESEMBER'];
   var SHORT=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-  var DATA=Array(12).fill(null), chart1=null, chart2=null, timer=null, live=false;
-  function $(id){return document.getElementById(id);}
+  var F25=[80,89,78,90,100,93,98,97,98,96,96,96];
+  var F26=[85,71,95,55,80,63,67,62,70,null,null,null];
+  var C={}, live={a:false,b:false}, timer;
+  function $(i){return document.getElementById(i);}
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-  function csv(t){var out=[],row=[],field='',quoted=false; t=String(t).replace(/^\uFEFF/,'');
-    for(var i=0;i<t.length;i++){var c=t[i]; if(quoted){if(c==='"'){if(t[i+1]==='"'){field+='"';i++;}else quoted=false;}else field+=c;}
-      else if(c==='"')quoted=true; else if(c===','){row.push(field);field='';}
-      else if(c==='\n'||c==='\r'){if(c==='\r'&&t[i+1]==='\n')i++;row.push(field);out.push(row);row=[];field='';}else field+=c;}
-    if(field!==''||row.length){row.push(field);out.push(row);} return out;}
-  function monthIdx(v){var s=String(v||'').toUpperCase().trim();var aliases={JAN:'JANUARI',FEB:'FEBRUARI',MAR:'MARET',APR:'APRIL',MEI:'MEI',MAY:'MEI',JUN:'JUNI',JUL:'JULI',AUG:'AGUSTUS',AGU:'AGUSTUS',SEP:'SEPTEMBER',OCT:'OKTOBER',OKT:'OKTOBER',NOV:'NOVEMBER',DEC:'DESEMBER',DES:'DESEMBER'};
-    for(var i=0;i<12;i++)if(s===BLN[i]||s.indexOf(BLN[i])===0)return i;
-    var token=s.replace(/[^A-Z]/g,'').slice(0,3); var full=aliases[token]; return full?BLN.indexOf(full):-1;}
-  function num(v){if(v==null)return null;var s=String(v).trim().replace(/\s/g,'');if(!s)return null;
-    var hasPct=s.indexOf('%')>=0;s=s.replace(/%/g,'');if(s.indexOf(',')>=0&&s.indexOf('.')>=0){if(s.lastIndexOf(',')>s.lastIndexOf('.'))s=s.replace(/\./g,'').replace(',','.');else s=s.replace(/,/g,'');}else if(s.indexOf(',')>=0)s=s.replace(',','.');
-    if(!/^-?\d+(\.\d+)?$/.test(s))return null;var n=Number(s);if(!isFinite(n))return null;
-    // Numeric fractions such as 0.95 are converted to 95%; whole values are kept as entered.
-    if(!hasPct&&n>0&&n<=1)n=n*100;return n;}
-  function parse(rows){var out=Array(12).fill(null), header=[], headerRow=-1;
-    for(var i=0;i<Math.min(rows.length,15);i++){var line=(rows[i]||[]).join(' ').toLowerCase();if(/bulan|capaian|persentase|persen|hasil|realisasi|indikator/.test(line)){header=rows[i].map(function(x){return String(x||'').toLowerCase();});headerRow=i;break;}}
-    var valCols=[];header.forEach(function(h,j){if(/capaian|persentase|persen|hasil|realisasi|nilai|persent|%/.test(h)&&!/target|standar/.test(h))valCols.push(j);});
-    rows.forEach(function(r,ri){if(ri===headerRow)return;var mi=-1, monthCol=-1;
-      for(var j=0;j<r.length;j++){var m=monthIdx(r[j]);if(m>=0){mi=m;monthCol=j;break;}}
-      if(mi<0)return;var candidates=valCols.filter(function(j){return j<r.length&&j!==monthCol;});
-      candidates=candidates.concat(r.map(function(_,j){return j;}).filter(function(j){return j!==monthCol&&candidates.indexOf(j)<0;}));
-      var value=null;for(var k=0;k<candidates.length;k++){value=num(r[candidates[k]]);if(value!=null&&value>=0&&value<=100)break;value=null;}
-      if(value!=null)out[mi]=value;
-    });return out;}
-  function fmt(n,d){return n==null?'–':n.toLocaleString('id-ID',{minimumFractionDigits:d||0,maximumFractionDigits:d||0});}
+  function csv(t){var r=[],row=[],f='',q=false,i,c;t=String(t).replace(/^﻿/,'');
+    for(i=0;i<t.length;i++){c=t[i];
+      if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++;}else q=false;}else f+=c;}
+      else if(c==='"')q=true; else if(c===','){row.push(f);f='';}
+      else if(c==='\n'||c==='\r'){if(c==='\r'&&t[i+1]==='\n')i++;row.push(f);r.push(row);row=[];f='';}
+      else f+=c;}
+    if(f!==''||row.length){row.push(f);r.push(row);} return r;}
+  function numId(s){if(s==null)return null;s=String(s).replace(/[%\s]/g,'');if(s==='')return null;
+    if(s.indexOf(',')>-1)s=s.replace(/\./g,'').replace(',','.');
+    var n=parseFloat(s);return isNaN(n)?null:n;}
+  function monthIdx(s){var u=String(s||'').toUpperCase().trim();for(var i=0;i<12;i++)if(u.indexOf(BLN[i])===0)return i;return -1;}
+  function parseYear(rows){var v=[null,null,null,null,null,null,null,null,null,null,null,null];
+    rows.forEach(function(r){var m=monthIdx(r[1]);if(m>-1&&String(r[2]||'').indexOf('%')>-1){var n=numId(r[2]);if(n!=null)v[m]=n;}});
+    return v;}
+  var D25=F25.slice(), D26=F26.slice();
+  function fmt(n,d){if(n==null||isNaN(n))return '–';return n.toLocaleString('id-ID',{minimumFractionDigits:d||0,maximumFractionDigits:d||0});}
   function pc(n){return n==null?'–':fmt(n,Math.abs(n-Math.round(n))<1e-9?0:1)+'%';}
-  function stat(p){return p==null?['Belum ada data','']:p>=BAIK?['Sangat baik','mt-baik']:p>=TARGET?['Memenuhi','mt-ok']:['Perlu perbaikan','mt-kurang'];}
-  function badge(p){var st=stat(p);return '<span class="mt-b '+st[1]+'">'+st[0]+'</span>';}
-  function color(p){return p==null?'#64748b':p>=BAIK?'#22c55e':p>=TARGET?'#facc15':'#f87171';}
-  function values(){return DATA.filter(function(v){return v!=null;});}
-  function avg(){var a=values();return a.length?a.reduce(function(s,v){return s+v;},0)/a.length:null;}
-  function last(){for(var i=11;i>=0;i--)if(DATA[i]!=null)return i;return -1;}
-  function kpi(){var a=values(), av=avg(), li=last(), latest=li<0?null:DATA[li], met=a.filter(function(v){return v>=TARGET;}).length;
-    var cards=[['Rata-rata capaian',pc(av),'Dari '+a.length+' bulan yang memiliki data'],['Capaian bulan terakhir',pc(latest),li<0?'Belum ada data':SHORT[li]],['Bulan memenuhi target',met+' / '+a.length,'Target minimal '+TARGET+'%'],['Bulan sangat baik',a.filter(function(v){return v>=BAIK;}).length+' / '+a.length,'Capaian minimal '+BAIK+'%']];
-    $('mutuKpi').innerHTML=cards.map(function(k){return '<div class="kpi"><small>'+esc(k[0])+'</small><b>'+esc(k[1])+'</b><span>'+esc(k[2])+'</span></div>';}).join('');}
-  function table(){var html='';for(var i=0;i<12;i++)html+='<tr><td>'+SHORT[i]+'</td><td class="num">'+pc(DATA[i])+'</td><td>'+badge(DATA[i])+'</td></tr>';
-    html+='<tr class="tot"><td>Rata-rata</td><td class="num">'+pc(avg())+'</td><td>'+badge(avg())+'</td></tr>';$('mutuTbl').querySelector('tbody').innerHTML=html;}
-  function charts(){if(typeof Chart==='undefined')return;var tc='#cbd5e1',gc='rgba(255,255,255,.08)';
-    function options(){return {responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tc}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+pc(c.parsed.y);}}}},scales:{x:{ticks:{color:tc},grid:{color:gc}},y:{min:0,max:100,ticks:{color:tc,callback:function(v){return v+'%';}},grid:{color:gc}}}};}
-    if(chart1)chart1.destroy();chart1=new Chart($('chMutuTren'),{type:'bar',data:{labels:SHORT,datasets:[{label:'Capaian indikator mutu',data:DATA,backgroundColor:DATA.map(color),borderRadius:4},{type:'line',label:'Sangat baik ('+BAIK+'%)',data:SHORT.map(function(){return BAIK;}),borderColor:'#22c55e',borderDash:[6,5],pointRadius:0,borderWidth:1.5},{type:'line',label:'Target ('+TARGET+'%)',data:SHORT.map(function(){return TARGET;}),borderColor:'#facc15',borderDash:[6,5],pointRadius:0,borderWidth:1.5}]},options:options()});
-    if(chart2)chart2.destroy();chart2=new Chart($('chMutuBanding'),{type:'line',data:{labels:SHORT,datasets:[{label:'Capaian (%)',data:DATA,borderColor:'#38bdf8',backgroundColor:'rgba(56,189,248,.15)',fill:true,tension:.25,pointRadius:4,spanGaps:false},{label:'Target ('+TARGET+'%)',data:SHORT.map(function(){return TARGET;}),borderColor:'#facc15',borderDash:[6,5],pointRadius:0,borderWidth:1.5}]},options:options()});}
-  function render(){kpi();table();charts();$('mutuNote').textContent=(live?'Data langsung dari Google Sheets sumber indikator mutu.':'Google Sheets belum berhasil dimuat; pastikan akses spreadsheet diatur ke “Siapa saja yang memiliki link”.')+' Sumber: spreadsheet indikator mutu yang ditautkan. '+(live?'Terakhir dimuat '+new Date().toLocaleString('id-ID')+'.':'');}
-  function load(){var b=$('mutuMuat');if(b)b.disabled=true;
-    fetch('https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:csv&gid=0&_='+Date.now(),{cache:'no-store'})
-      .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
-      .then(function(t){if(/^\s*</.test(t))throw new Error('Sheet tidak publik');var rows=csv(t),d=parse(rows);if(!d.some(function(v){return v!=null;}))throw new Error('Format data belum dikenali');DATA=d;live=true;})
-      .catch(function(err){live=false;console.warn('Indikator mutu gagal dimuat:',err);})
-      .then(function(){if(b)b.disabled=false;render();});}
-  $('mutuMuat').addEventListener('click',load);window.__mutuParse=parse;window.__mutuCsv=csv;render();load();timer=setInterval(load,300000);
+  function stat(p){return p==null?['','']:p>=BAIK?['Sangat baik','mt-baik']:p>=TARGET?['Memenuhi','mt-ok']:['Perlu perbaikan','mt-kurang'];}
+  function badge(p){var s=stat(p);return s[0]?'<span class="mt-b '+s[1]+'">'+s[0]+'</span>':'';}
+  function col(p){return p==null?'#64748b':p>=BAIK?'#22c55e':p>=TARGET?'#facc15':'#f87171';}
+  function filled(a){return a.filter(function(v){return v!=null;});}
+  function avg(a){var x=filled(a);return x.length?Math.round(x.reduce(function(s,v){return s+v;},0)/x.length*10)/10:null;}
+  function last(a){for(var i=11;i>=0;i--)if(a[i]!=null)return i;return -1;}
+  function kpi(){
+    var a25=avg(D25),a26=avg(D26),li=last(D26),f26=filled(D26),f25=filled(D25);
+    var lv=li>-1?D26[li]:null,pv=li>0?D26[li-1]:null;
+    function dl(a,b,u){if(a==null||b==null)return '';var d=a-b;return '<span class="'+(d>=0?'up':'down')+'">'+(d>=0?'▲ ':'▼ ')+fmt(Math.abs(d),1)+u+'</span>';}
+    function cnt(a,f){return a.filter(function(v){return v!=null&&v>=TARGET;}).length+' / '+f.length;}
+    var h=[
+      ['Kepatuhan 2026 (rata-rata '+f26.length+' bln)',pc(a26),dl(a26,a25,' poin vs 2025')],
+      ['Bulan terakhir'+(li>-1?' ('+SHORT[li]+' 2026)':''),pc(lv),dl(lv,pv,' poin vs bulan lalu')],
+      ['Kepatuhan 2025 (rata-rata '+f25.length+' bln)',pc(a25),'Tertinggi '+pc(Math.max.apply(null,f25))+' · terendah '+pc(Math.min.apply(null,f25))],
+      ['Bulan ≥'+TARGET+'% (2025)',cnt(D25,f25),'Bulan terisi yang memenuhi target'],
+      ['Bulan ≥'+TARGET+'% (2026)',cnt(D26,f26),'Bulan terisi yang memenuhi target']];
+    $('mutuKpi').innerHTML=h.map(function(k){return '<div class="kpi"><small>'+esc(k[0])+'</small><b>'+esc(k[1])+'</b>'+(k[2].charAt(0)==='<'?k[2]:'<span>'+esc(k[2])+'</span>')+'</div>';}).join('');}
+  function table(){var h='',i;
+    for(i=0;i<12;i++){var a=D25[i],b=D26[i],d=(a!=null&&b!=null)?b-a:null;
+      h+='<tr><td>'+SHORT[i]+'</td><td class="num">'+pc(a)+'</td><td>'+badge(a)+'</td><td class="num">'+pc(b)+'</td><td>'+badge(b)+'</td><td class="num">'+(d==null?'–':'<span class="'+(d>=0?'up':'down')+'" style="color:'+(d>=0?'#4ade80':'#f87171')+'">'+(d>=0?'+':'−')+fmt(Math.abs(d),1)+'</span>')+'</td></tr>';}
+    var a=avg(D25),b=avg(D26);
+    h+='<tr class="tot"><td>Rata-rata</td><td class="num">'+pc(a)+'</td><td>'+badge(a)+'</td><td class="num">'+pc(b)+'</td><td>'+badge(b)+'</td><td class="num">'+(a!=null&&b!=null?(b-a>=0?'+':'−')+fmt(Math.abs(b-a),1):'–')+'</td></tr>';
+    document.querySelector('#mutuTbl tbody').innerHTML=h;}
+  function kill(k){if(C[k]){C[k].destroy();C[k]=null;}}
+  function charts(){
+    if(typeof Chart==='undefined')return;
+    var tc='#cbd5e1',gc='rgba(255,255,255,.08)';
+    function base(){return {responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tc}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+(c.parsed.y==null?'–':fmt(c.parsed.y,1)+'%');}}}},scales:{x:{ticks:{color:tc,maxRotation:60},grid:{color:gc}},y:{min:0,max:100,ticks:{color:tc,callback:function(v){return v+'%';}},grid:{color:gc}}}};}
+    var L=[],V=[],i;
+    for(i=0;i<12;i++){L.push(SHORT[i]+' 25');V.push(D25[i]);}
+    for(i=0;i<12;i++){L.push(SHORT[i]+' 26');V.push(D26[i]);}
+    kill('t');
+    C.t=new Chart($('chMutuTren'),{type:'bar',data:{labels:L,datasets:[
+      {label:'% sesuai waktu tunggu',data:V,backgroundColor:V.map(col),borderRadius:4},
+      {type:'line',label:'Sangat baik ('+BAIK+'%)',data:L.map(function(){return BAIK;}),borderColor:'#22c55e',borderDash:[6,5],pointRadius:0,borderWidth:1.5},
+      {type:'line',label:'Target ('+TARGET+'%)',data:L.map(function(){return TARGET;}),borderColor:'#facc15',borderDash:[6,5],pointRadius:0,borderWidth:1.5}]},options:base()});
+    kill('b');
+    C.b=new Chart($('chMutuBanding'),{type:'line',data:{labels:SHORT,datasets:[
+      {label:'2025',data:D25,borderColor:'#38bdf8',backgroundColor:'#38bdf8',tension:.25,pointRadius:4},
+      {label:'2026',data:D26,borderColor:'#f59e0b',backgroundColor:'#f59e0b',tension:.25,pointRadius:4,spanGaps:false},
+      {label:'Target ('+TARGET+'%)',data:SHORT.map(function(){return TARGET;}),borderColor:'#facc15',borderDash:[6,5],pointRadius:0,borderWidth:1.5}]},options:base()});}
+  function render(){kpi();table();charts();
+    var n=[];
+    n.push(live.a&&live.b?'Data langsung dari Google Sheets (2025 &amp; 2026).':'Menampilkan data cadangan'+(live.a||live.b?' sebagian':'')+' (Google Sheets belum terbaca; pastikan dibagikan "siapa saja yang memiliki link").');
+    n.push('Rata-rata dihitung dari bulan yang sudah terisi (bulan kosong tidak dihitung), bukan dari baris total di sheet.');
+    $('mutuNote').innerHTML=n.join(' ');}
+  function get(id){return fetch('https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?tqx=out:csv&gid=0&_='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error(r.status);return r.text();}).then(function(t){if(/^\s*</.test(t))throw new Error('login');return csv(t);});}
+  function load(){
+    var b=$('mutuMuat');b.disabled=true;
+    var p1=get(ID25).then(function(r){var d=parseYear(r);if(filled(d).length){D25=d;live.a=true;}else live.a=false;}).catch(function(){live.a=false;});
+    var p2=get(ID26).then(function(r){var d=parseYear(r);if(filled(d).length){D26=d;live.b=true;}else live.b=false;}).catch(function(){live.b=false;});
+    Promise.all([p1,p2]).then(function(){b.disabled=false;render();});}
+  $('mutuMuat').addEventListener('click',load);
+  window.__mutuParse=parseYear; window.__mutuCsv=csv;
+  render(); load(); timer=setInterval(load,300000);
 })();
 </script>
 </body>
