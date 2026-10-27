@@ -1425,6 +1425,16 @@ html[data-theme="biru"] .side-link{font-size:.9rem;letter-spacing:0;line-height:
 html[data-theme="biru"]{--ink-3:#566b8e}
 html[data-theme="biru"] .cal-day.out{color:#8d9db8}
 </style>
+
+<style id="permata-navy-dashboard">
+:root{--bg-a:#07183f;--bg-b:#081d49;--panel:#0b2455;--panel-2:#102b60;--panel-3:#16366e;--ink:#eaf1ff;--ink-2:#c2d2f4;--ink-3:#9fb6e6;--line:rgba(100,150,255,.2);--glass-bg:rgba(8,28,69,.96);--card-bg:#0b2455;--card-hover:#102b60;--text-light:#eaf1ff;--text-sub:#c2d2f4;--sky-soft:#132f66;--sky:#2f8cff;--sky-deep:#64b5ff;--sky-ink:#eaf1ff}
+body{background:#07183f!important;color:#eaf1ff!important}
+header{background:#081d49!important;border-bottom:1px solid rgba(100,150,255,.22)!important;color:#eaf1ff!important}
+nav,aside,.sidebar,.side-nav{background:#06183f!important;color:#eaf1ff!important}
+main,.main,.content,.section,.chart-card,.card{color:#eaf1ff}
+input,select,textarea{color:#eaf1ff}
+@media(max-width:800px){.dk-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.dk-grid,.dk-gr2{grid-template-columns:minmax(0,1fr)}}
+</style>
 </head>
 <body class="locked" data-view="home">
 
@@ -2728,7 +2738,7 @@ var PANDUAN = [
 (function(){
   // Sumber baru: CSV publik untuk tab STOK OPNAME (gid 131724345).
   var SID='1axwil6eYFLv8OPg44DwEL0SHawrB5r_tdzWnhR78clg', GID='131724345';
-  var URL_CSV='https://docs.google.com/spreadsheets/d/'+SID+'/export?format=csv&gid='+GID;
+  var URL_CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vTrxko_krBW9vZDOCxD99vNhC847jijIlRLJYn1PVPT52G8yHXgoaf_CQ1LfZJVBAr3BTqmKDdLaE41/pub?gid=131724345&single=true&output=csv';
   var URL_SHEET='https://docs.google.com/spreadsheets/d/'+SID+'/edit?gid='+GID;
   // Aturan order mengikuti sheet: kolom "Keterangan" = ORDER bila stok akhir <= buffer stok (tab BUFFER).
   var $=function(i){return document.getElementById(i);}, bulan=[], loaded=false, timer=null;
@@ -3322,7 +3332,7 @@ var PANDUAN = [
 // ===== Tren pemeriksaan per kelurahan (Google Sheets, tab "RKP PEMERIKSAAN BY KELURAHAN") =====
 (function(){
   var SID='1axwil6eYFLv8OPg44DwEL0SHawrB5r_tdzWnhR78clg', GID='1506686793';
-  var URL_CSV_PUB='https://docs.google.com/spreadsheets/d/'+SID+'/export?format=csv&gid='+GID;
+  var URL_CSV_PUB='https://docs.google.com/spreadsheets/d/e/2PACX-1vTrxko_krBW9vZDOCxD99vNhC847jijIlRLJYn1PVPT52G8yHXgoaf_CQ1LfZJVBAr3BTqmKDdLaE41/pub?gid=1506686793&single=true&output=csv';
   var URL_SHEET='https://docs.google.com/spreadsheets/d/'+SID+'/edit?gid='+GID;
   // Tahun yang belum penuh: jumlah bulan yang sudah terisi. Label di sheet (mis. "JANUARI-SEPTEMBER") otomatis diutamakan.
   var BULAN_TERISI={2026:9};
@@ -3658,7 +3668,8 @@ var PANDUAN = [
 // ===== Dashboard pemeriksaan berdasarkan hari (sumber CSV publik yang ditentukan pengguna) =====
 (function(){
   var SID='1axwil6eYFLv8OPg44DwEL0SHawrB5r_tdzWnhR78clg', GID='780669091';
-  var URL_CSV='https://docs.google.com/spreadsheets/d/'+SID+'/export?format=csv&gid='+GID;
+  var URL_CSV='https://docs.google.com/spreadsheets/d/'+SID+'/gviz/tq?tqx=out:csv&gid='+GID;
+  var URL_CSV_PUB='https://docs.google.com/spreadsheets/d/e/2PACX-1vTrxko_krBW9vZDOCxD99vNhC847jijIlRLJYn1PVPT52G8yHXgoaf_CQ1LfZJVBAr3BTqmKDdLaE41/pub?gid='+GID+'&single=true&output=csv';
   var URL_SHEET='https://docs.google.com/spreadsheets/d/'+SID+'/edit?gid='+GID;
   var BLN=['JANUARI','FEBRUARI','MARET','APRIL','MEI','JUNI','JULI','AGUSTUS','SEPTEMBER','OKTOBER','NOVEMBER','DESEMBER'];
   var BNM=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
@@ -3772,13 +3783,12 @@ var PANDUAN = [
   }
   function load(){
     $('rsHrNote').textContent='Memuat data harian…';
-    fetch(URL_CSV+'&_='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();}).then(function(t){
-      if(/^\s*</.test(t))throw new Error('Google meminta login, sheet belum publik');
-      var d=parse(csv(t)); if(!d.length)throw new Error('blok bulan tidak ditemukan');
+    function request(url){return fetch(url+'&_='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();}).then(function(t){if(/^\s*</.test(t))throw new Error('Google meminta login, sheet belum publik');var d=parse(csv(t));if(!d.length)throw new Error('format tab rekap per bulan belum terbaca');return d;});}
+    request(URL_CSV).catch(function(){return request(URL_CSV_PUB);}).then(function(d){
       M=d; fillSel(); render();
-      $('rsHrNote').innerHTML='Data langsung dari Google Sheets "REKAP PEMERIKSAAN LAB". Rata-rata dihitung per hari layanan (hari tanpa pasien seperti Minggu/libur tidak dihitung). Diperbarui '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+'. <a href="'+URL_SHEET+'" target="_blank" rel="noopener noreferrer">Buka spreadsheet</a>';
+      $('rsHrNote').innerHTML='Data langsung dari Google Sheets, tab rekap per bulan. Rata-rata dihitung per hari layanan (hari tanpa pasien seperti Minggu/libur tidak dihitung). Diperbarui '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+'. <a href="'+URL_SHEET+'" target="_blank" rel="noopener noreferrer">Buka spreadsheet</a>';
     }).catch(function(e){
-      $('rsHrNote').innerHTML='Data harian gagal dimuat ['+esc(e&&e.message?e.message:'gagal terhubung')+']. Pastikan tab sumber dipublikasikan sebagai CSV dan susunan kolom sesuai format dashboard. <a href="'+URL_CSV+'" target="_blank" rel="noopener noreferrer">Buka CSV sumber</a>';
+      $('rsHrNote').innerHTML='Data harian gagal dimuat ['+esc(e&&e.message?e.message:'gagal terhubung')+']. Pastikan tab rekap per bulan dapat diakses dan kolom mengikuti format tanggal, jenis pemeriksaan, serta total pasien. <a href="'+URL_SHEET+'" target="_blank" rel="noopener noreferrer">Buka tab sumber</a>';
       if(!M.length)$('rsHrTop').innerHTML='<tr><td colspan="4">Data belum tersedia.</td></tr>';
     });
   }
