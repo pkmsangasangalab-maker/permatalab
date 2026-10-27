@@ -1827,9 +1827,9 @@ html[data-theme="biru"] .cal-day.out{color:#8d9db8}
           <div class="rs-card"><h3 id="rsDonutH">Rekap Jenis Pemeriksaan</h3><div class="rs-donut"><div class="rs-box rs-dbox"><canvas id="chRsDonut" role="img" aria-label="Grafik donat komposisi kelompok pemeriksaan"></canvas></div><ul id="rsDonutLeg"></ul></div></div>
         </div>
         <div class="rs-hr" id="rsHr">
-          <div class="rs-hr-top"><h3>Pemeriksaan Berdasarkan Hari</h3>
+          <div class="rs-hr-top"><h3>Dashboard Pemeriksaan per Hari</h3>
             <div class="rs-ctl"><label for="rsHrBln">Periode</label><select id="rsHrBln" aria-label="Pilih periode"></select></div></div>
-          <div class="rs-kpis" id="rsHrKpi"></div>
+          <p class="rs-hr-note">Ringkasan jumlah pasien dan pemeriksaan harian, tren per tanggal, rata-rata per hari dalam seminggu, serta daftar 5 hari tersibuk.</p><div class="rs-kpis" id="rsHrKpi"></div>
           <div class="rs-row rs-r2">
             <div class="rs-card"><h3 id="rsHrH1">Pasien &amp; Pemeriksaan per Tanggal</h3><div class="rs-box"><canvas id="chRsHrTgl" role="img" aria-label="Grafik jumlah pasien dan pemeriksaan per tanggal"></canvas></div></div>
             <div class="rs-card"><h3>Rata-rata per Hari dalam Seminggu</h3><div class="rs-box"><canvas id="chRsHrHari" role="img" aria-label="Grafik rata-rata pasien dan pemeriksaan per nama hari"></canvas></div></div>
@@ -3060,7 +3060,12 @@ var PANDUAN = [
       $('stokNote').innerHTML='Diperbarui '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+' dari Google Sheets. <a href="'+URL_SHEET+'" target="_blank" rel="noopener noreferrer">Buka spreadsheet</a>';
       loaded=true;
     }).catch(function(e){
-      $('stokNote').innerHTML='Data stok gagal dimuat ['+esc(e&&e.message?e.message:'gagal terhubung')+']. Pastikan sheet bisa dilihat siapa pun yang punya link. <a href="'+URL_SHEET+'" target="_blank" rel="noopener noreferrer">Buka spreadsheet</a>';
+      var why=esc(e&&e.message?e.message:'gagal terhubung');
+      $('stokNote').innerHTML='Data stok gagal dimuat ['+why+']. Pastikan sheet CSV dipublikasikan untuk akses publik. <a href="'+URL_CSV+'" target="_blank" rel="noopener noreferrer">Buka CSV sumber</a>';
+      // Beri pesan yang jelas pada dashboard utama, bukan membiarkannya kosong.
+      if($('dkKp')) $('dkKp').innerHTML='<div class="dk-k bad"><span class="ik">!</span><div><small class="t">Sumber data stok</small><b>Belum terhubung</b><small>'+why+'</small></div></div>';
+      if($('dkT')&&$('dkT').tBodies[0]) $('dkT').tBodies[0].innerHTML='<tr><td colspan="9">Data belum dapat dimuat. Periksa izin publik Google Sheets atau klik tautan CSV sumber di bawah.</td></tr>';
+      if($('dkBl')) $('dkBl').innerHTML='<a href="'+URL_CSV+'" target="_blank" rel="noopener noreferrer" style="color:#9ec5ff">Buka CSV sumber stok</a>';
     });
   }
   function sync(){
@@ -3076,6 +3081,13 @@ var PANDUAN = [
    $('stokReagen').addEventListener('change',usage); $('skReagen').addEventListener('change',skUsage); $('stokTahun').addEventListener('change',function(){applyTahun(false);render();}); $('stokMuat').addEventListener('click',load); $('stokSalin').addEventListener('click',salin);
   var _t=window.toggleStaff; window.toggleStaff=function(){_t.apply(this,arguments);sync();};
   window.__stokParse=parse; window.__stokCsv=csv;
+  // Render kerangka dashboard sejak awal agar bagian Stok Reagensia tidak kosong
+  // ketika Google Sheets lambat/gagal diakses; data akan mengisi dashboard setelah berhasil dimuat.
+  try {
+    dkInit();
+    if($('dkKp')) $('dkKp').innerHTML='<div class="dk-k"><div><small class="t">Status data</small><b>Memuat…</b><small>Menyiapkan dashboard stok reagensia</small></div></div>';
+    if($('dkT')&&$('dkT').tBodies[0]) $('dkT').tBodies[0].innerHTML='<tr><td colspan="9">Sedang memuat data stok dari Google Sheets…</td></tr>';
+  } catch(initErr) { console.warn('Dashboard stok awal gagal dirender:',initErr); }
   sync();
 })();
 </script>
@@ -3757,7 +3769,7 @@ var PANDUAN = [
       M=d; fillSel(); render();
       $('rsHrNote').innerHTML='Data langsung dari Google Sheets "REKAP PEMERIKSAAN LAB". Rata-rata dihitung per hari layanan (hari tanpa pasien seperti Minggu/libur tidak dihitung). Diperbarui '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+'. <a href="'+URL_SHEET+'" target="_blank" rel="noopener noreferrer">Buka spreadsheet</a>';
     }).catch(function(e){
-      $('rsHrNote').innerHTML='Data harian gagal dimuat ['+esc(e&&e.message?e.message:'gagal terhubung')+']. Pastikan sheet bisa dilihat siapa pun yang punya link. <a href="'+URL_SHEET+'" target="_blank" rel="noopener noreferrer">Buka spreadsheet</a>';
+      $('rsHrNote').innerHTML='Data harian gagal dimuat ['+esc(e&&e.message?e.message:'gagal terhubung')+']. Pastikan tab sumber dipublikasikan sebagai CSV dan susunan kolom sesuai format dashboard. <a href="'+URL_CSV+'" target="_blank" rel="noopener noreferrer">Buka CSV sumber</a>';
       if(!M.length)$('rsHrTop').innerHTML='<tr><td colspan="4">Data belum tersedia.</td></tr>';
     });
   }
