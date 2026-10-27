@@ -2728,7 +2728,7 @@ var PANDUAN = [
 (function(){
   // Sumber baru: CSV publik untuk tab STOK OPNAME (gid 131724345).
   var SID='1axwil6eYFLv8OPg44DwEL0SHawrB5r_tdzWnhR78clg', GID='131724345';
-  var URL_CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vTrxko_krBW9vZDOCxD99vNhC847jijIlRLJYn1PVPT52G8yHXgoaf_CQ1LfZJVBAr3BTqmKDdLaE41/pub?gid=131724345&single=true&output=csv';
+  var URL_CSV='https://docs.google.com/spreadsheets/d/'+SID+'/export?format=csv&gid='+GID;
   var URL_SHEET='https://docs.google.com/spreadsheets/d/'+SID+'/edit?gid='+GID;
   // Aturan order mengikuti sheet: kolom "Keterangan" = ORDER bila stok akhir <= buffer stok (tab BUFFER).
   var $=function(i){return document.getElementById(i);}, bulan=[], loaded=false, timer=null;
@@ -3322,7 +3322,7 @@ var PANDUAN = [
 // ===== Tren pemeriksaan per kelurahan (Google Sheets, tab "RKP PEMERIKSAAN BY KELURAHAN") =====
 (function(){
   var SID='1axwil6eYFLv8OPg44DwEL0SHawrB5r_tdzWnhR78clg', GID='1506686793';
-  var URL_CSV_PUB='https://docs.google.com/spreadsheets/d/e/2PACX-1vTrxko_krBW9vZDOCxD99vNhC847jijIlRLJYn1PVPT52G8yHXgoaf_CQ1LfZJVBAr3BTqmKDdLaE41/pub?gid=1506686793&single=true&output=csv';
+  var URL_CSV_PUB='https://docs.google.com/spreadsheets/d/'+SID+'/export?format=csv&gid='+GID;
   var URL_SHEET='https://docs.google.com/spreadsheets/d/'+SID+'/edit?gid='+GID;
   // Tahun yang belum penuh: jumlah bulan yang sudah terisi. Label di sheet (mis. "JANUARI-SEPTEMBER") otomatis diutamakan.
   var BULAN_TERISI={2026:9};
@@ -3658,7 +3658,7 @@ var PANDUAN = [
 // ===== Dashboard pemeriksaan berdasarkan hari (sumber CSV publik yang ditentukan pengguna) =====
 (function(){
   var SID='1axwil6eYFLv8OPg44DwEL0SHawrB5r_tdzWnhR78clg', GID='780669091';
-  var URL_CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vTrxko_krBW9vZDOCxD99vNhC847jijIlRLJYn1PVPT52G8yHXgoaf_CQ1LfZJVBAr3BTqmKDdLaE41/pub?gid=780669091&single=true&output=csv';
+  var URL_CSV='https://docs.google.com/spreadsheets/d/'+SID+'/export?format=csv&gid='+GID;
   var URL_SHEET='https://docs.google.com/spreadsheets/d/'+SID+'/edit?gid='+GID;
   var BLN=['JANUARI','FEBRUARI','MARET','APRIL','MEI','JUNI','JULI','AGUSTUS','SEPTEMBER','OKTOBER','NOVEMBER','DESEMBER'];
   var BNM=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
