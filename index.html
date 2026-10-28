@@ -3782,41 +3782,52 @@ var PANDUAN = [
 </script>
 
 <style>
-#sdDashboard{--sd-panel:var(--panel,#fff);padding:4px 0 28px;color:var(--ink,#1e293b)}
-#sdDashboard .sd-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin:8px 0 20px}
-#sdDashboard h2{margin:0 0 7px;font-size:clamp(1.35rem,2.4vw,1.9rem)}
-#sdDashboard .sd-muted{opacity:.75;font-size:.92rem}
-#sdDashboard .sd-btn,#sdDashboard select{border:1px solid var(--border,#d7deea);border-radius:10px;padding:10px 13px;background:var(--panel-2,#fff);color:inherit}
-#sdDashboard .sd-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}
-#sdDashboard .sd-card{border:1px solid var(--border,#d7deea);border-radius:15px;padding:16px;background:var(--panel,#fff);min-width:0;box-shadow:0 4px 14px #00000008}
-#sdDashboard .sd-label{font-size:.82rem;opacity:.75;margin-bottom:9px}
-#sdDashboard .sd-value{font-size:clamp(1.25rem,2vw,1.8rem);font-weight:750;overflow-wrap:anywhere}
-#sdDashboard .sd-chart{height:320px;position:relative}
-#sdDashboard .sd-two{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr);gap:14px}
-#sdDashboard .sd-table-wrap{overflow:auto;max-height:440px}
-#sdDashboard table{border-collapse:collapse;width:100%;font-size:.88rem}
-#sdDashboard th,#sdDashboard td{padding:10px 12px;border-bottom:1px solid var(--border,#d7deea);text-align:left;white-space:nowrap}
-#sdDashboard th{position:sticky;top:0;background:var(--panel-2,#f3f6fa);z-index:1}
-#sdDashboard .sd-note{padding:12px;border-radius:10px;background:var(--panel-2,#f3f6fa);font-size:.9rem;margin-top:12px}
+#sdDashboard{--sd-blue:#155eef;--sd-cyan:#0e7490;--sd-line:var(--border,#dce4ef);color:var(--text,var(--foreground,inherit))}
+#sdDashboard .sd-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:22px 24px;border-radius:18px;background:linear-gradient(125deg,#102a56,#155eef 68%,#0e7490);color:#fff;margin-bottom:18px}
+#sdDashboard .sd-head h2{font-size:1.45rem;margin:0 0 6px;font-weight:800;letter-spacing:-.02em}
+#sdDashboard .sd-head .sd-muted{color:#e5efff}
+#sdDashboard .sd-muted{font-size:.88rem;color:var(--muted,#64748b)}
+#sdDashboard .sd-btn{border:1px solid #ffffff80;background:#ffffff18;color:#fff;border-radius:10px;padding:10px 15px;font-weight:700;cursor:pointer}
+#sdDashboard .sd-btn:hover{background:#ffffff30}
+#sdDashboard .sd-toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 16px;border:1px solid var(--sd-line);border-radius:14px;background:var(--panel,#fff);margin-bottom:16px}
+#sdDashboard .sd-toolbar label{font-weight:700;font-size:.9rem}
+#sdDashboard select,#sdDashboard input{max-width:100%;padding:10px 12px;border:1px solid var(--sd-line);border-radius:9px;background:var(--surface,#fff);color:inherit}
+#sdDashboard .sd-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:16px 0}
+#sdDashboard .sd-card{border:1px solid var(--sd-line);border-radius:16px;padding:17px;background:var(--panel,#fff);min-width:0;box-shadow:0 4px 18px #0f172a08}
+#sdDashboard .sd-stat{position:relative;overflow:hidden}
+#sdDashboard .sd-stat:after{content:'';position:absolute;right:-20px;top:-25px;width:86px;height:86px;border-radius:50%;background:#155eef0d}
+#sdDashboard .sd-label{font-size:.83rem;color:var(--muted,#64748b);margin-bottom:10px}
+#sdDashboard .sd-value{font-size:clamp(1.35rem,2.3vw,2rem);font-weight:800;letter-spacing:-.03em;overflow-wrap:anywhere;color:var(--text,var(--foreground,inherit))}
+#sdDashboard .sd-two{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(280px,1fr);gap:14px}
+#sdDashboard h3{font-size:1rem;margin:0 0 10px;font-weight:750}
+#sdDashboard .sd-chart{height:320px;position:relative;margin-top:14px}
+#sdDashboard .sd-table-wrap{overflow:auto;max-height:470px;margin-top:12px}
+#sdDashboard table{border-collapse:collapse;width:100%;font-size:.86rem}
+#sdDashboard th,#sdDashboard td{padding:10px 12px;border-bottom:1px solid var(--sd-line);text-align:left;white-space:nowrap}
+#sdDashboard th{position:sticky;top:0;background:var(--panel-2,#f1f5f9);z-index:1;font-weight:750}
+#sdDashboard .sd-note{padding:13px;border-radius:11px;background:var(--panel-2,#f1f5f9);font-size:.9rem;line-height:1.55;margin-top:12px}
 #sdDashboard .sd-error{color:#b91c1c}
-#sdDashboard .sd-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0}
-@media(max-width:850px){#sdDashboard .sd-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#sdDashboard .sd-two{grid-template-columns:1fr}}
-@media(max-width:480px){#sdDashboard .sd-grid{gap:8px}#sdDashboard .sd-card{padding:12px}}
+#sdDashboard .sd-source{margin-top:14px}
+#sdDashboard .sd-source summary{font-weight:750;cursor:pointer;padding:4px 0}
+#sdDashboard .sd-source label{display:block;font-weight:700;margin:12px 0 6px}
+#sdDashboard .sd-pill{display:inline-flex;padding:5px 9px;border-radius:999px;background:#e0f2fe;color:#075985;font-size:.78rem;font-weight:750}
+@media(max-width:900px){#sdDashboard .sd-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#sdDashboard .sd-two{grid-template-columns:1fr}}
+@media(max-width:480px){#sdDashboard .sd-head{padding:18px}#sdDashboard .sd-grid{gap:8px}#sdDashboard .sd-card{padding:12px}#sdDashboard .sd-value{font-size:1.35rem}}
 </style>
 <section id="sdDashboard" data-view="standar-deviasi">
-  <div class="sd-head"><div><h2>Dashboard Standar Deviasi</h2><div class="sd-muted">Analisis statistik hasil pemeriksaan dari Google Sheets</div></div><button id="sdRefresh" class="sd-btn" type="button">↻ Perbarui data</button></div>
-  <div class="sd-toolbar"><label for="sdMetric">Kolom numerik yang dianalisis</label><select id="sdMetric" aria-label="Pilih parameter"></select><span id="sdUpdated" class="sd-muted">Menghubungkan ke spreadsheet…</span></div>
+  <div class="sd-head"><div><div class="sd-pill">PERMATA LAB · ANALISIS MUTU</div><h2 style="margin-top:10px">Dashboard Standar Deviasi</h2><div class="sd-muted">Analisis sebaran hasil pemeriksaan dengan data gabungan dari Google Sheets</div></div><button id="sdRefresh" class="sd-btn" type="button">↻ Muat ulang data</button></div>
+  <div class="sd-toolbar"><label for="sdMetric">Parameter analisis</label><select id="sdMetric" aria-label="Pilih parameter"><option>Memuat parameter…</option></select><span id="sdUpdated" class="sd-muted">Menghubungkan ke spreadsheet…</span></div>
   <div class="sd-grid">
-    <div class="sd-card"><div class="sd-label">Jumlah data valid</div><div class="sd-value" id="sdN">—</div></div>
-    <div class="sd-card"><div class="sd-label">Rata-rata</div><div class="sd-value" id="sdMean">—</div></div>
-    <div class="sd-card"><div class="sd-label">Standar deviasi (SD)</div><div class="sd-value" id="sdStd">—</div></div>
-    <div class="sd-card"><div class="sd-label">Koefisien variasi (CV%)</div><div class="sd-value" id="sdCv">—</div></div>
+    <div class="sd-card sd-stat"><div class="sd-label">Jumlah hasil valid (n)</div><div class="sd-value" id="sdN">—</div></div>
+    <div class="sd-card sd-stat"><div class="sd-label">Rata-rata (Mean)</div><div class="sd-value" id="sdMean">—</div></div>
+    <div class="sd-card sd-stat"><div class="sd-label">Standar deviasi sampel (SD)</div><div class="sd-value" id="sdStd">—</div></div>
+    <div class="sd-card sd-stat"><div class="sd-label">Koefisien variasi (CV)</div><div class="sd-value" id="sdCv">—</div></div>
   </div>
   <div class="sd-two">
-    <div class="sd-card"><h3>Grafik hasil dan batas statistik</h3><div class="sd-muted">Garis rata-rata dan ±1 SD, ±2 SD, ±3 SD.</div><div class="sd-chart"><canvas id="sdChart" aria-label="Grafik standar deviasi"></canvas></div><div class="sd-note">Batas statistik dihitung dari data yang sedang ditampilkan. Ini bukan otomatis batas penerimaan klinis atau evaluasi mutu.</div></div>
-    <div class="sd-card"><h3>Ringkasan sebaran</h3><div id="sdInterpret" class="sd-note">Data sedang dimuat.</div><h3 style="margin-top:18px">Data sumber</h3><label for="sdGids" style="display:block;font-weight:700;margin:10px 0 6px">GID tab yang digabung</label><input id="sdGids" type="text" value="18484466,618014012,403450994,1047730198" style="width:100%;padding:10px;border:1px solid var(--border,#d8dee8);border-radius:8px;background:var(--surface,#fff);color:inherit" aria-describedby="sdGidHelp"><div id="sdGidHelp" class="sd-muted" style="margin-top:6px">Keempat tab di atas akan digabung otomatis saat dashboard dimuat. GID terlihat pada URL tab setelah <code>gid=</code>. Anda dapat mengubah daftar ini jika diperlukan. Semua tab harus dapat dibaca dan memiliki judul kolom yang sesuai agar data dapat dipadankan.</div><p><a href="https://docs.google.com/spreadsheets/d/1EjhqFF-AkdaHBIsNeOaozPOoH-36YYgIY3zCEk5oxm4/edit?gid=18484466#gid=18484466" target="_blank" rel="noopener noreferrer">Buka Google Sheets ↗</a></p></div>
+    <div class="sd-card"><h3>Grafik hasil dan batas statistik</h3><div class="sd-muted">Hasil individual dibandingkan dengan mean serta batas ±1, ±2, dan ±3 SD.</div><div class="sd-chart"><canvas id="sdChart" aria-label="Grafik standar deviasi"></canvas></div><div class="sd-note">Catatan: batas ±SD merupakan ringkasan statistik data yang sedang dianalisis, bukan otomatis batas penerimaan klinis atau batas kendali mutu yang telah ditetapkan.</div></div>
+    <div class="sd-card"><h3>Interpretasi ringkas</h3><div id="sdInterpret" class="sd-note">Data sedang dimuat.</div><details class="sd-source"><summary>Pengaturan sumber data</summary><label for="sdGids">GID tab yang digabungkan</label><input id="sdGids" type="text" value="18484466,618014012,403450994,1047730198,1160961274" style="width:100%" aria-describedby="sdGidHelp"><div id="sdGidHelp" class="sd-muted" style="margin-top:7px">Dashboard menggabungkan lima tab yang sudah teridentifikasi di portal. Jika spreadsheet memiliki tab lain, masukkan GID-nya dipisahkan koma. GID adalah angka pada URL setelah <code>gid=</code>.</div><p><a href="https://docs.google.com/spreadsheets/d/1EjhqFF-AkdaHBIsNeOaozPOoH-36YYgIY3zCEk5oxm4/edit" target="_blank" rel="noopener noreferrer">Buka spreadsheet sumber ↗</a></p><button id="sdApplySources" class="sd-btn" type="button" style="background:#155eef;color:white;border-color:#155eef">Terapkan sumber</button></details></div>
   </div>
-  <div class="sd-card" style="margin-top:14px"><h3>Tabel data dan deviasi</h3><div class="sd-table-wrap"><table><thead id="sdThead"></thead><tbody id="sdTbody"><tr><td>Memuat data…</td></tr></tbody></table></div><div id="sdNote" class="sd-note">Data dimuat langsung dari Google Sheets. Spreadsheet harus dapat dibaca oleh browser.</div></div>
+  <div class="sd-card" style="margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><h3 style="margin-bottom:4px">Rincian hasil dan deviasi</h3><div class="sd-muted">Nilai numerik, selisih terhadap rata-rata, Z-score, dan posisi statistik.</div></div><span id="sdRowCount" class="sd-pill">0 baris</span></div><div class="sd-table-wrap"><table><thead id="sdThead"></thead><tbody id="sdTbody"><tr><td>Memuat data…</td></tr></tbody></table></div><div id="sdNote" class="sd-note">Data dimuat langsung dari Google Sheets. Spreadsheet harus dapat dibaca oleh browser.</div></div>
 </section>
 <script>
 (function(){
@@ -3859,13 +3870,14 @@ var PANDUAN = [
  function render(){
    const idx=Number($('sdMetric').value);if(!Number.isFinite(idx)||!headers[idx])return;
    const labelIdx=headers.findIndex((h,i)=>i>0&&rows.some(r=>String(r[i]??'').trim()!==''));
-   const vals=rows.map((r,i)=>({label:String((labelIdx>0&&r[labelIdx])||r[0]||('Baris '+(i+1)),raw:r[idx],value:num(r[idx]),row:r})).filter(x=>x.value!==null);
+   const vals=rows.map((r,i)=>({label:String((labelIdx>0&&r[labelIdx])||r[0]||('Baris '+(i+1))),raw:r[idx],value:num(r[idx]),row:r})).filter(x=>x.value!==null);
    const n=vals.length,mean=n?vals.reduce((s,x)=>s+x.value,0)/n:0;
    const variance=n>1?vals.reduce((s,x)=>s+Math.pow(x.value-mean,2),0)/(n-1):0,sd=Math.sqrt(variance),cv=mean!==0?Math.abs(sd/mean*100):null;
    $('sdN').textContent=fmt(n);$('sdMean').textContent=n?fmt(mean):'—';$('sdStd').textContent=n>1?fmt(sd):'—';$('sdCv').textContent=cv==null?'—':fmt(cv)+'%';
    const out=vals.filter(x=>sd>0&&Math.abs(x.value-mean)>3*sd).length;
    $('sdInterpret').textContent=n<2?'Diperlukan minimal dua nilai numerik untuk menghitung SD sampel.':('Kolom “'+headers[idx]+'”: '+n+' nilai valid dari tab yang digabung. '+out+' nilai berada di luar ±3 SD dari rata-rata pada data yang dianalisis. CV% = SD ÷ |rata-rata| × 100%.');
    $('sdThead').innerHTML='<tr><th>No.</th><th>Sumber tab</th><th>'+esc(headers[labelIdx]||'Label')+'</th><th>'+esc(headers[idx])+'</th><th>Deviasi dari rata-rata</th><th>Z-score</th><th>Status statistik</th></tr>';
+   $('sdRowCount').textContent=fmt(vals.length)+' baris';
    $('sdTbody').innerHTML=vals.map((x,i)=>{let d=x.value-mean,z=sd?d/sd:null,status=z==null?'SD = 0':Math.abs(z)>3?'Di luar ±3 SD':Math.abs(z)>2?'Di luar ±2 SD':Math.abs(z)>1?'Di luar ±1 SD':'Dalam ±1 SD';return '<tr><td>'+(i+1)+'</td><td>'+esc(x.row[0])+'</td><td>'+esc(x.label)+'</td><td>'+fmt(x.value)+'</td><td>'+fmt(d)+'</td><td>'+fmt(z)+'</td><td>'+status+'</td></tr>'}).join('')||'<tr><td colspan="7">Tidak ada data numerik.</td></tr>';
    if(typeof Chart==='undefined')return;
    const labels=vals.map((x,i)=>x.label||String(i+1)),values=vals.map(x=>x.value);
@@ -3874,7 +3886,7 @@ var PANDUAN = [
    if(chart)chart.destroy();chart=new Chart($('sdChart'),{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom'}},scales:{x:{ticks:{maxTicksLimit:10}},y:{beginAtZero:false}}}});
  }
  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
- $('sdMetric').addEventListener('change',render);$('sdRefresh').addEventListener('click',load);$('sdGids').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();load()}});load();
+ $('sdMetric').addEventListener('change',render);$('sdRefresh').addEventListener('click',load);$('sdApplySources').addEventListener('click',load);$('sdGids').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();load()}});load();
 })();
 </script>
 
