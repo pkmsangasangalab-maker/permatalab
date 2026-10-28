@@ -3078,7 +3078,7 @@ var PANDUAN = [
   var SHORT=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
   var PAL=['#6f9fbd','#c99a52','#b3a187','#34d399','#f472b6','#fb923c','#60a5fa','#e879f9'];
   var N=null;
-  var FALL={2025:[80,89,78,90,100,93,98,97,98,96,96,96],2026:[85,71,95,55,80,63,67,62,70,N,N,N]};
+  var FALL={2025:[80,89,78,90,100,93,98,97,98,96,96,96],2026:[85,71,95,55,80,63,67,62,70,66,N,N]};
   var DATA=JSON.parse(JSON.stringify(FALL)), C={}, live=false, timer;
   function $(i){return document.getElementById(i);}
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
@@ -3094,7 +3094,29 @@ var PANDUAN = [
     var n=parseFloat(s);return isNaN(n)?null:n;}
   function monthIdx(s){var u=String(s||'').toUpperCase().trim();if(!u)return -1;for(var i=0;i<12;i++)if(u.indexOf(BLN[i])===0)return i;return -1;}
   // Baris = tahun, kolom = nama bulan. Mengembalikan {tahun:[12 nilai]} hanya untuk tahun yang punya minimal 1 bulan terisi.
+  // Format panjang (tab REKAP TAHUNAN): satu baris per bulan, kolom TAHUN, BULAN, dan nilai kesesuaian.
+  function parseLong(rows){
+    var out={}, hi=-1, tc=-1, bc=-1, vc=-1, i, j;
+    for(i=0;i<rows.length&&hi<0;i++){
+      var hs=rows[i].map(function(x){return String(x||'').toUpperCase().trim();});
+      var t=hs.indexOf('TAHUN'), b=hs.indexOf('BULAN');
+      if(t>-1&&b>-1){ hi=i; tc=t; bc=b;
+        for(j=0;j<hs.length;j++){ if(j!==t&&j!==b&&/KESESUAIAN|WAKTU|NILAI|CAPAIAN|%/.test(hs[j])){vc=j;break;} }
+        if(vc<0){ for(j=hs.length-1;j>=0;j--){ if(j!==t&&j!==b&&hs[j]!==''&&hs[j]!=='NOMOR'){vc=j;break;} } }
+      }
+    }
+    if(hi<0||vc<0) return out;
+    for(i=hi+1;i<rows.length;i++){
+      var y=String(rows[i][tc]||'').trim(); if(!/^(19|20)\d\d$/.test(y)) continue;
+      var m=monthIdx(rows[i][bc]); if(m<0) continue;
+      var n=numId(rows[i][vc]); if(n==null) continue;
+      if(!out[y]) out[y]=[N,N,N,N,N,N,N,N,N,N,N,N];
+      out[y][m]=n;
+    }
+    return out;
+  }
   function parseSheet(rows){
+    var lo=parseLong(rows); if(Object.keys(lo).length) return lo;
     var hi=-1,yc=-1,mc={},i,j;
     for(i=0;i<rows.length&&hi<0;i++){
       var t=-1,cnt=0,map={};
@@ -3187,13 +3209,17 @@ var PANDUAN = [
       (pa!=null?', <span class="'+(ca>=pa?'up':'down')+'">'+(ca>pa?'meningkat dari ':ca<pa?'menurun dari ':'sama dengan ')+pc(pa)+'</span> pada tahun '+py:'')+'.';}
   function render(){kpi();table();charts();rsBanner();
     var n=[];
-    n.push(live?'Data langsung dari Google Sheets (tahun '+years().join(', ')+').':'Menampilkan data cadangan (Google Sheets belum terbaca; pastikan dibagikan "siapa saja yang memiliki link").');
+        n.push(live?'Data langsung dari Google Sheets (tahun '+years().join(', ')+').':'Menampilkan data cadangan, bukan data sheet. Penyebab: '+(window.__mutuReason||'belum dimuat')+'.');
+    (function(){var y=new Date().getFullYear(), cur=DATA[y]; if(!live||!cur)return; var last=-1; cur.forEach(function(v,k){if(v!=null)last=k;}); if(last<new Date().getMonth()) n.push('Bulan '+BLN[new Date().getMonth()].charAt(0)+BLN[new Date().getMonth()].slice(1).toLowerCase()+' '+y+' belum terisi di sheet mutu.');})();
     n.push('Rata-rata dihitung dari bulan yang sudah terisi (bulan kosong tidak dihitung), bukan dari kolom total di sheet.');
     $('mutuNote').innerHTML=n.join(' ');}
-  function get(){return fetch('https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:csv&gid='+GID+'&_='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error(r.status);return r.text();}).then(function(t){if(/^\s*</.test(t))throw new Error('login');return csv(t);});}
+  function get(){return fetch('https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent('REKAP TAHUNAN')+'&_='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error(r.status);return r.text();}).then(function(t){if(/^\s*</.test(t))throw new Error('login');return csv(t);});}
   function load(){
     var b=$('mutuMuat');b.disabled=true;
-    get().then(function(r){var d=parseSheet(r);if(Object.keys(d).length){DATA=d;live=true;}else live=false;}).catch(function(){live=false;}).then(function(){b.disabled=false;render();});}
+    window.__mutuReason='';
+    get().then(function(r){var d=parseSheet(r);if(Object.keys(d).length){DATA=d;live=true;}else{live=false;window.__mutuReason='format tabel tidak dikenali (perlu baris judul berisi TAHUN dan nama bulan JANUARI sampai DESEMBER, dengan baris tahun di bawahnya)';}})
+      .catch(function(e){live=false;window.__mutuReason=(e&&e.message==='login')?'spreadsheet belum dibagikan ke siapa saja yang memiliki link':'sheet atau tab tidak dapat diambil';})
+      .then(function(){b.disabled=false;render();});}
   $('mutuMuat').addEventListener('click',load);
   window.__mutuParse=parseSheet; window.__mutuCsv=csv;
   render(); load(); timer=setInterval(load,300000);
