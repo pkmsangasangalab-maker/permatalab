@@ -1539,6 +1539,7 @@ input,select,textarea{color:#eaf1ff}
       <div class="hk"><div class="hk-ic"><svg class="ic" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4h6v3H9z"/><path d="M9 12h6M9 16h4"/></svg></div><div><small>Total Pemeriksaan</small><b id="hk1">–</b><span id="hk1s" class="hk-sub">&nbsp;</span></div></div>
       <div class="hk"><div class="hk-ic"><svg class="ic" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.5-3.4 2.7-5 5.5-5s5 1.6 5.5 5"/><circle cx="17" cy="9" r="2.5"/><path d="M16.5 14.2c2.4.1 3.8 1.6 4.2 4.3"/></svg></div><div><small>Total Kunjungan</small><b id="hk3">–</b><span id="hk3s" class="hk-sub">&nbsp;</span></div></div>
       <div class="hk"><div class="hk-ic"><svg class="ic" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div><small>Kesesuaian Waktu Tunggu</small><b id="hk4">–</b><span id="hk4s" class="hk-sub">&nbsp;</span></div></div>
+      <div class="hk"><div class="hk-ic"><svg class="ic" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v6L5 19a1.6 1.6 0 0 0 1.4 2.3h11.2A1.6 1.6 0 0 0 19 19l-5-10V3"/><path d="M7.5 15h9"/></svg></div><div><small>Reagensia Perlu Order</small><b id="hkOrder">–</b><span id="hkOrderS" class="hk-sub">&nbsp;</span></div></div>
     </section>
 
     <section class="home-row" data-view="home">
@@ -1892,49 +1893,61 @@ input,select,textarea{color:#eaf1ff}
 
     <!-- ===== Dashboard Stok Reagensia (sumber: tab STOK OPNAME) ===== -->
 <style>
-.rsd{--rsd-aman:#2e9d5b;--rsd-order:#e0a100;--rsd-habis:#d64545;--rsd-nonaktif:#9aa5b1;--rsd-line:#e3e8ee;--rsd-muted:#6b7785;color:#1d2733;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px}
+.rsd{--n-bg:#0b1d3a;--n-card:#13294f;--n-card2:#0f2347;--n-line:#25426f;--n-ink:#e8f0ff;--n-muted:#9fb3d6;--n-acc:#5ea2ff;
+  --aman:#3fbf7f;--order:#f0b429;--habis:#ef6b6b;--exp:#b98cff;
+  background:var(--n-bg);color:var(--n-ink);border-radius:16px;padding:20px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px;line-height:1.4}
 .rsd *{box-sizing:border-box}
 .rsd-head{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:14px}
-.rsd-head h2{font-size:20px;margin:0;color:inherit}
-.rsd-sub{color:var(--rsd-muted);font-size:13px;margin-top:4px}
-.rsd-btn{font:inherit;font-size:13px;padding:7px 12px;border-radius:8px;border:1px solid var(--rsd-line);background:#fff;color:#1d2733;text-decoration:none;cursor:pointer}
-.rsd-btn:hover{border-color:#2563eb;color:#2563eb}
-.rsd-err{background:#fdecec;color:#8a1f1f;border:1px solid #f5c2c2;border-radius:10px;padding:12px;margin-bottom:14px;display:none}
+.rsd-head h2{font-size:20px;margin:0;color:var(--n-ink)}
+.rsd-sub{color:var(--n-muted);font-size:13px;margin-top:4px}
+.rsd-btn{font:inherit;font-size:13px;padding:7px 12px;border-radius:8px;border:1px solid var(--n-line);background:var(--n-card);color:var(--n-ink);text-decoration:none;cursor:pointer}
+.rsd-btn:hover{border-color:var(--n-acc);color:#fff}
+.rsd-err{background:#4a1d26;color:#ffd6d6;border:1px solid #8a3a47;border-radius:10px;padding:12px;margin-bottom:14px;display:none}
 .rsd-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:14px}
-.rsd-kpi{background:#fff;border:1px solid var(--rsd-line);border-radius:12px;padding:14px 16px;border-left:5px solid #2563eb;color:#1d2733}
-.rsd-kpi .l{font-size:12px;color:var(--rsd-muted);text-transform:uppercase;letter-spacing:.04em}
-.rsd-kpi .v{font-size:26px;font-weight:700;margin-top:4px}
-.rsd-kpi.aman{border-left-color:var(--rsd-aman)}.rsd-kpi.order{border-left-color:var(--rsd-order)}
-.rsd-kpi.habis{border-left-color:var(--rsd-habis)}.rsd-kpi.exp{border-left-color:#8e44ad}
+.rsd-kpi{background:var(--n-card);border:1px solid var(--n-line);border-radius:12px;padding:14px 16px;border-left:5px solid var(--n-acc)}
+.rsd-kpi .l{font-size:12px;color:var(--n-muted);text-transform:uppercase;letter-spacing:.04em}
+.rsd-kpi .v{font-size:26px;font-weight:700;margin-top:4px;color:#fff}
+.rsd-kpi.aman{border-left-color:var(--aman)}.rsd-kpi.order{border-left-color:var(--order)}
+.rsd-kpi.habis{border-left-color:var(--habis)}.rsd-kpi.exp{border-left-color:var(--exp)}
 .rsd-grid{display:grid;grid-template-columns:1fr 2fr;gap:12px;margin-bottom:14px}
 @media(max-width:860px){.rsd-grid{grid-template-columns:1fr}}
-.rsd-card{background:#fff;border:1px solid var(--rsd-line);border-radius:12px;padding:16px;color:#1d2733}
-.rsd-card h3{font-size:15px;margin:0 0 12px}
+.rsd-card{background:var(--n-card);border:1px solid var(--n-line);border-radius:12px;padding:16px;color:var(--n-ink);margin-bottom:14px}
+.rsd-card h3{font-size:15px;margin:0 0 12px;color:#fff}
 .rsd-donut-wrap{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
 .rsd-donut{width:150px;height:150px;border-radius:50%;position:relative;flex-shrink:0}
-.rsd-donut::after{content:"";position:absolute;inset:32px;background:#fff;border-radius:50%}
+.rsd-donut::after{content:"";position:absolute;inset:32px;background:var(--n-card);border-radius:50%}
 .rsd-legend div{font-size:13px;margin:5px 0;display:flex;align-items:center;gap:8px}
 .rsd-dot{width:11px;height:11px;border-radius:3px;display:inline-block}
-.rsd-bar{display:grid;grid-template-columns:200px 1fr 80px;gap:8px;align-items:center;font-size:13px;margin:7px 0}
-.rsd-bar .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rsd-track{background:#eef2f6;border-radius:6px;height:12px;overflow:hidden}
-.rsd-fill{height:100%;border-radius:6px}
-.rsd-bar .v{text-align:right;color:var(--rsd-muted)}
+.rsd-cat{display:grid;grid-template-columns:170px 1fr 60px;gap:10px;align-items:center;font-size:13px;margin:8px 0}
+.rsd-cat .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rsd-stack{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--n-card2)}
+.rsd-stack span{display:block;height:100%}
+.rsd-cat .v{text-align:right;color:var(--n-muted)}
 .rsd-tools{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;align-items:center}
-.rsd-tools input,.rsd-tools select{font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--rsd-line);border-radius:8px;background:#fff;color:#1d2733}
-.rsd-tools input{min-width:240px}
-.rsd-count{color:var(--rsd-muted);font-size:13px;margin-left:auto}
-.rsd-wrap{overflow:auto;max-height:620px;border:1px solid var(--rsd-line);border-radius:10px;background:#fff}
-.rsd table{border-collapse:collapse;width:100%;font-size:13px}
-.rsd th,.rsd td{padding:8px 10px;border-bottom:1px solid var(--rsd-line);text-align:left;white-space:nowrap;color:#1d2733}
-.rsd th{position:sticky;top:0;background:#f8fafc;cursor:pointer;user-select:none;z-index:1}
+.rsd-tools input,.rsd-tools select{font:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--n-line);border-radius:8px;background:var(--n-card2);color:var(--n-ink)}
+.rsd-tools input{min-width:220px}
+.rsd-tools option{background:#0f2347;color:#e8f0ff}
+.rsd-chk{font-size:13px;display:flex;gap:6px;align-items:center;color:var(--n-ink)}
+.rsd-count{color:var(--n-muted);font-size:13px;margin-left:auto}
+.rsd-wrap{overflow:auto;border:1px solid var(--n-line);border-radius:10px;background:var(--n-card2)}
+.rsd-wrap.tall{max-height:360px}
+.rsd table{border-collapse:collapse;width:100%;font-size:12.5px}
+.rsd th,.rsd td{padding:6px 9px;border-bottom:1px solid var(--n-line);text-align:left;white-space:nowrap;color:var(--n-ink)}
+.rsd th{position:sticky;top:0;background:#183862;color:#cfe0ff;cursor:pointer;user-select:none;z-index:1;font-weight:600}
 .rsd .num{text-align:right;font-variant-numeric:tabular-nums}
-.rsd tr:hover td{background:#f9fbfd}
-.rsd-badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:600;color:#fff}
-.rsd-b-AMAN{background:var(--rsd-aman)}.rsd-b-ORDER{background:var(--rsd-order)}.rsd-b-HABIS{background:var(--rsd-habis)}.rsd-b-NONAKTIF{background:var(--rsd-nonaktif)}
-.rsd-warn{color:#8e44ad;font-weight:600}
-.rsd-msg{padding:14px;color:var(--rsd-muted)}
-.rsd-foot{color:var(--rsd-muted);font-size:12px;margin-top:10px}
+.rsd tbody tr:hover td{background:rgba(94,162,255,.08)}
+.rsd-badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;color:#0b1d3a}
+.rsd-b-AMAN{background:var(--aman)}.rsd-b-ORDER{background:var(--order)}.rsd-b-HABIS{background:var(--habis);color:#fff}.rsd-b-NONAKTIF{background:#7d8fb3;color:#fff}
+.rsd-warn{color:#d6b8ff;font-weight:600}
+.rsd-msg{padding:14px;color:var(--n-muted)}
+.rsd-pager{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-top:10px;font-size:13px;color:var(--n-muted)}
+.rsd-pager .btns{display:flex;gap:4px;flex-wrap:wrap}
+.rsd-pager button,.rsd-pager select{font:inherit;font-size:13px;padding:4px 9px;border:1px solid var(--n-line);border-radius:6px;background:var(--n-card2);color:var(--n-ink);cursor:pointer}
+.rsd-pager button.on{background:var(--n-acc);border-color:var(--n-acc);color:#06142e;font-weight:700}
+.rsd-pager button:disabled{opacity:.4;cursor:default}
+.rsd-foot{color:var(--n-muted);font-size:12px;margin-top:10px}
+.rsd-home-card{margin:0}
+.rsd-home-card .hk-link{color:var(--n-acc);font-size:13px;cursor:pointer;background:none;border:0;padding:0;font:inherit}
 </style>
 <section id="rsdView" data-view="stok" class="rsd">
   <div class="rsd-head">
@@ -1966,8 +1979,21 @@ input,select,textarea{color:#eaf1ff}
       </div>
     </div>
     <div class="rsd-card">
-      <h3>10 reagen dengan perkiraan stok tercukupi paling sedikit (hari)</h3>
-      <div id="rsdChart"><div class="rsd-msg">Memuat…</div></div>
+      <h3>Stok reagensia per kategori</h3>
+      <div id="rsdKategori"><div class="rsd-msg">Memuat…</div></div>
+    </div>
+  </div>
+
+  <div class="rsd-card">
+    <h3>Peringatan expired (sudah lewat atau kurang dari 90 hari)</h3>
+    <div class="rsd-wrap tall">
+      <table>
+        <thead><tr>
+          <th>Kode</th><th>Nama reagen</th><th>Kategori</th><th>Sumber</th>
+          <th class="num">Stok saat ini</th><th>Tanggal expired</th><th class="num">Sisa hari</th><th>Keterangan</th>
+        </tr></thead>
+        <tbody id="rsdExpBody"><tr><td colspan="8" class="rsd-msg">Memuat…</td></tr></tbody>
+      </table>
     </div>
   </div>
 
@@ -1984,7 +2010,7 @@ input,select,textarea{color:#eaf1ff}
       </select>
       <select id="rsdKat"><option value="">Semua kategori</option></select>
       <select id="rsdSum"><option value="">Semua sumber</option></select>
-      <label style="font-size:13px;display:flex;gap:6px;align-items:center"><input type="checkbox" id="rsdExpOnly" style="min-width:0"> Hanya peringatan expired</label>
+      <label class="rsd-chk"><input type="checkbox" id="rsdExpOnly"> Hanya peringatan expired</label>
       <span class="rsd-count" id="rsdCount"></span>
     </div>
     <div class="rsd-wrap">
@@ -1994,33 +2020,41 @@ input,select,textarea{color:#eaf1ff}
           <th data-k="nama">Nama reagen</th>
           <th data-k="kategori">Kategori</th>
           <th data-k="sumber">Sumber</th>
-          <th data-k="awal" class="num">Stok awal</th>
-          <th data-k="masuk" class="num">Masuk</th>
-          <th data-k="keluar" class="num">Keluar</th>
-          <th data-k="akhir" class="num">Stok akhir</th>
+          <th data-k="saat" class="num">Stok saat ini</th>
           <th data-k="buffer" class="num">Buffer</th>
           <th data-k="cukup" class="num">Cukup (hari)</th>
           <th data-k="status">Status</th>
-          <th data-k="expired">Expired terakhir</th>
+          <th data-k="expDate">Tanggal expired</th>
           <th data-k="peringatan">Peringatan</th>
         </tr></thead>
-        <tbody id="rsdBody"><tr><td colspan="13" class="rsd-msg">Memuat…</td></tr></tbody>
+        <tbody id="rsdBody"><tr><td colspan="10" class="rsd-msg">Memuat…</td></tr></tbody>
       </table>
     </div>
+    <div class="rsd-pager">
+      <div>Tampilkan
+        <select id="rsdSize"><option value="10">10</option><option value="20">20</option><option value="50">50</option></select>
+        per halaman · <span id="rsdRange"></span>
+      </div>
+      <div class="btns" id="rsdPages"></div>
+    </div>
   </div>
-  <div class="rsd-foot">Status: HABIS jika stok akhir ≤ 0; ORDER jika stok akhir ≤ buffer; selain itu AMAN. Data dari tab STOK OPNAME.</div>
+  <div class="rsd-foot">Status: HABIS jika stok akhir ≤ 0; ORDER jika stok akhir ≤ buffer; selain itu AMAN. Stok saat ini = stok akhir pada tab STOK OPNAME.</div>
 </section>
 <script>
 (function(){
   var SID='1axwil6eYFLv8OPg44DwEL0SHawrB5r_tdzWnhR78clg', TAB='STOK OPNAME';
   var URL_CSV='https://docs.google.com/spreadsheets/d/'+SID+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent(TAB);
   var URL_SHEET='https://docs.google.com/spreadsheets/d/'+SID+'/edit';
-  var DATA=[], periode='', sortK='kode', sortAsc=true, loaded=false;
-  var COLOR={AMAN:'#2e9d5b',ORDER:'#e0a100',HABIS:'#d64545'};
+  var DATA=[], periode='', sortK='kode', sortAsc=true, page=1, size=10;
+  var COLOR={AMAN:'#3fbf7f',ORDER:'#f0b429',HABIS:'#ef6b6b'};
+  var EXP_HARI=90;
   function $(id){return document.getElementById(id);}
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function fmt(n){return n==null?'–':n.toLocaleString('id-ID');}
   function num(s){s=String(s||'').trim();if(!s||s==='-')return null;var n=Number(s.replace(/\./g,'').replace(',','.'));return isNaN(n)?null:n;}
+  function dateOf(s){var m=/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(s||'').trim());return m?new Date(+m[3],+m[2]-1,+m[1]).getTime():null;}
+  function today(){var d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime();}
+  function sisa(ts){return ts==null?null:Math.round((ts-today())/86400000);}
   function csv(t){
     var rows=[],row=[],cell='',q=false;
     for(var i=0;i<t.length;i++){var c=t[i];
@@ -2041,8 +2075,7 @@ input,select,textarea{color:#eaf1ff}
     var h=rows[hi].map(function(x){return String(x).trim().toLowerCase();});
     function col(n){return h.findIndex(function(x){return x===n||x.indexOf(n)===0;});}
     var C={kode:col('kode'),nama:col('nama reagen'),kat:col('kategori'),sum:col('sumber'),exp:col('expired terakhir'),
-      awal:col('stok awal'),masuk:col('masuk'),keluar:col('keluar'),akhir:col('stok akhir'),buffer:col('buffer'),
-      cukup:col('cukup'),status:col('status'),per:col('peringatan expired')};
+      akhir:col('stok akhir'),buffer:col('buffer'),cukup:col('cukup'),status:col('status'),per:col('peringatan expired')};
     periode='';
     for(r=0;r<hi;r++) for(c=0;c<rows[r].length;c++){
       if(/^periode$/i.test(String(rows[r][c]).trim())){
@@ -2054,18 +2087,21 @@ input,select,textarea{color:#eaf1ff}
       var x=rows[i], g=function(j){return j>=0?String(x[j]||'').trim():'';};
       var kode=g(C.kode), nama=g(C.nama);
       if(!kode||!nama) continue;
-      out.push({kode:kode,nama:nama,kategori:g(C.kat),sumber:g(C.sum),expired:g(C.exp),
-        awal:num(g(C.awal)),masuk:num(g(C.masuk)),keluar:num(g(C.keluar)),akhir:num(g(C.akhir)),
-        buffer:num(g(C.buffer)),cukup:num(g(C.cukup)),status:g(C.status).toUpperCase(),peringatan:g(C.per)});
+      var ex=g(C.exp), ts=dateOf(ex);
+      out.push({kode:kode,nama:nama,kategori:g(C.kat)||'Lainnya',sumber:g(C.sum),expired:ex,expDate:ts,
+        saat:num(g(C.akhir)),buffer:num(g(C.buffer)),cukup:num(g(C.cukup)),
+        status:g(C.status).toUpperCase(),peringatan:g(C.per)});
     }
     if(!out.length) throw new Error('tidak ada data reagen yang terbaca');
     return out;
   }
   function act(d){return d.status!=='NONAKTIF';}
+  function isExp(d){var s=sisa(d.expDate);return (s!=null&&s<=EXP_HARI)||!!d.peringatan;}
+
   function renderKpi(){
     var a=DATA.filter(act), cnt={AMAN:0,ORDER:0,HABIS:0};
     a.forEach(function(d){ if(cnt[d.status]!=null) cnt[d.status]++; });
-    var exp=a.filter(function(d){return d.peringatan;}).length;
+    var exp=a.filter(isExp).length;
     $('rsdTotal').textContent=fmt(a.length); $('rsdAman').textContent=fmt(cnt.AMAN);
     $('rsdOrder').textContent=fmt(cnt.ORDER); $('rsdHabis').textContent=fmt(cnt.HABIS); $('rsdExp').textContent=fmt(exp);
     var total=a.length||1, acc=0, parts=[], legend='';
@@ -2074,28 +2110,48 @@ input,select,textarea{color:#eaf1ff}
       parts.push(COLOR[s]+' '+acc.toFixed(2)+'% '+(acc+p).toFixed(2)+'%'); acc+=p;
       legend+='<div><span class="rsd-dot" style="background:'+COLOR[s]+'"></span>'+s.charAt(0)+s.slice(1).toLowerCase()+': <b>'+fmt(v)+'</b></div>';
     });
-    if(acc<100) parts.push('#e3e8ee '+acc.toFixed(2)+'% 100%');
+    if(acc<100) parts.push('#25426f '+acc.toFixed(2)+'% 100%');
     $('rsdDonut').style.background='conic-gradient('+parts.join(',')+')';
     $('rsdLegend').innerHTML=legend;
+    // ringkasan di beranda
+    var ord=cnt.ORDER+cnt.HABIS;
+    if($('hkOrder')){
+      $('hkOrder').textContent=fmt(ord);
+      $('hkOrderS').innerHTML='Habis '+fmt(cnt.HABIS)+' · Perlu order '+fmt(cnt.ORDER);
+    }
   }
-  function renderChart(){
-    var list=DATA.filter(function(d){return act(d)&&d.cukup!=null;}).sort(function(a,b){return a.cukup-b.cukup;}).slice(0,10);
-    if(!list.length){$('rsdChart').innerHTML='<div class="rsd-msg">Belum ada data perkiraan.</div>';return;}
-    var max=Math.max.apply(null,list.map(function(d){return d.cukup;}))||1;
-    $('rsdChart').innerHTML=list.map(function(d){
-      var w=Math.max(2,d.cukup/max*100), color=d.cukup<=14?'#d64545':d.cukup<=30?'#e0a100':'#2e9d5b';
-      return '<div class="rsd-bar" title="'+esc(d.nama)+'"><div class="nm">'+esc(d.nama)+'</div>'+
-        '<div class="rsd-track"><div class="rsd-fill" style="width:'+w+'%;background:'+color+'"></div></div>'+
-        '<div class="v">'+fmt(d.cukup)+' hari</div></div>';
+  function renderKategori(){
+    var a=DATA.filter(act), g={};
+    a.forEach(function(d){ var k=d.kategori; g[k]=g[k]||{AMAN:0,ORDER:0,HABIS:0,n:0}; g[k].n++; if(g[k][d.status]!=null) g[k][d.status]++; });
+    var list=Object.keys(g).map(function(k){return {k:k,v:g[k]};}).sort(function(x,y){return y.v.n-x.v.n;});
+    if(!list.length){$('rsdKategori').innerHTML='<div class="rsd-msg">Belum ada data.</div>';return;}
+    var max=list[0].v.n||1;
+    $('rsdKategori').innerHTML=list.map(function(x){
+      var v=x.v, segs=['AMAN','ORDER','HABIS'].map(function(s){
+        var w=v[s]/max*100; return w>0?'<span title="'+s+': '+v[s]+'" style="width:'+w+'%;background:'+COLOR[s]+'"></span>':'';
+      }).join('');
+      return '<div class="rsd-cat"><div class="nm" title="'+esc(x.k)+'">'+esc(x.k)+'</div>'+
+        '<div class="rsd-stack" style="width:100%">'+segs+'</div><div class="v">'+fmt(v.n)+'</div></div>';
+    }).join('')+'<div class="rsd-foot">Warna: hijau = aman, kuning = perlu order, merah = habis.</div>';
+  }
+  function renderExpiry(){
+    var list=DATA.filter(function(d){return act(d)&&isExp(d);})
+      .sort(function(a,b){var x=sisa(a.expDate),y=sisa(b.expDate);if(x==null)return 1;if(y==null)return -1;return x-y;});
+    if(!list.length){$('rsdExpBody').innerHTML='<tr><td colspan="8" class="rsd-msg">Tidak ada reagen yang mendekati atau melewati tanggal expired.</td></tr>';return;}
+    $('rsdExpBody').innerHTML=list.map(function(d){
+      var s=sisa(d.expDate);
+      var ket= s==null ? esc(d.peringatan) : s<0 ? 'Sudah kedaluwarsa' : 'Segera expired';
+      return '<tr><td>'+esc(d.kode)+'</td><td>'+esc(d.nama)+'</td><td>'+esc(d.kategori)+'</td><td>'+esc(d.sumber)+'</td>'+
+        '<td class="num">'+fmt(d.saat)+'</td><td>'+esc(d.expired||'–')+'</td>'+
+        '<td class="num '+(s!=null&&s<0?'rsd-warn':'')+'">'+(s==null?'–':fmt(s))+'</td><td class="rsd-warn">'+ket+'</td></tr>';
     }).join('');
   }
-  function renderDonutLabels(){}
   function fillFilters(){
     function uniq(k){return Array.from(new Set(DATA.map(function(d){return d[k];}).filter(Boolean))).sort();}
     $('rsdKat').innerHTML='<option value="">Semua kategori</option>'+uniq('kategori').map(function(v){return '<option>'+esc(v)+'</option>';}).join('');
     $('rsdSum').innerHTML='<option value="">Semua sumber</option>'+uniq('sumber').map(function(v){return '<option>'+esc(v)+'</option>';}).join('');
   }
-  function renderTable(){
+  function filtered(){
     var q=$('rsdQ').value.trim().toLowerCase(), st=$('rsdStatus').value, kat=$('rsdKat').value,
         sum=$('rsdSum').value, exp=$('rsdExpOnly').checked;
     var list=DATA.filter(function(d){
@@ -2103,27 +2159,44 @@ input,select,textarea{color:#eaf1ff}
       if(st && d.status!==st) return false;
       if(kat && d.kategori!==kat) return false;
       if(sum && d.sumber!==sum) return false;
-      if(exp && !d.peringatan) return false;
+      if(exp && !isExp(d)) return false;
       return true;
     });
+    var key={saat:'saat',buffer:'buffer',cukup:'cukup',expDate:'expDate'}[sortK]||sortK;
     list.sort(function(a,b){
-      var x=a[sortK], y=b[sortK];
+      var x=a[key], y=b[key];
       if(x==null) return 1; if(y==null) return -1;
       if(typeof x==='number') return sortAsc? x-y : y-x;
       return sortAsc? String(x).localeCompare(String(y)) : String(y).localeCompare(String(x));
     });
+    return list;
+  }
+  function renderTable(){
+    var list=filtered(), pages=Math.max(1,Math.ceil(list.length/size));
+    if(page>pages) page=pages; if(page<1) page=1;
+    var a=(page-1)*size, slice=list.slice(a,a+size);
     $('rsdCount').textContent=fmt(list.length)+' dari '+fmt(DATA.length)+' reagen';
-    $('rsdBody').innerHTML = list.length ? list.map(function(d){
+    $('rsdBody').innerHTML = slice.length ? slice.map(function(d){
       return '<tr><td>'+esc(d.kode)+'</td><td>'+esc(d.nama)+'</td><td>'+esc(d.kategori)+'</td><td>'+esc(d.sumber)+'</td>'+
-        '<td class="num">'+fmt(d.awal)+'</td><td class="num">'+fmt(d.masuk)+'</td><td class="num">'+fmt(d.keluar)+'</td>'+
-        '<td class="num"><b>'+fmt(d.akhir)+'</b></td><td class="num">'+fmt(d.buffer)+'</td><td class="num">'+fmt(d.cukup)+'</td>'+
+        '<td class="num"><b>'+fmt(d.saat)+'</b></td><td class="num">'+fmt(d.buffer)+'</td><td class="num">'+fmt(d.cukup)+'</td>'+
         '<td><span class="rsd-badge rsd-b-'+esc(d.status)+'">'+esc(d.status||'–')+'</span></td>'+
         '<td>'+esc(d.expired||'–')+'</td><td class="'+(d.peringatan?'rsd-warn':'')+'">'+esc(d.peringatan||'')+'</td></tr>';
-    }).join('') : '<tr><td colspan="13" class="rsd-msg">Tidak ada data yang cocok.</td></tr>';
+    }).join('') : '<tr><td colspan="10" class="rsd-msg">Tidak ada data yang cocok.</td></tr>';
+    $('rsdRange').textContent= list.length ? ('Menampilkan '+(a+1)+'–'+Math.min(a+size,list.length)+' dari '+fmt(list.length)) : 'Tidak ada data';
+    renderPager(pages);
     document.querySelectorAll('#rsdView th[data-k]').forEach(function(th){
       var base=th.textContent.replace(/ [▲▼]$/,'');
       th.textContent = th.dataset.k===sortK ? base+(sortAsc?' ▲':' ▼') : base;
     });
+  }
+  function renderPager(pages){
+    var h='<button type="button" data-p="1" '+(page<=1?'disabled':'')+'>«</button>'+
+          '<button type="button" data-p="'+(page-1)+'" '+(page<=1?'disabled':'')+'>‹</button>';
+    var s=Math.max(1,Math.min(page-2,pages-4)), e=Math.min(pages,s+4);
+    for(var p=s;p<=e;p++) h+='<button type="button" data-p="'+p+'" class="'+(p===page?'on':'')+'">'+p+'</button>';
+    h+='<button type="button" data-p="'+(page+1)+'" '+(page>=pages?'disabled':'')+'>›</button>'+
+       '<button type="button" data-p="'+pages+'" '+(page>=pages?'disabled':'')+'>»</button>';
+    $('rsdPages').innerHTML=h;
   }
   function load(){
     $('rsdErr').style.display='none';
@@ -2131,20 +2204,27 @@ input,select,textarea{color:#eaf1ff}
     fetch(URL_CSV+'&_='+Date.now(),{cache:'no-store'})
       .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
       .then(function(t){
-        DATA=parse(t); loaded=true;
+        DATA=parse(t);
         $('rsdPeriode').textContent='Periode: '+(periode||'–')+' · diperbarui '+new Date().toLocaleTimeString('id-ID');
-        fillFilters(); renderKpi(); renderChart(); renderTable();
+        fillFilters(); renderKpi(); renderKategori(); renderExpiry(); renderTable();
       })
       .catch(function(e){
         $('rsdErr').textContent='Gagal memuat data stok: '+e.message;
         $('rsdErr').style.display='block';
         $('rsdPeriode').textContent='Data tidak tersedia';
-        $('rsdBody').innerHTML='<tr><td colspan="13" class="rsd-msg">Data belum tersedia.</td></tr>';
-        $('rsdChart').innerHTML='<div class="rsd-msg">Data belum tersedia.</div>';
+        $('rsdBody').innerHTML='<tr><td colspan="10" class="rsd-msg">Data belum tersedia.</td></tr>';
+        $('rsdKategori').innerHTML='<div class="rsd-msg">Data belum tersedia.</div>';
+        $('rsdExpBody').innerHTML='<tr><td colspan="8" class="rsd-msg">Data belum tersedia.</td></tr>';
+        if($('hkOrderS')) $('hkOrderS').textContent='Data belum tersedia';
       });
   }
   ['rsdQ','rsdStatus','rsdKat','rsdSum','rsdExpOnly'].forEach(function(id){
-    $(id).addEventListener(id==='rsdQ'?'input':'change', renderTable);
+    $(id).addEventListener(id==='rsdQ'?'input':'change', function(){page=1;renderTable();});
+  });
+  $('rsdSize').addEventListener('change',function(){size=+this.value;page=1;renderTable();});
+  $('rsdPages').addEventListener('click',function(e){
+    var b=e.target.closest('button[data-p]'); if(!b||b.disabled) return;
+    page=+b.dataset.p; renderTable();
   });
   document.querySelectorAll('#rsdView th[data-k]').forEach(function(th){
     th.addEventListener('click',function(){
