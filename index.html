@@ -2101,9 +2101,21 @@ input,select,textarea{color:#eaf1ff}
       exp:col(['expiredterakhir'],'expired'),akhir:col(['stokakhir'],'stokakhir'),
       buffer:col(['buffer','bufferstok'],'buffer'),cukup:col(['cukuphari'],'cukup'),
       status:col(['status']),per:col(['peringatanexpired'],'peringatan')};
-    var miss=[]; ['kode','nama','akhir','buffer','exp'].forEach(function(k){ if(C[k]<0) miss.push(k); });
-    window.__rsdHeaders=h; window.__rsdMissing=miss;
-    if(miss.length) throw new Error('kolom tidak ditemukan: '+miss.join(', ')+'. Header yang terbaca: '+h.filter(Boolean).join(' | '));
+    // Cadangan: bila judul kolom tidak terbaca dari CSV (mis. judul bertingkat/ter-wrap), pakai urutan kolom tetap
+    // dari tab STOK OPNAME: Nama reagen +5 = Expired, +6 = Stok awal, +7 = Masuk, +8 = Keluar, +9 = Stok akhir,
+    // +10 = Buffer, +11 = Cukup (hari), +12 = Status, +13 = Peringatan expired.
+    if(C.exp>=0 && C.exp===C.per) C.exp=-1; // judul 'Peringatan expired' bukan 'Expired terakhir'
+    window.__rsdPositional=[];
+    if(C.nama>=0){
+      var base=C.nama, pos={exp:5,awal:6,masuk:7,keluar:8,akhir:9,buffer:10,cukup:11,status:12,per:13};
+      Object.keys(pos).forEach(function(k){
+        if(C[k]<0 && base+pos[k]<h.length){ C[k]=base+pos[k]; window.__rsdPositional.push(k); }
+      });
+    }
+    var req=[]; ['kode','nama'].forEach(function(k){ if(C[k]<0) req.push(k); });
+    if(req.length) throw new Error('kolom wajib tidak ditemukan: '+req.join(', ')+'. Header yang terbaca: '+h.filter(Boolean).join(' | '));
+    window.__rsdMissing=['akhir','buffer','exp'].filter(function(k){return C[k]<0;})
+      .map(function(k){return {akhir:'stok akhir',buffer:'buffer',exp:'expired terakhir'}[k];});
     periode='';
     for(r=0;r<hi;r++) for(c=0;c<rows[r].length;c++){
       if(/^periode$/i.test(String(rows[r][c]).trim())){
@@ -2233,7 +2245,9 @@ input,select,textarea{color:#eaf1ff}
       .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
       .then(function(t){
         DATA=parse(t);
-        $('rsdPeriode').textContent='Periode: '+(periode||'–')+' · diperbarui '+new Date().toLocaleTimeString('id-ID');
+        var miss=window.__rsdMissing||[];
+        $('rsdPeriode').textContent='Periode: '+(periode||'–')+' · diperbarui '+new Date().toLocaleTimeString('id-ID')+
+          (miss.length?' · belum terbaca dari sumber (kemungkinan kolom disembunyikan): '+miss.join(', '):'');
         fillFilters(); renderKpi(); renderKategori(); renderExpiry(); renderTable();
       })
       .catch(function(e){
