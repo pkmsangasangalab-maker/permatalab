@@ -3908,53 +3908,73 @@ var PANDUAN = [
    });return result;
  }
  function parseChemistryRows(table){
-   const rows=matrixFrom(table).map(r=>r.map(v=>String(v??'').trim()));
-   const result=[];let params=[];
-   const paramish=t=>{const n=norm(t);return !!n && !/^(NO\.?|NOMOR|TANGGAL|TGL|HARI|DAY|TAHUN|YEAR|TRIWULAN|TW\s*[1-4]|KETERANGAN|CATATAN|HASIL|NILAI|RESULT|VALUE|MEAN|SD|CV|CONTROL|KONTROL|LEVEL|BULAN|PARAMETER|PEMERIKSAAN|ANALIT|QC)$/i.test(n) && !/^20\d\d$/.test(n) && !/^\d+$/.test(n);};
-   const meta=(t,kind)=>{const n=norm(t);if(kind==='param')return /PARAMETER|PEMERIKSAAN|ANALIT|ANALYTE/.test(n);if(kind==='value')return /HASIL|NILAI|RESULT|VALUE|KONTROL|CONTROL|LEVEL/.test(n);if(kind==='year')return /TAHUN|YEAR/.test(n);if(kind==='quarter')return /TRIWULAN|KUARTAL|QUARTER|^TW$/.test(n);if(kind==='day')return /TANGGAL|TGL|HARI|DAY|DATE|URUTAN|NO\.?/.test(n);return false;};
-   // Format tabel panjang: satu baris untuk satu parameter dan satu hasil QC.
+   // Hanya izinkan nama parameter Kimia Klinik yang valid; jangan pernah menebak
+   // nama parameter dari angka hasil kontrol yang kebetulan berada di baris judul.
+   const raw=matrixFrom(table).map(r=>r.map(v=>String(v??'').trim()));
+   const aliases=[
+     {name:'GULA DARAH',re:/GULA\s*DARAH|GLUKOSA|GLUCOSE|BLOOD\s*GLUCOSE/},
+     {name:'ASAM URAT',re:/ASAM\s*URAT|URIC\s*ACID|URATE/},
+     {name:'KOLESTEROL',re:/KOLESTEROL|CHOLESTEROL|TOTAL\s*CHOL/}
+   ];
+   const canonical=t=>{const n=norm(t);const a=aliases.find(x=>x.re.test(n));return a?a.name:null;};
+   const meta=(t,kind)=>{const n=norm(t);if(kind==='param')return /PARAMETER|PEMERIKSAAN|ANALIT|ANALYTE/.test(n);if(kind==='value')return /HASIL|NILAI|RESULT|VALUE|KONTROL|CONTROL|LEVEL/.test(n);if(kind==='year')return /TAHUN|YEAR/.test(n);if(kind==='quarter')return /TRIWULAN|KUARTAL|QUARTER|^TW$/.test(n);if(kind==='day')return /TANGGAL|TGL|HARI|DAY|DATE|URUTAN|^NO\.?$/.test(n);return false;};
+   const result=[], params=[];
+   // Bentuk panjang: kolom parameter dan hasil/nilai.
    let longHeader=-1, cols={};
-   for(let i=0;i<Math.min(rows.length,30);i++){
-     const r=rows[i];const find=k=>r.findIndex(v=>meta(v,k));
+   for(let i=0;i<Math.min(raw.length,40);i++){
+     const r=raw[i], find=k=>r.findIndex(v=>meta(v,k));
      const c={param:find('param'),value:find('value'),year:find('year'),quarter:find('quarter'),day:find('day')};
      if(c.param>=0&&c.value>=0){longHeader=i;cols=c;break;}
    }
    if(longHeader>=0){
-     const found=new Set();let yr=2026,q=1;
-     rows.slice(longHeader+1).forEach((r,idx)=>{
-       const label=r[cols.param]||'';const value=number(r[cols.value]);if(!label||value===null)return;
-       let y=cols.year>=0?number(r[cols.year]):null;if(y&&y<100)y+=2000;
-       if(!y){const m=norm(r.join(' ')).match(/20(25|26)/);if(m)y=Number('20'+m[1]);}if(!y)y=yr;
-       const qt=cols.quarter>=0?norm(r[cols.quarter]):norm(r.join(' '));const qm=qt.match(/(?:TW|TRIWULAN|Q)\s*([1-4])/);const quarter=qm?Number(qm[1]):q;
-       const dv=cols.day>=0?r[cols.day]:'';const dateText=String(dv);const iso=dateText.match(/20\d{2}[-/](\d{1,2})[-/](\d{1,2})/);const dmy=dateText.match(/(\d{1,2})[-/](\d{1,2})[-/](?:20)?(\d{2,4})/);let day=iso?Number(iso[2]):dmy?Number(dmy[1]):(number(dv)!==null?number(dv):idx+1);if(!y&&iso)y=Number(dateText.slice(0,4));if(!y&&dmy)y=Number(dmy[3].length===2?'20'+dmy[3]:dmy[3]);
-       const param=label.trim();found.add(param);result.push({year:y,quarter,day,param,value,rowIndex:longHeader+idx+2});
-     });
-     if(result.length){params=[...found];return {data:result,params};}
-   }
-   // Format tabel lebar: nama parameter menjadi judul kolom dan nilai berada di bawahnya.
-   let best=-1,bestScore=0;
-   for(let i=0;i<Math.min(rows.length,35);i++){
-     const r=rows[i];let score=0;
-     r.forEach((v,j)=>{if(paramish(v)){let numeric=0;for(let k=i+1;k<Math.min(rows.length,i+12);k++)if(number(rows[k][j])!==null)numeric++;if(numeric>=2)score+=1;}});
-     if(score>bestScore){bestScore=score;best=i;}
-   }
-   if(best>=0&&bestScore>=1){
-     const header=rows[best], paramCols=[];header.forEach((v,j)=>{if(paramish(v)){let has=false;for(let k=best+1;k<Math.min(rows.length,best+12);k++)if(number(rows[k][j])!==null){has=true;break;}if(has)paramCols.push({j,param:v.trim()});}});
-     params=paramCols.map(x=>x.param);
      let year=2026,quarter=1;
-     for(let i=best+1;i<rows.length;i++){
-       const r=rows[i], joined=norm(r.join(' '));const ym=joined.match(/20(25|26)/);if(ym)year=Number('20'+ym[1]);const qm=joined.match(/(?:TW|TRIWULAN|Q)\s*([1-4])/);if(qm){quarter=Number(qm[1]);if(!r.some(v=>number(v)!==null))continue;}
-       let day=null;for(let j=0;j<Math.min(r.length,3);j++){const n=number(r[j]);if(n!==null&&Number.isInteger(n)&&n>=1&&n<=31){day=n;break;}}
-       paramCols.forEach(c=>{const value=number(r[c.j]);if(value!==null)result.push({year,quarter,day:day??(i-best),param:c.param,value,rowIndex:i+1});});
+     raw.slice(longHeader+1).forEach((r,idx)=>{
+       const label=r[cols.param]||'', param=canonical(label), value=number(r[cols.value]);
+       if(!param||value===null)return;
+       const joined=norm(r.join(' '));let y=cols.year>=0?number(r[cols.year]):null;
+       if(y&&y<100)y+=2000;const ym=joined.match(/20(25|26)/);if(!y&&ym)y=Number('20'+ym[1]);if(!y)y=year;else year=y;
+       const qtxt=cols.quarter>=0?norm(r[cols.quarter]):joined;const qm=qtxt.match(/(?:TW|TRIWULAN|KUARTAL|QUARTER|Q)\s*([1-4])/);if(qm)quarter=Number(qm[1]);
+       const dv=cols.day>=0?String(r[cols.day]||''):'';const iso=dv.match(/20\d{2}[-/](\d{1,2})[-/](\d{1,2})/),dmy=dv.match(/(\d{1,2})[-/](\d{1,2})[-/](?:20)?(\d{2,4})/);
+       const dn=number(dv);const day=iso?Number(iso[3]):dmy?Number(dmy[1]):(dn!==null&&dn>=1&&dn<=31?dn:idx+1);
+       result.push({year:y,quarter,day,param,value,rowIndex:longHeader+idx+2});if(!params.includes(param))params.push(param);
+     });
+   }
+   // Bentuk lebar: parameter dikenal menjadi judul kolom (GULA DARAH, ASAM URAT, KOLESTEROL).
+   if(!result.length){
+     let headerIndex=-1, paramCols=[];
+     for(let i=0;i<Math.min(raw.length,60);i++){
+       const colsFound=[];raw[i].forEach((v,j)=>{const p=canonical(v);if(p&&!colsFound.some(x=>x.param===p))colsFound.push({j,param:p});});
+       if(colsFound.length){headerIndex=i;paramCols=colsFound;break;}
+     }
+     if(headerIndex>=0){
+       let year=2026,quarter=1;
+       for(let i=headerIndex+1;i<raw.length;i++){
+         const r=raw[i], joined=norm(r.join(' '));
+         const ym=joined.match(/20(25|26)/);if(ym)year=Number('20'+ym[1]);
+         const qm=joined.match(/(?:TW|TRIWULAN|KUARTAL|QUARTER|Q)\s*([1-4])/);if(qm){quarter=Number(qm[1]);if(!r.some(v=>number(v)!==null))continue;}
+         let day=null;
+         for(let j=0;j<Math.min(r.length,5);j++){
+           const v=String(r[j]||''), iso=v.match(/20\d{2}[-/](\d{1,2})[-/](\d{1,2})/), dmy=v.match(/(\d{1,2})[-/](\d{1,2})[-/](?:20)?(\d{2,4})/), n=number(v);
+           if(iso){day=Number(iso[3]);break;}if(dmy){day=Number(dmy[1]);break;}if(n!==null&&Number.isInteger(n)&&n>=1&&n<=31){day=n;break;}
+         }
+         paramCols.forEach(c=>{const value=number(r[c.j]);if(value!==null){result.push({year,quarter,day:day??(i-headerIndex),param:c.param,value,rowIndex:i+1});if(!params.includes(c.param))params.push(c.param);}});
+       }
      }
    }
-   // Fallback untuk sheet berformat blok tahun/triwulan dengan nama parameter di baris judul.
+   // Bentuk vertikal: nama parameter ada di salah satu kolom dan angka di kolom lain.
    if(!result.length){
-     let year=2026,quarter=1;rows.forEach((r,ri)=>{const joined=norm(r.join(' '));const ym=joined.match(/20(25|26)/);if(ym)year=Number('20'+ym[1]);const qm=joined.match(/(?:TW|TRIWULAN|Q)\s*([1-4])/);if(qm)quarter=Number(qm[1]);
-       r.forEach((v,j)=>{if(!paramish(v))return;let value=null;for(let k=ri+1;k<Math.min(rows.length,ri+5);k++){value=number(rows[k][j]);if(value!==null)break;}if(value!==null){params.push(v.trim());result.push({year,quarter,day:ri+1,param:v.trim(),value,rowIndex:ri+1});}});
-     });params=[...new Set(params)];
+     let year=2026,quarter=1;
+     raw.forEach((r,ri)=>{
+       const joined=norm(r.join(' ')),ym=joined.match(/20(25|26)/),qm=joined.match(/(?:TW|TRIWULAN|KUARTAL|QUARTER|Q)\s*([1-4])/);
+       if(ym)year=Number('20'+ym[1]);if(qm)quarter=Number(qm[1]);
+       r.forEach((v,j)=>{const param=canonical(v);if(!param)return;
+         let value=null;for(let k=j+1;k<r.length;k++){value=number(r[k]);if(value!==null)break;}
+         if(value===null){for(let k=0;k<r.length;k++){if(k===j)continue;value=number(r[k]);if(value!==null)break;}}
+         if(value!==null){result.push({year,quarter,day:ri+1,param,value,rowIndex:ri+1});if(!params.includes(param))params.push(param);}
+       });
+     });
    }
-   return {data:result,params:[...new Set(params)]};
+   return {data:result,params:params.filter(Boolean)};
  }
  function setMetricOptions(params,preferred){const sel=$('sdMetric');const old=preferred||sel.value;sel.innerHTML=params.map(p=>'<option value="'+esc(p)+'">'+esc(p.charAt(0)+p.slice(1).toLowerCase())+'</option>').join('');if(params.includes(old))sel.value=old;}
  async function fetchSheet(url){const res=await fetch(url,{cache:'no-store'});if(!res.ok)throw Error('HTTP '+res.status+' saat membuka tab sumber');const obj=gviz(await res.text());if(!obj.table||!obj.table.rows)throw Error('Tab sumber tidak memiliki data yang dapat dibaca');return obj.table;}
