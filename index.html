@@ -3795,7 +3795,7 @@ var PANDUAN = [
 #sdDashboard .sd-toolbar label{font-weight:750;font-size:.95rem;color:#f8fafc}
 #sdDashboard select,#sdDashboard input{max-width:100%;padding:10px 12px;border:1px solid #45658a;border-radius:9px;background:#08172c;color:#f8fafc;min-height:42px}
 #sdDashboard select:focus,#sdDashboard input:focus{outline:2px solid #38bdf8;outline-offset:2px}
-#sdDashboard .sd-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:16px 0}
+#sdDashboard .sd-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin:16px 0}
 #sdDashboard .sd-card{border:1px solid #294568;border-radius:16px;padding:18px;background:linear-gradient(155deg,#10233e,#0b1a30);color:#f1f5f9;min-width:0;box-shadow:0 8px 24px #02081755}
 #sdDashboard .sd-stat{position:relative;overflow:hidden}
 #sdDashboard .sd-stat:after{content:'';position:absolute;right:-20px;top:-25px;width:86px;height:86px;border-radius:50%;background:#60a5fa16;pointer-events:none}
@@ -3819,27 +3819,30 @@ var PANDUAN = [
 #sdDashboard a{color:#7dd3fc;text-decoration:underline;text-underline-offset:3px}
 #sdDashboard a:hover{color:#fff}
 #sdDashboard .sd-pill{display:inline-flex;padding:5px 10px;border-radius:999px;background:#173b68;border:1px solid #4676a8;color:#e0f2fe;font-size:.8rem;font-weight:800}
-@media(max-width:900px){#sdDashboard .sd-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#sdDashboard .sd-two{grid-template-columns:1fr}}
+@media(max-width:1100px){#sdDashboard .sd-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:900px){#sdDashboard .sd-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#sdDashboard .sd-two{grid-template-columns:1fr}}
 @media(max-width:480px){#sdDashboard{padding:10px}#sdDashboard .sd-head{padding:18px}#sdDashboard .sd-grid{gap:8px}#sdDashboard .sd-card{padding:13px}#sdDashboard .sd-value{font-size:1.35rem}#sdDashboard .sd-chart{height:280px}}
 </style>
 <section id="sdDashboard" data-view="standar-deviasi">
-  <div class="sd-head"><div><div class="sd-pill">PERMATA LAB · ANALISIS MUTU</div><h2 style="margin-top:10px">Dashboard Standar Deviasi</h2><div class="sd-muted">Pilih jenis pemeriksaan untuk menghitung standar deviasi secara terpisah</div></div><button id="sdRefresh" class="sd-btn" type="button">↻ Muat ulang data</button></div>
+  <div class="sd-head" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:#f8fafc;border:1px solid #dbe5f1;border-radius:16px;padding:20px 22px;color:#0f172a"><div><div class="sd-pill" style="background:#e0f2fe;color:#075985;border-color:#bae6fd">PERMATA LAB · ANALISIS MUTU</div><h2 style="margin-top:10px;color:#0f172a;font-size:1.45rem">Dashboard Standar Deviasi (QC)</h2><div class="sd-muted" style="color:#64748b">Pemantauan hasil kontrol harian, rata-rata, dan batas statistik</div></div><button id="sdRefresh" class="sd-btn" type="button">↻ Sinkronkan Spreadsheet</button></div>
   <div class="sd-toolbar"><label for="sdMetric">Jenis pemeriksaan</label><select id="sdMetric" aria-label="Pilih parameter"><option>Memuat parameter…</option></select><span id="sdUpdated" class="sd-muted">Menghubungkan ke spreadsheet…</span></div>
   <div class="sd-grid">
-    <div class="sd-card sd-stat"><div class="sd-label">Jumlah hasil valid (n)</div><div class="sd-value" id="sdN">—</div></div>
-    <div class="sd-card sd-stat"><div class="sd-label">Rata-rata (Mean)</div><div class="sd-value" id="sdMean">—</div></div>
-    <div class="sd-card sd-stat"><div class="sd-label">Standar deviasi sampel (SD)</div><div class="sd-value" id="sdStd">—</div></div>
-    <div class="sd-card sd-stat"><div class="sd-label">Koefisien variasi (CV)</div><div class="sd-value" id="sdCv">—</div></div>
+    <div class="sd-card sd-stat"><div class="sd-label">Rata-rata (Mean)</div><div class="sd-value" id="sdMean">—</div><div class="sd-muted" style="color:#059669;margin-top:8px">Garis tengah</div></div>
+    <div class="sd-card sd-stat"><div class="sd-label">Standar deviasi (SD)</div><div class="sd-value" id="sdStd">—</div><div class="sd-muted" style="color:#2563eb;margin-top:8px">Variasi sebaran</div></div>
+    <div class="sd-card sd-stat"><div class="sd-label">Koefisien variasi (CV%)</div><div class="sd-value" id="sdCv">—</div><div class="sd-muted" style="margin-top:8px">SD ÷ |Mean| × 100%</div></div>
+    <div class="sd-card sd-stat"><div class="sd-label">TEa (Error Allowable)</div><div class="sd-value" id="sdTea">—</div><div class="sd-muted" style="margin-top:8px">Dari sumber jika tersedia</div></div>
+    <div class="sd-card sd-stat"><div class="sd-label">Nilai Sigma (σ)</div><div class="sd-value" id="sdSigma">—</div><div class="sd-muted" style="margin-top:8px">Perlu TEa dan bias</div></div>
+    <div class="sd-card sd-stat"><div class="sd-label">Nomor Lot & ED</div><div class="sd-value" id="sdLot" style="font-size:1rem">—</div><div class="sd-muted" id="sdEd" style="margin-top:8px">ED: —</div></div>
   </div>
+  <div class="sd-card" style="margin-bottom:14px;background:#ecfdf5;border-color:#a7f3d0;color:#065f46"><strong>ⓘ Status kontrol:</strong> <span id="sdControlStatus">Menunggu data kontrol untuk dievaluasi.</span></div>
   <div class="sd-two">
-    <div class="sd-card"><h3>Grafik hasil dan batas statistik</h3><div class="sd-muted">Hasil individual dibandingkan dengan mean serta batas ±1, ±2, dan ±3 SD.</div><div class="sd-chart"><canvas id="sdChart" aria-label="Grafik standar deviasi"></canvas></div><div class="sd-note">Catatan: batas ±SD merupakan ringkasan statistik data yang sedang dianalisis, bukan otomatis batas penerimaan klinis atau batas kendali mutu yang telah ditetapkan.</div></div>
-    <div class="sd-card"><h3>Interpretasi ringkas</h3><div id="sdInterpret" class="sd-note">Data sedang dimuat.</div><details class="sd-source"><summary>Pengaturan sumber data</summary><label for="sdGids">GID tab yang digabungkan</label><input id="sdGids" type="text" value="18484466,618014012,403450994,1047730198,1160961274" style="width:100%" aria-describedby="sdGidHelp"><div id="sdGidHelp" class="sd-muted" style="margin-top:7px">Dashboard menggabungkan lima tab yang sudah teridentifikasi di portal. Jika spreadsheet memiliki tab lain, masukkan GID-nya dipisahkan koma. GID adalah angka pada URL setelah <code>gid=</code>.</div><p><a href="https://docs.google.com/spreadsheets/d/1EjhqFF-AkdaHBIsNeOaozPOoH-36YYgIY3zCEk5oxm4/edit" target="_blank" rel="noopener noreferrer">Buka spreadsheet sumber ↗</a></p><button id="sdApplySources" class="sd-btn" type="button" style="background:#155eef;color:white;border-color:#155eef">Terapkan sumber</button></details></div>
+    <div class="sd-card"><h3>Grafik Levey–Jennings: <span id="sdChartTitle">Kontrol Harian</span></h3><div class="sd-muted">Plot hasil kontrol harian (Hari 1–31), garis tengah = Mean, dan batas kontrol ±1SD, ±2SD, ±3SD.</div><div class="sd-chart"><canvas id="sdChart" aria-label="Grafik standar deviasi"></canvas></div><div class="sd-note">Catatan: batas ±SD merupakan ringkasan statistik data yang sedang dianalisis, bukan otomatis batas penerimaan klinis atau batas kendali mutu yang telah ditetapkan.</div></div>
+    <div class="sd-card"><h3>Interpretasi ringkas</h3><div id="sdInterpret" class="sd-note">Data sedang dimuat.</div><details class="sd-source"><summary>Sumber data</summary><p>Dashboard menggunakan satu sumber spreadsheet yang ditentukan. Untuk mengubah data, edit spreadsheet sumber lalu tekan Sinkronkan Spreadsheet.</p><p><a href="https://docs.google.com/spreadsheets/d/1EjhqFF-AkdaHBIsNeOaozPOoH-36YYgIY3zCEk5oxm4/edit?gid=18484466#gid=18484466" target="_blank" rel="noopener noreferrer">Buka spreadsheet sumber ↗</a></p></details></div>
   </div>
   <div class="sd-card" style="margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><h3 style="margin-bottom:4px">Rincian hasil dan deviasi</h3><div class="sd-muted">Nilai numerik, selisih terhadap rata-rata, Z-score, dan posisi statistik.</div></div><span id="sdRowCount" class="sd-pill">0 baris</span></div><div class="sd-table-wrap"><table><thead id="sdThead"></thead><tbody id="sdTbody"><tr><td>Memuat data…</td></tr></tbody></table></div><div id="sdNote" class="sd-note">Data dimuat langsung dari Google Sheets. Spreadsheet harus dapat dibaca oleh browser.</div></div>
 </section>
 <script>
 (function(){
- const SHEET='1EjhqFF-AkdaHBIsNeOaozPOoH-36YYgIY3zCEk5oxm4';
+ const SHEET='1EjhqFF-AkdaHBIsNeOaozPOoH-36YYgIY3zCEk5oxm4'; const SOURCE_GID='18484466';
  const $=id=>document.getElementById(id); let rows=[],headers=[],chart=null,layout=null;
  const PARAMS=[
   {name:'Leukosit',aliases:['leukosit','leucocyte','leucocytes','wbc','white blood cell']},
@@ -3871,8 +3874,7 @@ var PANDUAN = [
  async function load(){
    $('sdNote').textContent='Mengambil data dari semua tab yang ditentukan…';
    try{
-     const gids=[...new Set($('sdGids').value.split(/[;,\s]+/).map(x=>x.trim()).filter(x=>/^\d+$/.test(x)))];
-     if(!gids.length)throw Error('Masukkan minimal satu GID tab.');
+     const gids=[SOURCE_GID];
      const all=[],union=[];let success=0,errors=[];
      for(const gid of gids){try{
        const url='https://docs.google.com/spreadsheets/d/'+SHEET+'/gviz/tq?tqx=out:json&gid='+encodeURIComponent(gid)+'&headers=1';
@@ -3883,7 +3885,7 @@ var PANDUAN = [
        if(!data.length)throw Error('tidak ada baris data');
        hs.forEach(h=>{if(!union.includes(h))union.push(h)});all.push({gid,headers:hs,rows:data});success++;
      }catch(e){errors.push(gid+': '+(e.message||e));}}
-     if(!success)throw Error('Tidak ada tab yang berhasil dibaca. Periksa GID dan akses spreadsheet. '+errors.join(' | '));
+     if(!success)throw Error('Spreadsheet sumber tidak berhasil dibaca. Pastikan akses berbagi diatur agar dapat dilihat melalui tautan. '+errors.join(' | '));
      headers=['Sumber tab',...union];rows=[];
      all.forEach(tab=>tab.rows.forEach(r=>{const mapped=union.map(h=>{const i=tab.headers.indexOf(h);return i>=0?(r[i]??''):''});rows.push(['gid '+tab.gid,...mapped]);}));
      layout=detectLayout();const sel=$('sdMetric'),old=sel.value;sel.innerHTML='';
@@ -3906,8 +3908,11 @@ var PANDUAN = [
    }
    const n=vals.length,mean=n?vals.reduce((s,x)=>s+x.value,0)/n:0;
    const variance=n>1?vals.reduce((s,x)=>s+Math.pow(x.value-mean,2),0)/(n-1):0,sd=Math.sqrt(variance),cv=mean!==0?Math.abs(sd/mean*100):null;
-   $('sdN').textContent=fmt(n);$('sdMean').textContent=n?fmt(mean):'—';$('sdStd').textContent=n>1?fmt(sd):'—';$('sdCv').textContent=cv==null?'—':fmt(cv)+'%';
+   $('sdN').textContent=fmt(n);$('sdMean').textContent=n?fmt(mean):'—';$('sdStd').textContent=n>1?'±'+fmt(sd):'—';$('sdCv').textContent=cv==null?'—':fmt(cv)+'%';
+   const findField=patterns=>{const i=headers.findIndex(h=>patterns.some(p=>p.test(norm(h))));if(i<0)return '';const found=rows.map(r=>String(r[i]??'').trim()).find(v=>v&&v!=='—');return found||''};
+   const tea=findField([/^(tea|error allowable|total allowable error|batas error)$/i,/allowable.*error/i]);const lot=findField([/nomor lot|no lot|lot number|^lot$/i]);const ed=findField([/expired|expiry|^ed$|tanggal kedaluwarsa/i]);const bias=findField([/^bias( %)?$/i,/bias.*%/i]);
    const out=vals.filter(x=>sd>0&&Math.abs(x.value-mean)>3*sd).length;
+   $('sdTea').textContent=tea||'—';$('sdSigma').textContent='—';$('sdLot').textContent=lot||'—';$('sdEd').textContent='ED: '+(ed||'—');$('sdControlStatus').textContent=n<2?'Data belum cukup untuk menilai kontrol.':(out===0?'Belum ada hasil di luar ±3 SD pada data yang dianalisis.':out+' hasil berada di luar ±3 SD; periksa hasil kontrol sebelum merilis hasil pasien.');$('sdChartTitle').textContent=opt.name.toUpperCase();
    $('sdInterpret').textContent=n<2?'Parameter “'+opt.name+'” belum memiliki minimal dua nilai numerik untuk menghitung SD sampel.':('Parameter “'+opt.name+'”: '+n+' nilai valid dianalisis. '+out+' nilai berada di luar ±3 SD dari rata-rata. CV% = SD ÷ |rata-rata| × 100%.');
    const valueHead=layout.mode==='rows'?headers[layout.resultCol]:(opt.header||headers[opt.col]);
    $('sdThead').innerHTML='<tr><th>No.</th><th>Sumber tab</th><th>Parameter / baris data</th><th>'+esc(valueHead||opt.name)+'</th><th>Deviasi dari rata-rata</th><th>Z-score</th><th>Status statistik</th></tr>';
@@ -3920,7 +3925,7 @@ var PANDUAN = [
    if(chart)chart.destroy();chart=new Chart($('sdChart'),{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{color:'#e2eaf6',usePointStyle:true,padding:14}},tooltip:{backgroundColor:'#071326',titleColor:'#ffffff',bodyColor:'#f1f5f9',borderColor:'#45658a',borderWidth:1}},scales:{x:{ticks:{maxTicksLimit:10,color:'#c7d8ee'},grid:{color:'#294568'},border:{color:'#45658a'}},y:{beginAtZero:false,ticks:{color:'#c7d8ee'},grid:{color:'#294568'},border:{color:'#45658a'}}}}});
  }
  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
- $('sdMetric').addEventListener('change',render);$('sdRefresh').addEventListener('click',load);$('sdApplySources').addEventListener('click',load);$('sdGids').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();load()}});load();
+ $('sdMetric').addEventListener('change',render);$('sdRefresh').addEventListener('click',load);load();
 })();
 </script>
 
