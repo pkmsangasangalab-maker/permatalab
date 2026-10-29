@@ -3845,7 +3845,7 @@ var PANDUAN = [
   </div>
   <div class="qc-main-grid">
     <article class="qc-panel qc-chart-panel"><div class="qc-panel-head"><div><h3>Grafik Levey–Jennings</h3><p id="sdChartSubtitle">Pilih parameter, tahun, dan triwulan untuk menampilkan data sumber.</p></div><span class="qc-chip" id="sdChartChip">QC</span></div><div class="qc-chart"><canvas id="sdChart" aria-label="Grafik Levey-Jennings"></canvas></div><div class="qc-legend-note">Garis tengah = Mean. Garis batas menunjukkan ±1 SD, ±2 SD, dan ±3 SD dari data yang sedang dianalisis.</div></article>
-    <article class="qc-panel"><h3>Ringkasan analisis</h3><div class="qc-summary-row"><span>Data di luar ±2 SD</span><strong id="sdOutside2">—</strong></div><div class="qc-summary-row"><span>Data di luar ±3 SD</span><strong id="sdOutside3">—</strong></div><div class="qc-summary-row"><span>Triwulan / tahun</span><strong id="sdPeriod">—</strong></div><div id="sdInterpret" class="qc-interpret">Ringkasan akan muncul setelah data sumber berhasil dibaca.</div><details class="qc-source"><summary>Sumber data</summary><p>Dashboard membaca spreadsheet PROJECT STANDAR DEVIATION LAB 2025 yang memuat data tahun 2025 dan 2026.</p><a href="https://docs.google.com/spreadsheets/d/1EjhqFF-AkdaHBIsNeOaozPOoH-36YYgIY3zCEk5oxm4/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Buka spreadsheet sumber ↗</a></details></article>
+    <article class="qc-panel"><h3>Ringkasan analisis</h3><div class="qc-summary-row"><span>Data di luar ±2 SD</span><strong id="sdOutside2">—</strong></div><div class="qc-summary-row"><span>Data di luar ±3 SD</span><strong id="sdOutside3">—</strong></div><div class="qc-summary-row"><span>Triwulan / tahun</span><strong id="sdPeriod">—</strong></div><div id="sdInterpret" class="qc-interpret">Ringkasan akan muncul setelah data sumber berhasil dibaca.</div><details class="qc-source"><summary>Sumber data</summary><p>Dashboard membaca spreadsheet PROJECT STANDAR DEVIATION LAB 2025 yang memuat data tahun 2025 dan 2026.</p><a href="https://docs.google.com/spreadsheets/d/1EjhqFF-AkdaHBIsNeOaozPOoH-36YYgIY3zCEk5oxm4/edit?gid=1252703038#gid=1252703038" target="_blank" rel="noopener noreferrer">Buka spreadsheet sumber ↗</a></details></article>
   </div>
   <article class="qc-panel qc-table-panel"><div class="qc-panel-head"><div><h3>Rincian hasil pemeriksaan</h3><p>Nilai sumber, deviasi dari rata-rata, Z-score, dan posisi statistik.</p></div><span class="qc-chip" id="sdRowCount">0 baris</span></div><div class="qc-table-wrap"><table><thead><tr><th>No.</th><th>Triwulan</th><th>Hari / urutan</th><th>Parameter</th><th>Hasil</th><th>Deviasi</th><th>Z-score</th><th>Status statistik</th></tr></thead><tbody id="sdTbody"><tr><td colspan="8">Memuat data sumber…</td></tr></tbody></table></div><p class="qc-footnote" id="sdNote">Data ditampilkan sesuai angka yang berhasil dibaca dari spreadsheet. Batas statistik bukan pengganti aturan QC laboratorium yang telah ditetapkan.</p></article>
 </section>
@@ -3883,69 +3883,125 @@ var PANDUAN = [
  'use strict';
  const SHEET='1EjhqFF-AkdaHBIsNeOaozPOoH-36YYgIY3zCEk5oxm4';
  const GID='18484466';
- const PARAMS=['LEUKOSIT','ERITROSIT','HEMOGLOBIN','HEMATOKRIT','TROMBOSIT'];
- const $=id=>document.getElementById(id); let sourceData=[],chart=null,loaded=false;
+ const CHEM_GID='1252703038';
+ const HEMATO_PARAMS=['LEUKOSIT','ERITROSIT','HEMOGLOBIN','HEMATOKRIT','TROMBOSIT'];
+ const HEMATO_LABELS={'LEUKOSIT':'Leukosit','ERITROSIT':'Eritrosit','HEMOGLOBIN':'Hemoglobin','HEMATOKRIT':'Hematokrit','TROMBOSIT':'Trombosit'};
+ const CHEM_TAB='data kontrol kimia klinik';
+ let activeParams=HEMATO_PARAMS.slice(), sourceData=[], chart=null, loaded=false, chemistryData=[], chemistryParams=[];
+ const $=id=>document.getElementById(id);
  const norm=v=>String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/\s+/g,' ').trim();
  const cell=c=>c?(c.f!=null?c.f:(c.v!=null?c.v:'')):'';
  const number=v=>{if(typeof v==='number')return Number.isFinite(v)?v:null;let s=String(v??'').trim().replace(/\s/g,'');if(!s)return null;if(/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(s))s=s.replace(/\./g,'').replace(',','.');else s=s.replace(',','.');const n=Number(s);return Number.isFinite(n)?n:null;};
  const fmt=v=>v==null||!Number.isFinite(v)?'—':v.toLocaleString('id-ID',{maximumFractionDigits:3});
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  function gviz(text){const a=text.indexOf('{'),b=text.lastIndexOf('}');if(a<0||b<a)throw Error('Respons Google Sheets tidak terbaca');return JSON.parse(text.slice(a,b+1));}
- function parseRows(table){
-   const matrix=(table.rows||[]).map(r=>(r.c||[]).map(cell));
-   let quarterByBlock=[1,1];const result=[];
+ function matrixFrom(table){return (table.rows||[]).map(r=>(r.c||[]).map(cell));}
+ function parseHematologyRows(table){
+   const matrix=matrixFrom(table);let quarterByBlock=[1,1];const result=[];
    matrix.forEach((r,ri)=>{
-     [{year:2026,no:0,start:1,qcol:0},{year:2025,no:7,start:8,qcol:7}].forEach(block=>{
-       const qtxt=norm(r[block.qcol]);const qm=qtxt.match(/TW\s*([1-4])/);if(qm){quarterByBlock[block.year===2026?0:1]=Number(qm[1]);return;}
+     [{year:2026,no:0,start:1},{year:2025,no:7,start:8}].forEach(block=>{
+       const qm=norm(r[block.no]).match(/TW\s*([1-4])/);if(qm){quarterByBlock[block.year===2026?0:1]=Number(qm[1]);return;}
        const day=number(r[block.no]);if(day===null||day<1||day>31||!Number.isInteger(day))return;
-       const values=PARAMS.map((_,i)=>number(r[block.start+i]));
-       if(!values.some(v=>v!==null))return;
-       result.push({year:block.year,quarter:quarterByBlock[block.year===2026?0:1],day,values,rowIndex:ri+1});
+       const values=HEMATO_PARAMS.map((_,i)=>number(r[block.start+i]));
+       values.forEach((value,i)=>{if(value!==null)result.push({year:block.year,quarter:quarterByBlock[block.year===2026?0:1],day,param:HEMATO_PARAMS[i],value,rowIndex:ri+1});});
      });
-   });
-   return result;
+   });return result;
  }
+ function parseChemistryRows(table){
+   const rows=matrixFrom(table).map(r=>r.map(v=>String(v??'').trim()));
+   const result=[];let params=[];
+   const paramish=t=>{const n=norm(t);return !!n && !/^(NO\.?|NOMOR|TANGGAL|TGL|HARI|DAY|TAHUN|YEAR|TRIWULAN|TW\s*[1-4]|KETERANGAN|CATATAN|HASIL|NILAI|RESULT|VALUE|MEAN|SD|CV|CONTROL|KONTROL|LEVEL|BULAN|PARAMETER|PEMERIKSAAN|ANALIT|QC)$/i.test(n) && !/^20\d\d$/.test(n) && !/^\d+$/.test(n);};
+   const meta=(t,kind)=>{const n=norm(t);if(kind==='param')return /PARAMETER|PEMERIKSAAN|ANALIT|ANALYTE/.test(n);if(kind==='value')return /HASIL|NILAI|RESULT|VALUE|KONTROL|CONTROL|LEVEL/.test(n);if(kind==='year')return /TAHUN|YEAR/.test(n);if(kind==='quarter')return /TRIWULAN|KUARTAL|QUARTER|^TW$/.test(n);if(kind==='day')return /TANGGAL|TGL|HARI|DAY|DATE|URUTAN|NO\.?/.test(n);return false;};
+   // Format tabel panjang: satu baris untuk satu parameter dan satu hasil QC.
+   let longHeader=-1, cols={};
+   for(let i=0;i<Math.min(rows.length,30);i++){
+     const r=rows[i];const find=k=>r.findIndex(v=>meta(v,k));
+     const c={param:find('param'),value:find('value'),year:find('year'),quarter:find('quarter'),day:find('day')};
+     if(c.param>=0&&c.value>=0){longHeader=i;cols=c;break;}
+   }
+   if(longHeader>=0){
+     const found=new Set();let yr=2026,q=1;
+     rows.slice(longHeader+1).forEach((r,idx)=>{
+       const label=r[cols.param]||'';const value=number(r[cols.value]);if(!label||value===null)return;
+       let y=cols.year>=0?number(r[cols.year]):null;if(y&&y<100)y+=2000;
+       if(!y){const m=norm(r.join(' ')).match(/20(25|26)/);if(m)y=Number('20'+m[1]);}if(!y)y=yr;
+       const qt=cols.quarter>=0?norm(r[cols.quarter]):norm(r.join(' '));const qm=qt.match(/(?:TW|TRIWULAN|Q)\s*([1-4])/);const quarter=qm?Number(qm[1]):q;
+       const dv=cols.day>=0?r[cols.day]:'';const dateText=String(dv);const iso=dateText.match(/20\d{2}[-/](\d{1,2})[-/](\d{1,2})/);const dmy=dateText.match(/(\d{1,2})[-/](\d{1,2})[-/](?:20)?(\d{2,4})/);let day=iso?Number(iso[2]):dmy?Number(dmy[1]):(number(dv)!==null?number(dv):idx+1);if(!y&&iso)y=Number(dateText.slice(0,4));if(!y&&dmy)y=Number(dmy[3].length===2?'20'+dmy[3]:dmy[3]);
+       const param=label.trim();found.add(param);result.push({year:y,quarter,day,param,value,rowIndex:longHeader+idx+2});
+     });
+     if(result.length){params=[...found];return {data:result,params};}
+   }
+   // Format tabel lebar: nama parameter menjadi judul kolom dan nilai berada di bawahnya.
+   let best=-1,bestScore=0;
+   for(let i=0;i<Math.min(rows.length,35);i++){
+     const r=rows[i];let score=0;
+     r.forEach((v,j)=>{if(paramish(v)){let numeric=0;for(let k=i+1;k<Math.min(rows.length,i+12);k++)if(number(rows[k][j])!==null)numeric++;if(numeric>=2)score+=1;}});
+     if(score>bestScore){bestScore=score;best=i;}
+   }
+   if(best>=0&&bestScore>=1){
+     const header=rows[best], paramCols=[];header.forEach((v,j)=>{if(paramish(v)){let has=false;for(let k=best+1;k<Math.min(rows.length,best+12);k++)if(number(rows[k][j])!==null){has=true;break;}if(has)paramCols.push({j,param:v.trim()});}});
+     params=paramCols.map(x=>x.param);
+     let year=2026,quarter=1;
+     for(let i=best+1;i<rows.length;i++){
+       const r=rows[i], joined=norm(r.join(' '));const ym=joined.match(/20(25|26)/);if(ym)year=Number('20'+ym[1]);const qm=joined.match(/(?:TW|TRIWULAN|Q)\s*([1-4])/);if(qm){quarter=Number(qm[1]);if(!r.some(v=>number(v)!==null))continue;}
+       let day=null;for(let j=0;j<Math.min(r.length,3);j++){const n=number(r[j]);if(n!==null&&Number.isInteger(n)&&n>=1&&n<=31){day=n;break;}}
+       paramCols.forEach(c=>{const value=number(r[c.j]);if(value!==null)result.push({year,quarter,day:day??(i-best),param:c.param,value,rowIndex:i+1});});
+     }
+   }
+   // Fallback untuk sheet berformat blok tahun/triwulan dengan nama parameter di baris judul.
+   if(!result.length){
+     let year=2026,quarter=1;rows.forEach((r,ri)=>{const joined=norm(r.join(' '));const ym=joined.match(/20(25|26)/);if(ym)year=Number('20'+ym[1]);const qm=joined.match(/(?:TW|TRIWULAN|Q)\s*([1-4])/);if(qm)quarter=Number(qm[1]);
+       r.forEach((v,j)=>{if(!paramish(v))return;let value=null;for(let k=ri+1;k<Math.min(rows.length,ri+5);k++){value=number(rows[k][j]);if(value!==null)break;}if(value!==null){params.push(v.trim());result.push({year,quarter,day:ri+1,param:v.trim(),value,rowIndex:ri+1});}});
+     });params=[...new Set(params)];
+   }
+   return {data:result,params:[...new Set(params)]};
+ }
+ function setMetricOptions(params,preferred){const sel=$('sdMetric');const old=preferred||sel.value;sel.innerHTML=params.map(p=>'<option value="'+esc(p)+'">'+esc(p.charAt(0)+p.slice(1).toLowerCase())+'</option>').join('');if(params.includes(old))sel.value=old;}
+ async function fetchSheet(url){const res=await fetch(url,{cache:'no-store'});if(!res.ok)throw Error('HTTP '+res.status+' saat membuka tab sumber');const obj=gviz(await res.text());if(!obj.table||!obj.table.rows)throw Error('Tab sumber tidak memiliki data yang dapat dibaca');return obj.table;}
  async function load(){
-   $('sdStatus').className='qc-status';$('sdStatus').textContent='Mengambil data dari spreadsheet sumber…';$('sdNote').textContent='Membaca data yang tersedia dari spreadsheet.';
+   $('sdStatus').className='qc-status';$('sdStatus').textContent='Mengambil data Hematologi dan Kimia Klinik dari spreadsheet…';$('sdNote').textContent='Membaca kedua tab sumber.';
    try{
-     const url='https://docs.google.com/spreadsheets/d/'+SHEET+'/gviz/tq?tqx=out:json&gid='+encodeURIComponent(GID)+'&headers=0';
-     const res=await fetch(url,{cache:'no-store'});if(!res.ok)throw Error('HTTP '+res.status+' saat membuka sumber spreadsheet');
-     const obj=gviz(await res.text());if(!obj.table||!obj.table.rows)throw Error('Tab sumber tidak memiliki data yang dapat dibaca');
-     sourceData=parseRows(obj.table);if(!sourceData.length)throw Error('Data numerik tidak ditemukan pada susunan kolom yang diharapkan. Pastikan tab sumber berisi blok tahun 2026 dan 2025.');
+     const hurl='https://docs.google.com/spreadsheets/d/'+SHEET+'/gviz/tq?tqx=out:json&gid='+encodeURIComponent(GID)+'&headers=0';
+     const htable=await fetchSheet(hurl);sourceData=parseHematologyRows(htable);
+     if(!sourceData.length)throw Error('Data Hematologi tidak ditemukan pada susunan kolom yang diharapkan.');
+     const curl='https://docs.google.com/spreadsheets/d/'+SHEET+'/gviz/tq?tqx=out:json&gid='+encodeURIComponent(CHEM_GID)+'&headers=0';
+     try{const ctable=await fetchSheet(curl);const parsed=parseChemistryRows(ctable);chemistryData=parsed.data;chemistryParams=parsed.params.filter(p=>p&&p.trim());}
+     catch(e){chemistryData=[];chemistryParams=[];console.warn('Tab Kimia Klinik gagal dibaca:',e);}
      loaded=true;$('sdUpdated').textContent='Disinkronkan '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
-     $('sdStatus').className='qc-status ok';$('sdStatus').textContent='Data berhasil dimuat dari spreadsheet: '+sourceData.length+' baris hasil numerik untuk tahun 2025 dan 2026.';render();
-   }catch(err){loaded=false;sourceData=[];$('sdStatus').className='qc-status error';$('sdStatus').textContent='Data belum berhasil dimuat: '+(err.message||err)+'. Pastikan spreadsheet dapat diakses sebagai pelihat dan ID tab sumber benar.';$('sdUpdated').textContent='Belum tersinkron';render();}
+     $('sdGroup').dispatchEvent(new Event('change'));
+   }catch(err){loaded=false;sourceData=[];chemistryData=[];chemistryParams=[];$('sdStatus').className='qc-status error';$('sdStatus').textContent='Data belum berhasil dimuat: '+(err.message||err)+'. Pastikan spreadsheet dapat diakses sebagai pelihat.';$('sdUpdated').textContent='Belum tersinkron';render();}
  }
  function render(){
-   const group=$('sdGroup').value;
-   const metric=$('sdMetric');
-   if(group==='kimia'){
-     metric.disabled=true;
-     $('sdStatus').className='qc-status error';
-     $('sdStatus').textContent='Kelompok Kimia Klinik dipilih, tetapi spreadsheet sumber yang terhubung saat ini hanya menyediakan parameter Hematologi. Hubungkan spreadsheet/tab Kimia Klinik agar grafik dan statistik Kimia Klinik dapat dihitung tanpa mengarang data.';
+   const group=$('sdGroup').value;const metric=$('sdMetric');
+   activeParams=group==='kimia'?chemistryParams:HEMATO_PARAMS;
+   const previous=metric.value;
+   if(!activeParams.length){
+     metric.innerHTML='<option value="">Parameter tidak ditemukan</option>';metric.disabled=true;
+     $('sdStatus').className='qc-status error';$('sdStatus').textContent='Tab "data kontrol kimia klinik" belum berhasil dibaca atau format kolomnya belum dikenali. Pastikan tab tersebut dapat dilihat publik dan memiliki kolom parameter serta nilai kontrol.';
      ['sdN','sdMean','sdStd','sdCv','sdMin','sdMax','sdOutside2','sdOutside3'].forEach(id=>$(id).textContent='—');
-     $('sdPeriod').textContent='Kimia Klinik';$('sdChartChip').textContent='BELUM ADA DATA';$('sdChartSubtitle').textContent='Kimia Klinik · menunggu sumber data';$('sdInterpret').textContent='Data Kimia Klinik belum tersedia pada sumber spreadsheet yang terhubung. Dashboard tidak menampilkan angka perkiraan atau data buatan.';$('sdRowCount').textContent='0 hasil';$('sdTbody').innerHTML='<tr><td colspan="8">Belum ada data Kimia Klinik. Tambahkan atau hubungkan sumber data Kimia Klinik terlebih dahulu.</td></tr>';$('sdNote').textContent='Data Kimia Klinik belum disediakan oleh spreadsheet sumber saat ini.';if(chart){chart.destroy();chart=null;}return;
+     $('sdPeriod').textContent='Kimia Klinik';$('sdChartChip').textContent='BELUM ADA DATA';$('sdChartSubtitle').textContent='Kimia Klinik · periksa sumber tab';$('sdInterpret').textContent='Dashboard membaca tab “data kontrol kimia klinik” menggunakan GID 1252703038 dari spreadsheet yang sama.';$('sdRowCount').textContent='0 hasil';$('sdTbody').innerHTML='<tr><td colspan="8">Data belum dapat dikenali dari tab Kimia Klinik.</td></tr>';$('sdNote').textContent='Sumber Kimia Klinik: tab data kontrol kimia klinik (GID 1252703038).';if(chart){chart.destroy();chart=null;}return;
    }
-   metric.disabled=false;
+   setMetricOptions(activeParams,previous);metric.disabled=false;
    const param=metric.value,year=Number($('sdYear').value),q=$('sdQuarter').value;
-   const pidx=PARAMS.indexOf(param);const data=sourceData.filter(x=>(q==='all'||x.quarter===Number(q))).map(x=>({year:x.year,quarter:x.quarter,day:x.day,value:x.values[pidx]})).filter(x=>x.value!==null);
-   const vals=data.filter(x=>x.year===year).sort((a,b)=>a.quarter-b.quarter||a.day-b.day);
+   const all=group==='kimia'?chemistryData:sourceData;
+   const vals=all.filter(x=>x.param===param&&x.year===year&&(q==='all'||x.quarter===Number(q))).sort((a,b)=>a.quarter-b.quarter||a.day-b.day);
    const n=vals.length,mean=n?vals.reduce((s,x)=>s+x.value,0)/n:null,sd=n>1?Math.sqrt(vals.reduce((s,x)=>s+Math.pow(x.value-mean,2),0)/(n-1)):null,cv=sd!==null&&mean!==0?Math.abs(sd/mean*100):null;
    const min=n?Math.min(...vals.map(x=>x.value)):null,max=n?Math.max(...vals.map(x=>x.value)):null;
    $('sdN').textContent=fmt(n);$('sdMean').textContent=fmt(mean);$('sdStd').textContent=sd===null?'—':'±'+fmt(sd);$('sdCv').textContent=cv===null?'—':fmt(cv)+'%';$('sdMin').textContent=fmt(min);$('sdMax').textContent=fmt(max);
    const out2=sd?vals.filter(x=>Math.abs(x.value-mean)>2*sd).length:0,out3=sd?vals.filter(x=>Math.abs(x.value-mean)>3*sd).length:0;
    $('sdOutside2').textContent=fmt(out2)+' hasil';$('sdOutside3').textContent=fmt(out3)+' hasil';$('sdPeriod').textContent=(q==='all'?'Semua TW':'TW '+q)+' / '+year;$('sdChartChip').textContent=year+' · '+(q==='all'?'SEMUA TW':'TW '+q);
-   $('sdChartSubtitle').textContent=param+' · Tahun '+year+' · '+(q==='all'?'Semua triwulan':'Triwulan '+q);
+   const groupLabel=group==='kimia'?'Kimia Klinik':'Hematologi';$('sdStatus').className=n?'qc-status ok':'qc-status';$('sdStatus').textContent=n?'Data '+groupLabel+' berhasil dibaca: '+n+' nilai untuk '+param+'.': 'Belum ada nilai numerik untuk '+param+' pada tahun/triwulan yang dipilih. Periksa susunan tab sumber.';
+   $('sdChartSubtitle').textContent=groupLabel+' · '+param+' · Tahun '+year+' · '+(q==='all'?'Semua triwulan':'Triwulan '+q);
    $('sdInterpret').textContent=n<2?'Data '+param+' tahun '+year+' belum cukup untuk menghitung SD sampel (minimal dua hasil numerik).':('Terdapat '+n+' hasil numerik untuk '+param+' tahun '+year+'. Rata-rata '+fmt(mean)+', SD sampel '+fmt(sd)+', dan CV '+(cv===null?'tidak dapat dihitung':fmt(cv)+'%')+'. '+(out3?out3+' hasil berada di luar ±3 SD; telaah data dan aturan QC yang berlaku.':'Tidak ada hasil yang berada di luar ±3 SD berdasarkan statistik data terpilih.'));
    $('sdRowCount').textContent=n+' hasil';
-   $('sdTbody').innerHTML=vals.map((x,i)=>{const dev=mean===null?null:x.value-mean,z=sd?dev/sd:null;const status=z===null?'SD belum tersedia':Math.abs(z)>3?'Di luar ±3 SD':Math.abs(z)>2?'Di luar ±2 SD':Math.abs(z)>1?'Di luar ±1 SD':'Dalam ±1 SD';return '<tr><td>'+(i+1)+'</td><td>TW '+x.quarter+'</td><td>'+x.day+'</td><td>'+esc(param)+'</td><td>'+fmt(x.value)+'</td><td>'+fmt(dev)+'</td><td>'+fmt(z)+'</td><td>'+status+'</td></tr>';}).join('')||'<tr><td colspan="8">Tidak ada nilai numerik untuk pilihan parameter, tahun, dan triwulan ini.</td></tr>';
+   $('sdTbody').innerHTML=vals.map((x,i)=>{const dev=mean===null?null:x.value-mean,z=sd?dev/sd:null;const status=z===null?'SD belum tersedia':Math.abs(z)>3?'Di luar ±3 SD':Math.abs(z)>2?'Di luar ±2 SD':Math.abs(z)>1?'Di luar ±1 SD':'Dalam ±1 SD';return '<tr><td>'+(i+1)+'</td><td>TW '+x.quarter+'</td><td>'+esc(x.day)+'</td><td>'+esc(param)+'</td><td>'+fmt(x.value)+'</td><td>'+fmt(dev)+'</td><td>'+fmt(z)+'</td><td>'+status+'</td></tr>';}).join('')||'<tr><td colspan="8">Tidak ada nilai numerik untuk pilihan parameter, tahun, dan triwulan ini.</td></tr>';
    if(typeof Chart==='undefined')return;
    const labels=vals.map(x=>'TW'+x.quarter+' · '+x.day);const values=vals.map(x=>x.value);
-   const ds=[{label:param+' '+year,data:values,borderColor:'#0ea5e9',backgroundColor:'#0ea5e922',pointRadius:3,pointHoverRadius:5,borderWidth:2,tension:.12,spanGaps:false}];
+   const ds=[{label:param+' '+year,data:values,borderColor:group==='kimia'?'#0f9f8f':'#0ea5e9',backgroundColor:group==='kimia'?'#0f9f8f22':'#0ea5e922',pointRadius:3,pointHoverRadius:5,borderWidth:2,tension:.12,spanGaps:false}];
    if(mean!==null&&sd!==null){[{k:3,label:'+3 SD',color:'#ef4444'},{k:2,label:'+2 SD',color:'#f97316'},{k:1,label:'+1 SD',color:'#eab308'},{k:0,label:'Mean',color:'#10b981'},{k:-1,label:'−1 SD',color:'#eab308'},{k:-2,label:'−2 SD',color:'#f97316'},{k:-3,label:'−3 SD',color:'#ef4444'}].forEach(b=>ds.push({label:b.label,data:values.map(()=>mean+b.k*sd),borderColor:b.color,borderWidth:b.k===0?2:1,borderDash:b.k===0?[]:[5,4],pointRadius:0,fill:false}));}
    if(chart)chart.destroy();chart=new Chart($('sdChart'),{type:'line',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:14}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.parsed.y)}}},scales:{x:{ticks:{maxTicksLimit:12,maxRotation:0},grid:{color:'rgba(148,163,184,.15)'}},y:{beginAtZero:false,grid:{color:'rgba(148,163,184,.18)'}}}}});
  }
- $('sdGroup').addEventListener('change',()=>{if($('sdGroup').value==='hematologi'){ $('sdStatus').className='qc-status';$('sdStatus').textContent='Menampilkan data Hematologi dari spreadsheet sumber.';render();}else render();});
+ $('sdGroup').addEventListener('change',()=>{setMetricOptions($('sdGroup').value==='kimia'?chemistryParams:HEMATO_PARAMS);render();});
  $('sdMetric').addEventListener('change',render);$('sdYear').addEventListener('change',render);$('sdQuarter').addEventListener('change',render);$('sdRefresh').addEventListener('click',load);load();
 })();
 </script>
