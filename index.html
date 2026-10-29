@@ -3912,9 +3912,9 @@ var PANDUAN = [
    // nama parameter dari angka hasil kontrol yang kebetulan berada di baris judul.
    const raw=matrixFrom(table).map(r=>r.map(v=>String(v??'').trim()));
    const aliases=[
-     {name:'GULA DARAH',re:/GULA\s*DARAH|GLUKOSA|GLUCOSE|BLOOD\s*GLUCOSE/},
-     {name:'ASAM URAT',re:/ASAM\s*URAT|URIC\s*ACID|URATE/},
-     {name:'KOLESTEROL',re:/KOLESTEROL|CHOLESTEROL|TOTAL\s*CHOL/}
+     {name:'GULA DARAH',re:/GULA(?:\s*DARAH)?|GLUKOSA|GLUCOSE|BLOOD\s*GLUCOSE|\bGDS\b|\bGDP\b|\bGDN\b/},
+     {name:'ASAM URAT',re:/ASAM\s*URAT|URIC\s*ACID|URATE|\bURIC\b/},
+     {name:'KOLESTEROL',re:/KOLESTEROL|CHOLESTEROL|TOTAL\s*CHOL|\bCHOL\b/}
    ];
    const canonical=t=>{const n=norm(t);const a=aliases.find(x=>x.re.test(n));return a?a.name:null;};
    const meta=(t,kind)=>{const n=norm(t);if(kind==='param')return /PARAMETER|PEMERIKSAAN|ANALIT|ANALYTE/.test(n);if(kind==='value')return /HASIL|NILAI|RESULT|VALUE|KONTROL|CONTROL|LEVEL/.test(n);if(kind==='year')return /TAHUN|YEAR/.test(n);if(kind==='quarter')return /TRIWULAN|KUARTAL|QUARTER|^TW$/.test(n);if(kind==='day')return /TANGGAL|TGL|HARI|DAY|DATE|URUTAN|^NO\.?$/.test(n);return false;};
@@ -3961,18 +3961,47 @@ var PANDUAN = [
        }
      }
    }
-   // Bentuk vertikal: nama parameter ada di salah satu kolom dan angka di kolom lain.
+   // Bentuk vertikal / semi-terstruktur: parameter dapat berada pada baris tersendiri,
+   // atau di kolom pertama dengan nilai kontrol tersebar pada beberapa kolom.
    if(!result.length){
      let year=2026,quarter=1;
-     raw.forEach((r,ri)=>{
-       const joined=norm(r.join(' ')),ym=joined.match(/20(25|26)/),qm=joined.match(/(?:TW|TRIWULAN|KUARTAL|QUARTER|Q)\s*([1-4])/);
+     const seen=new Set();
+     for(let ri=0;ri<raw.length;ri++){
+       const r=raw[ri], joined=norm(r.join(' '));
+       const ym=joined.match(/20(25|26)/),qm=joined.match(/(?:TW|TRIWULAN|KUARTAL|QUARTER|Q)\s*([1-4])/);
        if(ym)year=Number('20'+ym[1]);if(qm)quarter=Number(qm[1]);
-       r.forEach((v,j)=>{const param=canonical(v);if(!param)return;
-         let value=null;for(let k=j+1;k<r.length;k++){value=number(r[k]);if(value!==null)break;}
-         if(value===null){for(let k=0;k<r.length;k++){if(k===j)continue;value=number(r[k]);if(value!==null)break;}}
-         if(value!==null){result.push({year,quarter,day:ri+1,param,value,rowIndex:ri+1});if(!params.includes(param))params.push(param);}
-       });
-     });
+       let found=null,foundCol=-1;
+       for(let j=0;j<r.length;j++){const p=canonical(r[j]);if(p){found=p;foundCol=j;break;}}
+       if(!found)continue;
+       if(!params.includes(found))params.push(found);
+       // Ambil nilai numerik pada baris yang sama, tetapi jangan menganggap angka tahun/tanggal sebagai hasil.
+       const addValues=(row,rowIndex,baseYear,baseQuarter,skipCol)=>{
+         const rowText=norm(row.join(' '));
+         const ymatch=rowText.match(/20(25|26)/);const y=ymatch?Number('20'+ymatch[1]):baseYear;
+         const qmatch=rowText.match(/(?:TW|TRIWULAN|KUARTAL|QUARTER|Q)\s*([1-4])/);const q=qmatch?Number(qmatch[1]):baseQuarter;
+         let day=null;
+         for(let k=0;k<Math.min(row.length,2);k++){
+           const t=String(row[k]||'');const iso=t.match(/20\d{2}[-/](\d{1,2})[-/](\d{1,2})/),dmy=t.match(/(\d{1,2})[-/](\d{1,2})[-/](?:20)?(\d{2,4})/);
+           if(iso){day=Number(iso[3]);break;}if(dmy){day=Number(dmy[1]);break;}
+         }
+         let count=0;
+         row.forEach((v,k)=>{if(k===skipCol)return;const n=number(v);if(n===null)return;const text=norm(v);if(/^20(25|26)$/.test(text)||n>9999)return;if(Number.isInteger(n)&&n>=1900&&n<=2100)return;
+           // Untuk angka 1–31 pada kolom awal, perlakukan sebagai hari/nomor urut, bukan hasil kontrol.
+           if(k<2&&Number.isInteger(n)&&n>=1&&n<=31&&!day){day=n;return;}
+           result.push({year:y,quarter:q,day:day??(rowIndex+1),param:found,value:n,rowIndex:rowIndex+1});count++;
+         });return count;
+       };
+       const same=addValues(r,ri,year,quarter,foundCol);
+       if(same===0){
+         // Bila nama parameter menjadi judul bagian tersendiri, baca baris berikutnya sampai parameter berikutnya.
+         for(let ni=ri+1;ni<Math.min(raw.length,ri+35);ni++){
+           const nr=raw[ni];if(nr.some(v=>canonical(v)))break;
+           const nt=norm(nr.join(' '));const ny=nt.match(/20(25|26)/),nq=nt.match(/(?:TW|TRIWULAN|KUARTAL|QUARTER|Q)\s*([1-4])/);
+           if(ny)year=Number('20'+ny[1]);if(nq)quarter=Number(nq[1]);
+           addValues(nr,ni,year,quarter,-1);
+         }
+       }
+     }
    }
    return {data:result,params:params.filter(Boolean)};
  }
@@ -3986,7 +4015,7 @@ var PANDUAN = [
      if(!sourceData.length)throw Error('Data Hematologi tidak ditemukan pada susunan kolom yang diharapkan.');
      const curl='https://docs.google.com/spreadsheets/d/'+SHEET+'/gviz/tq?tqx=out:json&gid='+encodeURIComponent(CHEM_GID)+'&headers=0';
      try{const ctable=await fetchSheet(curl);const parsed=parseChemistryRows(ctable);chemistryData=parsed.data;chemistryParams=parsed.params.filter(p=>p&&p.trim());}
-     catch(e){chemistryData=[];chemistryParams=[];console.warn('Tab Kimia Klinik gagal dibaca:',e);}
+     catch(e){chemistryData=[];chemistryParams=[];window.__permataChemReadError=String(e&&e.message||e);console.warn('Tab Kimia Klinik gagal dibaca:',e);}
      loaded=true;$('sdUpdated').textContent='Disinkronkan '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
      $('sdGroup').dispatchEvent(new Event('change'));
    }catch(err){loaded=false;sourceData=[];chemistryData=[];chemistryParams=[];$('sdStatus').className='qc-status error';$('sdStatus').textContent='Data belum berhasil dimuat: '+(err.message||err)+'. Pastikan spreadsheet dapat diakses sebagai pelihat.';$('sdUpdated').textContent='Belum tersinkron';render();}
@@ -3997,7 +4026,7 @@ var PANDUAN = [
    const previous=metric.value;
    if(!activeParams.length){
      metric.innerHTML='<option value="">Parameter tidak ditemukan</option>';metric.disabled=true;
-     $('sdStatus').className='qc-status error';$('sdStatus').textContent='Tab "data kontrol kimia klinik" belum berhasil dibaca atau format kolomnya belum dikenali. Pastikan tab tersebut dapat dilihat publik dan memiliki kolom parameter serta nilai kontrol.';
+     $('sdStatus').className='qc-status error';$('sdStatus').textContent=window.__permataChemReadError?'Tab Kimia Klinik gagal diambil dari Google Sheets: '+window.__permataChemReadError+'. Periksa izin akses publik dan GID 1252703038.':'Tab Kimia Klinik berhasil diakses, tetapi format datanya belum dikenali. Parser mencari nama Gula/Gula Darah/Glukosa/GDS/GDP, Asam Urat, atau Kolesterol serta angka kontrol. Periksa susunan header pada tab sumber.';
      ['sdN','sdMean','sdStd','sdCv','sdMin','sdMax','sdOutside2','sdOutside3'].forEach(id=>$(id).textContent='—');
      $('sdPeriod').textContent='Kimia Klinik';$('sdChartChip').textContent='BELUM ADA DATA';$('sdChartSubtitle').textContent='Kimia Klinik · periksa sumber tab';$('sdInterpret').textContent='Dashboard membaca tab “data kontrol kimia klinik” menggunakan GID 1252703038 dari spreadsheet yang sama.';$('sdRowCount').textContent='0 hasil';$('sdTbody').innerHTML='<tr><td colspan="8">Data belum dapat dikenali dari tab Kimia Klinik.</td></tr>';$('sdNote').textContent='Sumber Kimia Klinik: tab data kontrol kimia klinik (GID 1252703038).';if(chart){chart.destroy();chart=null;}return;
    }
