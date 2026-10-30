@@ -3781,279 +3781,411 @@ var PANDUAN = [
 })();
 </script>
 
-<style>
-/* Tema malam biru PERMATA LAB dengan kontras tinggi */
-#sdDashboard{--sd-blue:#60a5fa;--sd-cyan:#22d3ee;--sd-line:#294568;color:#f1f5f9;background:#071326;padding:18px;border:1px solid #1e3555;border-radius:20px;color-scheme:dark}
-#sdDashboard *{box-sizing:border-box}
-#sdDashboard .sd-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:24px;border-radius:16px;background:linear-gradient(125deg,#0b1730 0%,#12356b 58%,#075985 100%);border:1px solid #315783;color:#fff;margin-bottom:18px;box-shadow:0 10px 30px #02081780}
-#sdDashboard .sd-head h2{font-size:1.5rem;margin:10px 0 6px;font-weight:800;letter-spacing:-.02em;color:#fff}
-#sdDashboard .sd-head .sd-muted{color:#e0f2fe}
-#sdDashboard .sd-muted{font-size:.9rem;color:#c0d2e8;line-height:1.55}
-#sdDashboard .sd-btn{border:1px solid #6487b3;background:#173b68;color:#fff;border-radius:10px;padding:10px 15px;font-weight:750;cursor:pointer}
-#sdDashboard .sd-btn:hover{background:#24528b}
-#sdDashboard .sd-toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 16px;border:1px solid #294568;border-radius:14px;background:#0d1d35;margin-bottom:16px;color:#f1f5f9}
-#sdDashboard .sd-toolbar label{font-weight:750;font-size:.95rem;color:#f8fafc}
-#sdDashboard select,#sdDashboard input{max-width:100%;padding:10px 12px;border:1px solid #45658a;border-radius:9px;background:#08172c;color:#f8fafc;min-height:42px}
-#sdDashboard select:focus,#sdDashboard input:focus{outline:2px solid #38bdf8;outline-offset:2px}
-#sdDashboard .sd-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin:16px 0}
-#sdDashboard .sd-card{border:1px solid #294568;border-radius:16px;padding:18px;background:linear-gradient(155deg,#10233e,#0b1a30);color:#f1f5f9;min-width:0;box-shadow:0 8px 24px #02081755}
-#sdDashboard .sd-stat{position:relative;overflow:hidden}
-#sdDashboard .sd-stat:after{content:'';position:absolute;right:-20px;top:-25px;width:86px;height:86px;border-radius:50%;background:#60a5fa16;pointer-events:none}
-#sdDashboard .sd-label{font-size:.88rem;color:#c7d8ee;margin-bottom:10px;font-weight:650}
-#sdDashboard .sd-value{font-size:clamp(1.45rem,2.3vw,2.1rem);font-weight:850;letter-spacing:-.03em;overflow-wrap:anywhere;color:#fff}
-#sdDashboard .sd-two{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(280px,1fr);gap:14px}
-#sdDashboard h3{font-size:1.04rem;margin:0 0 10px;font-weight:800;color:#f8fafc}
-#sdDashboard .sd-chart{height:320px;position:relative;margin-top:14px}
-#sdDashboard .sd-table-wrap{overflow:auto;max-height:470px;margin-top:12px;border:1px solid #294568;border-radius:10px}
-#sdDashboard table{border-collapse:collapse;width:100%;font-size:.9rem;color:#eaf2ff;background:#0b1a30}
-#sdDashboard th,#sdDashboard td{padding:11px 12px;border-bottom:1px solid #294568;text-align:left;white-space:nowrap;color:#eaf2ff}
-#sdDashboard th{position:sticky;top:0;background:#183657;color:#fff;z-index:1;font-weight:800}
-#sdDashboard tbody tr:nth-child(even){background:#102541}
-#sdDashboard tbody tr:hover{background:#173657}
-#sdDashboard .sd-note{padding:14px;border:1px solid #294568;border-radius:11px;background:#0a1a30;color:#e2eaf6;font-size:.92rem;line-height:1.65;margin-top:12px}
-#sdDashboard .sd-error{color:#fecaca;background:#451a24;padding:8px;border-radius:6px}
-#sdDashboard .sd-source{margin-top:14px;color:#eaf2ff}
-#sdDashboard .sd-source summary{font-weight:800;cursor:pointer;padding:7px 0;color:#f8fafc}
-#sdDashboard .sd-source label{display:block;font-weight:750;margin:12px 0 6px;color:#f1f5f9}
-#sdDashboard .sd-source code{color:#bae6fd;background:#102541;padding:2px 5px;border-radius:4px}
-#sdDashboard a{color:#7dd3fc;text-decoration:underline;text-underline-offset:3px}
-#sdDashboard a:hover{color:#fff}
-#sdDashboard .sd-pill{display:inline-flex;padding:5px 10px;border-radius:999px;background:#173b68;border:1px solid #4676a8;color:#e0f2fe;font-size:.8rem;font-weight:800}
-@media(max-width:1100px){#sdDashboard .sd-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:900px){#sdDashboard .sd-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#sdDashboard .sd-two{grid-template-columns:1fr}}
-@media(max-width:480px){#sdDashboard{padding:10px}#sdDashboard .sd-head{padding:18px}#sdDashboard .sd-grid{gap:8px}#sdDashboard .sd-card{padding:13px}#sdDashboard .sd-value{font-size:1.35rem}#sdDashboard .sd-chart{height:280px}}
-</style>
+<!-- ===== DASHBOARD STANDAR DEVIASI (QC) : MULAI =====
+     Tempel blok ini di index.html menggantikan bagian dashboard SD yang lama.
+     Semua CSS dan JS dibungkus #sd-root, sehingga tidak mengubah menu atau bagian lain. -->
 <section id="sdDashboard" data-view="standar-deviasi" class="qc-dashboard">
-  <div class="qc-top">
-    <div><span class="qc-kicker">PERMATA LAB · KENDALI MUTU</span><h2>Dashboard Standar Deviasi (QC)</h2><p>Filter kelompok Hematologi dan Kimia Klinik. Statistik dan grafik ditampilkan berdasarkan data sumber yang tersedia.</p></div>
-    <button id="sdRefresh" class="qc-refresh" type="button">↻ Sinkronkan Spreadsheet</button>
-  </div>
-  <div class="qc-toolbar">
-    <label>Kelompok pemeriksaan<select id="sdGroup"><option value="hematologi">Hematologi</option><option value="kimia">Kimia Klinik</option></select></label>
-    <label>Parameter<select id="sdMetric"><option value="LEUKOSIT">Leukosit</option><option value="ERITROSIT">Eritrosit</option><option value="HEMOGLOBIN">Hemoglobin</option><option value="HEMATOKRIT">Hematokrit</option><option value="TROMBOSIT">Trombosit</option></select></label>
-    <label>Tahun<select id="sdYear"><option value="2026">2026</option><option value="2025">2025</option></select></label>
-    <label>Triwulan<select id="sdQuarter"><option value="1">TW 1</option><option value="2">TW 2</option><option value="3">TW 3</option><option value="4">TW 4</option><option value="all">Semua triwulan</option></select></label>
-    <span id="sdUpdated" class="qc-updated">Menghubungkan ke spreadsheet…</span>
-  </div>
-  <div id="sdStatus" class="qc-status">Memuat data sumber…</div>
-  <div class="qc-kpis">
-    <article class="qc-card"><span>Jumlah data valid</span><strong id="sdN">—</strong><small>Hasil numerik</small></article>
-    <article class="qc-card"><span>Rata-rata (Mean)</span><strong id="sdMean">—</strong><small>Nilai tengah data</small></article>
-    <article class="qc-card"><span>Standar deviasi (SD)</span><strong id="sdStd">—</strong><small>SD sampel</small></article>
-    <article class="qc-card"><span>Koefisien variasi (CV)</span><strong id="sdCv">—</strong><small>SD ÷ |Mean| × 100%</small></article>
-    <article class="qc-card"><span>Nilai minimum</span><strong id="sdMin">—</strong><small>Hasil terendah</small></article>
-    <article class="qc-card"><span>Nilai maksimum</span><strong id="sdMax">—</strong><small>Hasil tertinggi</small></article>
-  </div>
-  <div class="qc-main-grid">
-    <article class="qc-panel qc-chart-panel"><div class="qc-panel-head"><div><h3>Grafik Levey–Jennings</h3><p id="sdChartSubtitle">Pilih parameter, tahun, dan triwulan untuk menampilkan data sumber.</p></div><span class="qc-chip" id="sdChartChip">QC</span></div><div class="qc-chart"><canvas id="sdChart" aria-label="Grafik Levey-Jennings"></canvas></div><div class="qc-legend-note">Garis tengah = Mean. Garis batas menunjukkan ±1 SD, ±2 SD, dan ±3 SD dari data yang sedang dianalisis.</div></article>
-    <article class="qc-panel"><h3>Ringkasan analisis</h3><div class="qc-summary-row"><span>Data di luar ±2 SD</span><strong id="sdOutside2">—</strong></div><div class="qc-summary-row"><span>Data di luar ±3 SD</span><strong id="sdOutside3">—</strong></div><div class="qc-summary-row"><span>Triwulan / tahun</span><strong id="sdPeriod">—</strong></div><div id="sdInterpret" class="qc-interpret">Ringkasan akan muncul setelah data sumber berhasil dibaca.</div><details class="qc-source"><summary>Sumber data</summary><p>Dashboard membaca spreadsheet PROJECT STANDAR DEVIATION LAB 2025 yang memuat data tahun 2025 dan 2026.</p><a href="https://docs.google.com/spreadsheets/d/1EjhqFF-AkdaHBIsNeOaozPOoH-36YYgIY3zCEk5oxm4/edit?gid=1252703038#gid=1252703038" target="_blank" rel="noopener noreferrer">Buka spreadsheet sumber ↗</a></details></article>
-  </div>
-  <article class="qc-panel qc-table-panel"><div class="qc-panel-head"><div><h3>Rincian hasil pemeriksaan</h3><p>Nilai sumber, deviasi dari rata-rata, Z-score, dan posisi statistik.</p></div><span class="qc-chip" id="sdRowCount">0 baris</span></div><div class="qc-table-wrap"><table><thead><tr><th>No.</th><th>Triwulan</th><th>Hari / urutan</th><th>Parameter</th><th>Hasil</th><th>Deviasi</th><th>Z-score</th><th>Status statistik</th></tr></thead><tbody id="sdTbody"><tr><td colspan="8">Memuat data sumber…</td></tr></tbody></table></div><p class="qc-footnote" id="sdNote">Data ditampilkan sesuai angka yang berhasil dibaca dari spreadsheet. Batas statistik bukan pengganti aturan QC laboratorium yang telah ditetapkan.</p></article>
-</section>
+<div id="sd-root">
 <style>
-#sdDashboard.qc-dashboard{padding:clamp(16px,2.2vw,28px);background:linear-gradient(135deg,#e8f2ff 0%,#f8fbff 48%,#e6f7f4 100%);color:#10213b;border:2px solid #b9d2ee;border-radius:20px;font-family:inherit;box-shadow:0 14px 38px rgba(15,45,80,.14);isolation:isolate}
-#sdDashboard .qc-top{border:1px solid #34567f;min-height:145px}
-#sdDashboard .qc-toolbar{border:2px solid #c2d7ee;box-shadow:0 8px 20px rgba(20,55,95,.10)}
-#sdDashboard .qc-toolbar label{font-size:.88rem;color:#203c60}
-#sdDashboard .qc-toolbar select{min-width:165px;border:2px solid #b7cce4;color:#10213b;box-shadow:inset 0 1px 2px #0b24400a}
-#sdDashboard .qc-card{border-top:4px solid #1687c9;box-shadow:0 8px 22px rgba(19,54,91,.09)}
-#sdDashboard .qc-card span{color:#405a78;font-size:.8rem}
-#sdDashboard .qc-card strong{color:#0b315c}
-#sdDashboard .qc-panel{border:1px solid #c8d9eb;box-shadow:0 8px 24px rgba(19,54,91,.09)}
-#sdDashboard .qc-panel h3{color:#102e50}
-#sdDashboard .qc-status{font-weight:700;box-shadow:0 4px 12px rgba(20,55,95,.06)}
-#sdDashboard .qc-chart{min-height:320px}
-#sdDashboard .qc-table-wrap{border:1px solid #c5d7e9}
-#sdDashboard .qc-updated{color:#405a78;font-weight:700}
-#sdDashboard .qc-top{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;padding:22px 24px;background:linear-gradient(120deg,#101b34,#1d365b);color:#fff;border-radius:18px;box-shadow:0 12px 30px #12213b22}
-#sdDashboard .qc-kicker{display:inline-block;font-size:.75rem;letter-spacing:.09em;font-weight:800;color:#86efac;background:#ffffff12;border:1px solid #ffffff22;padding:6px 10px;border-radius:999px}
-#sdDashboard .qc-top h2{font-size:clamp(1.35rem,2vw,1.8rem);margin:12px 0 6px;color:#fff}#sdDashboard .qc-top p{margin:0;color:#d6e3f6;line-height:1.5}
-#sdDashboard .qc-refresh{border:0;border-radius:10px;background:#10a879;color:white;font-weight:800;padding:12px 16px;cursor:pointer;box-shadow:0 5px 14px #0002}#sdDashboard .qc-refresh:hover{background:#07865f}
-#sdDashboard .qc-toolbar{display:flex;gap:12px;align-items:end;flex-wrap:wrap;padding:14px 16px;margin:14px 0;background:#fff;border:1px solid #e1e8f2;border-radius:14px;box-shadow:0 4px 16px #17253c08}
-#sdDashboard .qc-toolbar label{display:flex;flex-direction:column;gap:6px;font-size:.8rem;font-weight:800;color:#52627b}#sdDashboard .qc-toolbar select{min-width:145px;background:#fff;color:#17253c;border:1px solid #cbd6e5;border-radius:9px;padding:10px 12px;font:inherit;font-weight:650;min-height:40px}
-#sdDashboard .qc-updated{margin-left:auto;font-size:.82rem;color:#64748b;align-self:center}
-#sdDashboard .qc-status{padding:12px 15px;margin-bottom:14px;border-radius:11px;border:1px solid #bfdbfe;background:#eff6ff;color:#1e40af;font-size:.9rem}#sdDashboard .qc-status.ok{border-color:#a7f3d0;background:#ecfdf5;color:#065f46}#sdDashboard .qc-status.error{border-color:#fecaca;background:#fef2f2;color:#991b1b}
-#sdDashboard .qc-kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-bottom:14px}#sdDashboard .qc-card{padding:16px;background:#fff;border:1px solid #e3eaf3;border-radius:15px;box-shadow:0 5px 18px #17253c08;min-width:0}#sdDashboard .qc-card span{display:block;color:#71819a;font-size:.76rem;font-weight:800;text-transform:uppercase;letter-spacing:.035em;min-height:2.1em}#sdDashboard .qc-card strong{display:block;color:#14213a;font-size:clamp(1.25rem,2vw,1.8rem);font-weight:850;letter-spacing:-.035em;overflow-wrap:anywhere;margin:5px 0}#sdDashboard .qc-card small{color:#64748b;font-size:.78rem}
-#sdDashboard .qc-main-grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(260px,.9fr);gap:14px;margin-bottom:14px}#sdDashboard .qc-panel{background:#fff;border:1px solid #e1e8f2;border-radius:16px;padding:18px;box-shadow:0 5px 18px #17253c08;min-width:0}#sdDashboard .qc-panel h3{font-size:1.05rem;color:#17253c;margin:0 0 5px;font-weight:850}#sdDashboard .qc-panel p{margin:0;color:#71819a;font-size:.85rem;line-height:1.5}#sdDashboard .qc-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}#sdDashboard .qc-chip{display:inline-flex;align-items:center;border-radius:999px;padding:6px 10px;background:#e0f2fe;color:#075985;font-size:.75rem;font-weight:850;white-space:nowrap}
-#sdDashboard .qc-chart{height:345px;position:relative}#sdDashboard .qc-legend-note{font-size:.78rem;color:#64748b;margin-top:10px;line-height:1.5}#sdDashboard .qc-summary-row{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid #edf1f6;font-size:.9rem;color:#52627b}#sdDashboard .qc-summary-row strong{color:#17253c;text-align:right}#sdDashboard .qc-interpret{margin-top:15px;padding:13px;background:#f5f8fc;border-radius:11px;color:#52627b;font-size:.88rem;line-height:1.65}#sdDashboard .qc-source{margin-top:15px;font-size:.85rem;color:#52627b}#sdDashboard .qc-source summary{cursor:pointer;font-weight:800;color:#33445e;padding:6px 0}#sdDashboard .qc-source p{margin:8px 0}#sdDashboard .qc-source a{color:#087eaa;font-weight:750}
-#sdDashboard .qc-table-wrap{overflow:auto;max-height:460px;border:1px solid #e1e8f2;border-radius:11px;margin-top:12px}#sdDashboard table{border-collapse:collapse;width:100%;font-size:.84rem;color:#33445e}#sdDashboard th,#sdDashboard td{padding:11px 12px;border-bottom:1px solid #edf1f6;text-align:left;white-space:nowrap}#sdDashboard th{position:sticky;top:0;background:#edf4fb;color:#354a68;font-weight:850;z-index:1}#sdDashboard tbody tr:nth-child(even){background:#f8fafc}#sdDashboard tbody tr:hover{background:#eff6ff}#sdDashboard .qc-footnote{margin-top:12px;font-size:.78rem;color:#71819a;line-height:1.55}
-@media(max-width:1100px){#sdDashboard .qc-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:800px){#sdDashboard .qc-main-grid{grid-template-columns:1fr}#sdDashboard .qc-updated{width:100%;margin-left:0}}@media(max-width:520px){#sdDashboard .qc-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#sdDashboard .qc-card{padding:12px}#sdDashboard .qc-panel{padding:13px}#sdDashboard .qc-chart{height:280px}#sdDashboard .qc-toolbar label{flex:1;min-width:130px}#sdDashboard .qc-toolbar select{width:100%;min-width:0}}
+  #sd-root { --sd-brand:#1f5fa8; --sd-ink:#1d2733; --sd-muted:#6b7a8c; --sd-line:#dde4ee; --sd-ok:#2e8b57; --sd-warn:#d98e04; --sd-bad:#c0392b; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--sd-ink); }
+  #sd-root * { box-sizing: border-box; }
+  #sd-root .sd-panel { background:#fff; border:1px solid var(--sd-line); border-radius:12px; padding:16px; margin-bottom:16px; }
+  #sd-root .sd-title { font-size:1.2rem; font-weight:700; margin:0 0 12px; }
+  #sd-root h3 { margin:0 0 10px; font-size:1rem; }
+  #sd-root .sd-filters { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; align-items:end; }
+  #sd-root label { font-size:.75rem; color:var(--sd-muted); display:block; margin-bottom:4px; }
+  #sd-root select, #sd-root textarea { width:100%; padding:8px; border:1px solid var(--sd-line); border-radius:8px; font-size:.95rem; background:#fff; font-family:inherit; color:var(--sd-ink); }
+  #sd-root textarea { font-family:monospace; font-size:.8rem; min-height:120px; }
+  #sd-root button { padding:8px 14px; border:1px solid var(--sd-brand); background:var(--sd-brand); color:#fff; border-radius:8px; cursor:pointer; font-size:.9rem; }
+  #sd-root button.sd-ghost { background:#fff; color:var(--sd-brand); }
+  #sd-root .sd-lotrow { display:flex; gap:8px; align-items:end; }
+  #sd-root .sd-lotrow select { flex:1; }
+  #sd-root .sd-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; }
+  #sd-root .sd-card { border:1px solid var(--sd-line); border-radius:10px; padding:12px; background:#fbfcfe; }
+  #sd-root .sd-k { font-size:.75rem; color:var(--sd-muted); }
+  #sd-root .sd-v { font-size:1.25rem; font-weight:700; margin-top:4px; }
+  #sd-root .sd-note { font-size:.85rem; color:var(--sd-muted); margin-top:10px; }
+  #sd-root .sd-status { font-size:.85rem; margin-top:8px; color:var(--sd-muted); }
+  #sd-root .sd-lotinfo { font-size:.85rem; background:#f0f6fc; border:1px solid #cfe0f2; border-radius:8px; padding:10px; margin-top:10px; line-height:1.6; }
+  #sd-root .sd-chart { position:relative; height:380px; }
+  #sd-root .sd-tablewrap { overflow-x:auto; max-height:420px; overflow-y:auto; }
+  #sd-root table { width:100%; border-collapse:collapse; font-size:.88rem; }
+  #sd-root th, #sd-root td { padding:8px; border-bottom:1px solid var(--sd-line); text-align:right; }
+  #sd-root th:first-child, #sd-root td:first-child, #sd-root th:nth-child(2), #sd-root td:nth-child(2), #sd-root th:last-child, #sd-root td:last-child { text-align:left; }
+  #sd-root th { color:var(--sd-muted); font-weight:600; background:#fafbfd; }
+  #sd-root .sd-tag { padding:2px 8px; border-radius:999px; font-size:.78rem; color:#fff; white-space:nowrap; }
+  #sd-root .sd-ok { background:var(--sd-ok); } #sd-root .sd-warn { background:var(--sd-warn); }
+  #sd-root .sd-bad { background:var(--sd-bad); } #sd-root .sd-na { background:var(--sd-muted); }
+  #sd-root .sd-empty { padding:24px; text-align:center; color:var(--sd-muted); }
+  #sd-root .sd-hidden { display:none !important; }
+  #sd-root .sd-toolbar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
 </style>
+
+<div class="sd-panel">
+  <div class="sd-title">Dashboard Standar Deviasi (QC)</div>
+  <div class="sd-toolbar">
+    <button id="sd-syncBtn" type="button">↻ Sinkronkan Spreadsheet</button>
+    <a href="https://docs.google.com/spreadsheets/d/1EjhqFF-AkdaHBIsNeOaozPOoH-36YYgIY3zCEk5oxm4/edit?usp=drive_link" target="_blank" rel="noopener">Buka spreadsheet sumber ↗</a>
+  </div>
+  <div class="sd-status" id="sd-sumber">Memuat data…</div>
+</div>
+
+<div class="sd-panel">
+  <div class="sd-filters">
+    <div><label for="sd-kelompok">Kelompok pemeriksaan</label><select id="sd-kelompok"></select></div>
+    <div><label for="sd-param">Parameter</label><select id="sd-param"></select></div>
+    <div id="sd-wrapTahun"><label for="sd-tahun">Tahun</label><select id="sd-tahun"></select></div>
+    <div id="sd-wrapTw"><label for="sd-tw">Triwulan</label><select id="sd-tw"></select></div>
+    <div id="sd-wrapLot" class="sd-hidden">
+      <label for="sd-lot">Nomor lot</label>
+      <div class="sd-lotrow">
+        <select id="sd-lot"></select>
+        <button id="sd-bantuLot" class="sd-ghost" type="button" title="Pilih lot dengan data terbanyak">Bantu Lot</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sd-panel sd-hidden" id="sd-kimiaBox">
+  <h3>Data Kimia Klinik (per lot)</h3>
+  <div class="sd-toolbar"><button id="sd-tampelToggle" class="sd-ghost" type="button">Tempel CSV manual</button></div>
+  <div id="sd-pasteWrap" class="sd-hidden" style="margin-top:10px;">
+    <textarea id="sd-paste" placeholder="Salin tab 'data kontrol kimia klinik' dari Google Sheets, lalu tempel di sini (format CSV)."></textarea>
+    <div style="margin-top:8px;"><button id="sd-prosesTempel" type="button">Proses data tempel</button></div>
+  </div>
+  <div class="sd-status" id="sd-kimiaStatus"></div>
+  <div class="sd-lotinfo sd-hidden" id="sd-lotInfo"></div>
+  <div class="sd-note">SD dihitung per lot, karena setiap lot punya mean dan SD sendiri. Data dari beberapa lot tidak digabung.</div>
+</div>
+
+<div class="sd-panel">
+  <div class="sd-cards">
+    <div class="sd-card"><div class="sd-k">Jumlah data valid</div><div class="sd-v" id="sd-c-n">–</div></div>
+    <div class="sd-card"><div class="sd-k">Rata-rata (Mean)</div><div class="sd-v" id="sd-c-mean">–</div></div>
+    <div class="sd-card"><div class="sd-k">Standar deviasi (SD)</div><div class="sd-v" id="sd-c-sd">–</div></div>
+    <div class="sd-card"><div class="sd-k">Koefisien variasi (CV)</div><div class="sd-v" id="sd-c-cv">–</div></div>
+    <div class="sd-card"><div class="sd-k">Minimum</div><div class="sd-v" id="sd-c-min">–</div></div>
+    <div class="sd-card"><div class="sd-k">Maksimum</div><div class="sd-v" id="sd-c-max">–</div></div>
+    <div class="sd-card"><div class="sd-k">Di luar ±2 SD</div><div class="sd-v" id="sd-c-out2">–</div></div>
+    <div class="sd-card"><div class="sd-k">Di luar ±3 SD</div><div class="sd-v" id="sd-c-out3">–</div></div>
+  </div>
+  <div class="sd-note">SD = SD sampel (n−1). CV = SD ÷ |Mean| × 100%. Z-score = (hasil − mean) ÷ SD.</div>
+</div>
+
+<div class="sd-panel">
+  <h3>Grafik Levey–Jennings</h3>
+  <div class="sd-chart"><canvas id="sd-lj"></canvas></div>
+  <div class="sd-note">Garis tengah = Mean. Garis ±1 SD (tipis), ±2 SD (oranye), ±3 SD (merah).</div>
+</div>
+
+<div class="sd-panel">
+  <h3>Rincian hasil pemeriksaan</h3>
+  <div class="sd-tablewrap">
+    <table>
+      <thead><tr><th>No</th><th>Periode</th><th>Hasil</th><th>Deviasi</th><th>Z-score</th><th>Status statistik</th></tr></thead>
+      <tbody id="sd-tbl"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="sd-note">Data ditampilkan sesuai angka pada sumber spreadsheet. Batas statistik bukan pengganti aturan QC laboratorium yang telah ditetapkan.</div>
+
 <script>
-(function(){
- 'use strict';
- const SHEET='1EjhqFF-AkdaHBIsNeOaozPOoH-36YYgIY3zCEk5oxm4';
- const GID='18484466';
- const CHEM_GID='1252703038';
- const HEMATO_PARAMS=['LEUKOSIT','ERITROSIT','HEMOGLOBIN','HEMATOKRIT','TROMBOSIT'];
- const HEMATO_LABELS={'LEUKOSIT':'Leukosit','ERITROSIT':'Eritrosit','HEMOGLOBIN':'Hemoglobin','HEMATOKRIT':'Hematokrit','TROMBOSIT':'Trombosit'};
- const CHEM_TAB='data kontrol kimia klinik';
- let activeParams=HEMATO_PARAMS.slice(), sourceData=[], chart=null, loaded=false, chemistryData=[], chemistryParams=[];
- const $=id=>document.getElementById(id);
- const norm=v=>String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/\s+/g,' ').trim();
- const cell=c=>c?(c.f!=null?c.f:(c.v!=null?c.v:'')):'';
- const number=v=>{if(typeof v==='number')return Number.isFinite(v)?v:null;let s=String(v??'').trim().replace(/\s/g,'');if(!s)return null;if(/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(s))s=s.replace(/\./g,'').replace(',','.');else s=s.replace(',','.');const n=Number(s);return Number.isFinite(n)?n:null;};
- const fmt=v=>v==null||!Number.isFinite(v)?'—':v.toLocaleString('id-ID',{maximumFractionDigits:3});
- const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- function gviz(text){const a=text.indexOf('{'),b=text.lastIndexOf('}');if(a<0||b<a)throw Error('Respons Google Sheets tidak terbaca');return JSON.parse(text.slice(a,b+1));}
- function matrixFrom(table){return (table.rows||[]).map(r=>(r.c||[]).map(cell));}
- function parseHematologyRows(table){
-   const matrix=matrixFrom(table);let quarterByBlock=[1,1];const result=[];
-   matrix.forEach((r,ri)=>{
-     [{year:2026,no:0,start:1},{year:2025,no:7,start:8}].forEach(block=>{
-       const qm=norm(r[block.no]).match(/TW\s*([1-4])/);if(qm){quarterByBlock[block.year===2026?0:1]=Number(qm[1]);return;}
-       const day=number(r[block.no]);if(day===null||day<1||day>31||!Number.isInteger(day))return;
-       const values=HEMATO_PARAMS.map((_,i)=>number(r[block.start+i]));
-       values.forEach((value,i)=>{if(value!==null)result.push({year:block.year,quarter:quarterByBlock[block.year===2026?0:1],day,param:HEMATO_PARAMS[i],value,rowIndex:ri+1});});
-     });
-   });return result;
- }
- function parseChemistryRows(table){
-   // Hanya izinkan nama parameter Kimia Klinik yang valid; jangan pernah menebak
-   // nama parameter dari angka hasil kontrol yang kebetulan berada di baris judul.
-   const raw=matrixFrom(table).map(r=>r.map(v=>String(v??'').trim()));
-   const aliases=[
-     {name:'GULA DARAH',re:/GULA(?:\s*DARAH)?|GLUKOSA|GLUCOSE|BLOOD\s*GLUCOSE|\bGDS\b|\bGDP\b|\bGDN\b/},
-     {name:'ASAM URAT',re:/ASAM\s*URAT|URIC\s*ACID|URATE|\bURIC\b/},
-     {name:'KOLESTEROL',re:/KOLESTEROL|CHOLESTEROL|TOTAL\s*CHOL|\bCHOL\b/}
-   ];
-   const canonical=t=>{const n=norm(t);const a=aliases.find(x=>x.re.test(n));return a?a.name:null;};
-   const meta=(t,kind)=>{const n=norm(t);if(kind==='param')return /PARAMETER|PEMERIKSAAN|ANALIT|ANALYTE/.test(n);if(kind==='value')return /HASIL|NILAI|RESULT|VALUE|KONTROL|CONTROL|LEVEL/.test(n);if(kind==='year')return /TAHUN|YEAR/.test(n);if(kind==='quarter')return /TRIWULAN|KUARTAL|QUARTER|^TW$/.test(n);if(kind==='day')return /TANGGAL|TGL|HARI|DAY|DATE|URUTAN|^NO\.?$/.test(n);return false;};
-   const result=[], params=[];
-   // Bentuk panjang: kolom parameter dan hasil/nilai.
-   let longHeader=-1, cols={};
-   for(let i=0;i<Math.min(raw.length,40);i++){
-     const r=raw[i], find=k=>r.findIndex(v=>meta(v,k));
-     const c={param:find('param'),value:find('value'),year:find('year'),quarter:find('quarter'),day:find('day')};
-     if(c.param>=0&&c.value>=0){longHeader=i;cols=c;break;}
-   }
-   if(longHeader>=0){
-     let year=2026,quarter=1;
-     raw.slice(longHeader+1).forEach((r,idx)=>{
-       const label=r[cols.param]||'', param=canonical(label), value=number(r[cols.value]);
-       if(!param||value===null)return;
-       const joined=norm(r.join(' '));let y=cols.year>=0?number(r[cols.year]):null;
-       if(y&&y<100)y+=2000;const ym=joined.match(/20(25|26)/);if(!y&&ym)y=Number('20'+ym[1]);if(!y)y=year;else year=y;
-       const qtxt=cols.quarter>=0?norm(r[cols.quarter]):joined;const qm=qtxt.match(/(?:TW|TRIWULAN|KUARTAL|QUARTER|Q)\s*([1-4])/);if(qm)quarter=Number(qm[1]);
-       const dv=cols.day>=0?String(r[cols.day]||''):'';const iso=dv.match(/20\d{2}[-/](\d{1,2})[-/](\d{1,2})/),dmy=dv.match(/(\d{1,2})[-/](\d{1,2})[-/](?:20)?(\d{2,4})/);
-       const dn=number(dv);const day=iso?Number(iso[3]):dmy?Number(dmy[1]):(dn!==null&&dn>=1&&dn<=31?dn:idx+1);
-       result.push({year:y,quarter,day,param,value,rowIndex:longHeader+idx+2});if(!params.includes(param))params.push(param);
-     });
-   }
-   // Bentuk lebar: parameter dikenal menjadi judul kolom (GULA DARAH, ASAM URAT, KOLESTEROL).
-   if(!result.length){
-     let headerIndex=-1, paramCols=[];
-     for(let i=0;i<Math.min(raw.length,60);i++){
-       const colsFound=[];raw[i].forEach((v,j)=>{const p=canonical(v);if(p&&!colsFound.some(x=>x.param===p))colsFound.push({j,param:p});});
-       if(colsFound.length){headerIndex=i;paramCols=colsFound;break;}
-     }
-     if(headerIndex>=0){
-       let year=2026,quarter=1;
-       for(let i=headerIndex+1;i<raw.length;i++){
-         const r=raw[i], joined=norm(r.join(' '));
-         const ym=joined.match(/20(25|26)/);if(ym)year=Number('20'+ym[1]);
-         const qm=joined.match(/(?:TW|TRIWULAN|KUARTAL|QUARTER|Q)\s*([1-4])/);if(qm){quarter=Number(qm[1]);if(!r.some(v=>number(v)!==null))continue;}
-         let day=null;
-         for(let j=0;j<Math.min(r.length,5);j++){
-           const v=String(r[j]||''), iso=v.match(/20\d{2}[-/](\d{1,2})[-/](\d{1,2})/), dmy=v.match(/(\d{1,2})[-/](\d{1,2})[-/](?:20)?(\d{2,4})/), n=number(v);
-           if(iso){day=Number(iso[3]);break;}if(dmy){day=Number(dmy[1]);break;}if(n!==null&&Number.isInteger(n)&&n>=1&&n<=31){day=n;break;}
-         }
-         paramCols.forEach(c=>{const value=number(r[c.j]);if(value!==null){result.push({year,quarter,day:day??(i-headerIndex),param:c.param,value,rowIndex:i+1});if(!params.includes(c.param))params.push(c.param);}});
-       }
-     }
-   }
-   // Bentuk vertikal / semi-terstruktur: parameter dapat berada pada baris tersendiri,
-   // atau di kolom pertama dengan nilai kontrol tersebar pada beberapa kolom.
-   if(!result.length){
-     let year=2026,quarter=1;
-     const seen=new Set();
-     for(let ri=0;ri<raw.length;ri++){
-       const r=raw[ri], joined=norm(r.join(' '));
-       const ym=joined.match(/20(25|26)/),qm=joined.match(/(?:TW|TRIWULAN|KUARTAL|QUARTER|Q)\s*([1-4])/);
-       if(ym)year=Number('20'+ym[1]);if(qm)quarter=Number(qm[1]);
-       let found=null,foundCol=-1;
-       for(let j=0;j<r.length;j++){const p=canonical(r[j]);if(p){found=p;foundCol=j;break;}}
-       if(!found)continue;
-       if(!params.includes(found))params.push(found);
-       // Ambil nilai numerik pada baris yang sama, tetapi jangan menganggap angka tahun/tanggal sebagai hasil.
-       const addValues=(row,rowIndex,baseYear,baseQuarter,skipCol)=>{
-         const rowText=norm(row.join(' '));
-         const ymatch=rowText.match(/20(25|26)/);const y=ymatch?Number('20'+ymatch[1]):baseYear;
-         const qmatch=rowText.match(/(?:TW|TRIWULAN|KUARTAL|QUARTER|Q)\s*([1-4])/);const q=qmatch?Number(qmatch[1]):baseQuarter;
-         let day=null;
-         for(let k=0;k<Math.min(row.length,2);k++){
-           const t=String(row[k]||'');const iso=t.match(/20\d{2}[-/](\d{1,2})[-/](\d{1,2})/),dmy=t.match(/(\d{1,2})[-/](\d{1,2})[-/](?:20)?(\d{2,4})/);
-           if(iso){day=Number(iso[3]);break;}if(dmy){day=Number(dmy[1]);break;}
-         }
-         let count=0;
-         row.forEach((v,k)=>{if(k===skipCol)return;const n=number(v);if(n===null)return;const text=norm(v);if(/^20(25|26)$/.test(text)||n>9999)return;if(Number.isInteger(n)&&n>=1900&&n<=2100)return;
-           // Untuk angka 1–31 pada kolom awal, perlakukan sebagai hari/nomor urut, bukan hasil kontrol.
-           if(k<2&&Number.isInteger(n)&&n>=1&&n<=31&&!day){day=n;return;}
-           result.push({year:y,quarter:q,day:day??(rowIndex+1),param:found,value:n,rowIndex:rowIndex+1});count++;
-         });return count;
-       };
-       const same=addValues(r,ri,year,quarter,foundCol);
-       if(same===0){
-         // Bila nama parameter menjadi judul bagian tersendiri, baca baris berikutnya sampai parameter berikutnya.
-         for(let ni=ri+1;ni<Math.min(raw.length,ri+35);ni++){
-           const nr=raw[ni];if(nr.some(v=>canonical(v)))break;
-           const nt=norm(nr.join(' '));const ny=nt.match(/20(25|26)/),nq=nt.match(/(?:TW|TRIWULAN|KUARTAL|QUARTER|Q)\s*([1-4])/);
-           if(ny)year=Number('20'+ny[1]);if(nq)quarter=Number(nq[1]);
-           addValues(nr,ni,year,quarter,-1);
-         }
-       }
-     }
-   }
-   return {data:result,params:params.filter(Boolean)};
- }
- function setMetricOptions(params,preferred){const sel=$('sdMetric');const old=preferred||sel.value;sel.innerHTML=params.map(p=>'<option value="'+esc(p)+'">'+esc(p.charAt(0)+p.slice(1).toLowerCase())+'</option>').join('');if(params.includes(old))sel.value=old;}
- async function fetchSheet(url){const res=await fetch(url,{cache:'no-store'});if(!res.ok)throw Error('HTTP '+res.status+' saat membuka tab sumber');const obj=gviz(await res.text());if(!obj.table||!obj.table.rows)throw Error('Tab sumber tidak memiliki data yang dapat dibaca');return obj.table;}
- async function load(){
-   $('sdStatus').className='qc-status';$('sdStatus').textContent='Mengambil data Hematologi dan Kimia Klinik dari spreadsheet…';$('sdNote').textContent='Membaca kedua tab sumber.';
-   try{
-     const hurl='https://docs.google.com/spreadsheets/d/'+SHEET+'/gviz/tq?tqx=out:json&gid='+encodeURIComponent(GID)+'&headers=0';
-     const htable=await fetchSheet(hurl);sourceData=parseHematologyRows(htable);
-     if(!sourceData.length)throw Error('Data Hematologi tidak ditemukan pada susunan kolom yang diharapkan.');
-     const curl='https://docs.google.com/spreadsheets/d/'+SHEET+'/gviz/tq?tqx=out:json&gid='+encodeURIComponent(CHEM_GID)+'&headers=0';
-     try{const ctable=await fetchSheet(curl);const parsed=parseChemistryRows(ctable);chemistryData=parsed.data;chemistryParams=parsed.params.filter(p=>p&&p.trim());}
-     catch(e){chemistryData=[];chemistryParams=[];window.__permataChemReadError=String(e&&e.message||e);console.warn('Tab Kimia Klinik gagal dibaca:',e);}
-     loaded=true;$('sdUpdated').textContent='Disinkronkan '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
-     $('sdGroup').dispatchEvent(new Event('change'));
-   }catch(err){loaded=false;sourceData=[];chemistryData=[];chemistryParams=[];$('sdStatus').className='qc-status error';$('sdStatus').textContent='Data belum berhasil dimuat: '+(err.message||err)+'. Pastikan spreadsheet dapat diakses sebagai pelihat.';$('sdUpdated').textContent='Belum tersinkron';render();}
- }
- function render(){
-   const group=$('sdGroup').value;const metric=$('sdMetric');
-   activeParams=group==='kimia'?chemistryParams:HEMATO_PARAMS;
-   const previous=metric.value;
-   if(!activeParams.length){
-     metric.innerHTML='<option value="">Parameter tidak ditemukan</option>';metric.disabled=true;
-     $('sdStatus').className='qc-status error';$('sdStatus').textContent=window.__permataChemReadError?'Tab Kimia Klinik gagal diambil dari Google Sheets: '+window.__permataChemReadError+'. Periksa izin akses publik dan GID 1252703038.':'Tab Kimia Klinik berhasil diakses, tetapi format datanya belum dikenali. Parser mencari nama Gula/Gula Darah/Glukosa/GDS/GDP, Asam Urat, atau Kolesterol serta angka kontrol. Periksa susunan header pada tab sumber.';
-     ['sdN','sdMean','sdStd','sdCv','sdMin','sdMax','sdOutside2','sdOutside3'].forEach(id=>$(id).textContent='—');
-     $('sdPeriod').textContent='Kimia Klinik';$('sdChartChip').textContent='BELUM ADA DATA';$('sdChartSubtitle').textContent='Kimia Klinik · periksa sumber tab';$('sdInterpret').textContent='Dashboard membaca tab “data kontrol kimia klinik” menggunakan GID 1252703038 dari spreadsheet yang sama.';$('sdRowCount').textContent='0 hasil';$('sdTbody').innerHTML='<tr><td colspan="8">Data belum dapat dikenali dari tab Kimia Klinik.</td></tr>';$('sdNote').textContent='Sumber Kimia Klinik: tab data kontrol kimia klinik (GID 1252703038).';if(chart){chart.destroy();chart=null;}return;
-   }
-   setMetricOptions(activeParams,previous);metric.disabled=false;
-   const param=metric.value,year=Number($('sdYear').value),q=$('sdQuarter').value;
-   const all=group==='kimia'?chemistryData:sourceData;
-   const vals=all.filter(x=>x.param===param&&x.year===year&&(q==='all'||x.quarter===Number(q))).sort((a,b)=>a.quarter-b.quarter||a.day-b.day);
-   const n=vals.length,mean=n?vals.reduce((s,x)=>s+x.value,0)/n:null,sd=n>1?Math.sqrt(vals.reduce((s,x)=>s+Math.pow(x.value-mean,2),0)/(n-1)):null,cv=sd!==null&&mean!==0?Math.abs(sd/mean*100):null;
-   const min=n?Math.min(...vals.map(x=>x.value)):null,max=n?Math.max(...vals.map(x=>x.value)):null;
-   $('sdN').textContent=fmt(n);$('sdMean').textContent=fmt(mean);$('sdStd').textContent=sd===null?'—':'±'+fmt(sd);$('sdCv').textContent=cv===null?'—':fmt(cv)+'%';$('sdMin').textContent=fmt(min);$('sdMax').textContent=fmt(max);
-   const out2=sd?vals.filter(x=>Math.abs(x.value-mean)>2*sd).length:0,out3=sd?vals.filter(x=>Math.abs(x.value-mean)>3*sd).length:0;
-   $('sdOutside2').textContent=fmt(out2)+' hasil';$('sdOutside3').textContent=fmt(out3)+' hasil';$('sdPeriod').textContent=(q==='all'?'Semua TW':'TW '+q)+' / '+year;$('sdChartChip').textContent=year+' · '+(q==='all'?'SEMUA TW':'TW '+q);
-   const groupLabel=group==='kimia'?'Kimia Klinik':'Hematologi';$('sdStatus').className=n?'qc-status ok':'qc-status';$('sdStatus').textContent=n?'Data '+groupLabel+' berhasil dibaca: '+n+' nilai untuk '+param+'.': 'Belum ada nilai numerik untuk '+param+' pada tahun/triwulan yang dipilih. Periksa susunan tab sumber.';
-   $('sdChartSubtitle').textContent=groupLabel+' · '+param+' · Tahun '+year+' · '+(q==='all'?'Semua triwulan':'Triwulan '+q);
-   $('sdInterpret').textContent=n<2?'Data '+param+' tahun '+year+' belum cukup untuk menghitung SD sampel (minimal dua hasil numerik).':('Terdapat '+n+' hasil numerik untuk '+param+' tahun '+year+'. Rata-rata '+fmt(mean)+', SD sampel '+fmt(sd)+', dan CV '+(cv===null?'tidak dapat dihitung':fmt(cv)+'%')+'. '+(out3?out3+' hasil berada di luar ±3 SD; telaah data dan aturan QC yang berlaku.':'Tidak ada hasil yang berada di luar ±3 SD berdasarkan statistik data terpilih.'));
-   $('sdRowCount').textContent=n+' hasil';
-   $('sdTbody').innerHTML=vals.map((x,i)=>{const dev=mean===null?null:x.value-mean,z=sd?dev/sd:null;const status=z===null?'SD belum tersedia':Math.abs(z)>3?'Di luar ±3 SD':Math.abs(z)>2?'Di luar ±2 SD':Math.abs(z)>1?'Di luar ±1 SD':'Dalam ±1 SD';return '<tr><td>'+(i+1)+'</td><td>TW '+x.quarter+'</td><td>'+esc(x.day)+'</td><td>'+esc(param)+'</td><td>'+fmt(x.value)+'</td><td>'+fmt(dev)+'</td><td>'+fmt(z)+'</td><td>'+status+'</td></tr>';}).join('')||'<tr><td colspan="8">Tidak ada nilai numerik untuk pilihan parameter, tahun, dan triwulan ini.</td></tr>';
-   if(typeof Chart==='undefined')return;
-   const labels=vals.map(x=>'TW'+x.quarter+' · '+x.day);const values=vals.map(x=>x.value);
-   const ds=[{label:param+' '+year,data:values,borderColor:group==='kimia'?'#0f9f8f':'#0ea5e9',backgroundColor:group==='kimia'?'#0f9f8f22':'#0ea5e922',pointRadius:3,pointHoverRadius:5,borderWidth:2,tension:.12,spanGaps:false}];
-   if(mean!==null&&sd!==null){[{k:3,label:'+3 SD',color:'#ef4444'},{k:2,label:'+2 SD',color:'#f97316'},{k:1,label:'+1 SD',color:'#eab308'},{k:0,label:'Mean',color:'#10b981'},{k:-1,label:'−1 SD',color:'#eab308'},{k:-2,label:'−2 SD',color:'#f97316'},{k:-3,label:'−3 SD',color:'#ef4444'}].forEach(b=>ds.push({label:b.label,data:values.map(()=>mean+b.k*sd),borderColor:b.color,borderWidth:b.k===0?2:1,borderDash:b.k===0?[]:[5,4],pointRadius:0,fill:false}));}
-   if(chart)chart.destroy();chart=new Chart($('sdChart'),{type:'line',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:14}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.parsed.y)}}},scales:{x:{ticks:{maxTicksLimit:12,maxRotation:0},grid:{color:'rgba(148,163,184,.15)'}},y:{beginAtZero:false,grid:{color:'rgba(148,163,184,.18)'}}}}});
- }
- $('sdGroup').addEventListener('change',()=>{setMetricOptions($('sdGroup').value==='kimia'?chemistryParams:HEMATO_PARAMS);render();});
- $('sdMetric').addEventListener('change',render);$('sdYear').addEventListener('change',render);$('sdQuarter').addEventListener('change',render);$('sdRefresh').addEventListener('click',load);load();
+(function () {
+  /* SUMBER: spreadsheet PROJECT STANDAR DEVIATION LAB 2025 (harus "Anyone with the link – Viewer") */
+  const SHEET_ID = "1EjhqFF-AkdaHBIsNeOaozPOoH-36YYgIY3zCEk5oxm4";
+  const TAB_HEMATO = "data kontrol heamtologi";
+  const TAB_KIMIA = "data kontrol kimia klinik";
+
+  /* Cadangan jika sheet tidak terbaca. Urutan kolom: [Leukosit, Eritrosit, Hemoglobin, Hematokrit, Trombosit] */
+  const RAW = {
+    "Hematologi": {
+      "2025": {
+        "TW 1": [[7.65,4.64,13.3,41.50,245],[7.64,4.65,14.0,41.50,258],[7.50,4.57,14.2,41.20,238],[7.09,4.58,13.7,40.93,278],[7.21,4.51,13.9,40.40,254],[7.51,4.50,14.0,40.45,257],[7.62,4.65,14.2,41.87,263],[7.87,4.62,14.4,41.40,277]],
+        "TW 2": [[7.63,4.56,14.1,41.20,259],[7.63,4.66,14.4,42.10,254],[7.56,4.64,14.0,42.10,234],[7.68,4.62,13.8,42.00,258],[7.73,4.77,14.3,43.10,258],[7.46,4.56,14.4,41.44,243],[7.62,4.62,14.2,41.95,253],[7.59,4.49,13.5,40.80,256]],
+        "TW 3": [[7.67,4.55,13.9,41.64,266],[7.73,4.56,13.8,41.56,255],[7.72,4.55,14.2,41.85,245],[7.50,4.96,13.9,44.32,255],[7.84,4.87,14.3,43.90,248],[7.56,4.77,14.0,43.48,238],[8.00,4.82,14.2,44.00,248],[7.67,4.77,14.1,43.60,255]],
+        "TW 4": [[7.64,4.83,13.6,43.50,240],[7.50,4.77,14.2,43.40,237],[7.24,4.81,13.6,43.80,245],[7.37,4.94,13.7,44.70,258],[7.56,4.82,13.7,44.30,243],[7.50,4.70,13.6,44.10,230],[7.40,4.75,13.7,43.10,234],[7.60,4.80,14.1,44.20,245]]
+      },
+      "2026": {
+        "TW 1": [[7.44,4.62,13.40,38.80,227],[7.81,4.80,13.40,40.10,239],[7.75,4.82,13.60,40.60,234],[8.08,4.92,13.90,41.40,249],[8.18,4.81,14.00,40.50,221],[7.20,4.63,12.70,39.20,226],[7.64,4.84,13.20,40.70,231]],
+        "TW 2": [[7.16,4.70,14.20,43.40,254],[7.72,4.92,14.60,44.40,250],[7.48,4.82,14.10,44.60,245],[7.69,4.71,13.70,43.90,244],[7.29,4.79,13.80,43.50,253],[7.46,4.84,14.10,44.40,252],[6.99,4.76,14.20,44.30,256]],
+        "TW 3": [[7.58,4.58,13.80,41.20,215],[7.59,4.74,14.20,43.30,226],[7.19,4.65,13.80,42.80,219],[7.49,4.65,14.70,42.50,212],[7.73,4.81,14.50,44.50,227],[7.55,4.75,14.30,43.90,213],[7.57,4.74,14.10,43.90,233],[7.75,4.61,13.80,42.70,223],[7.84,4.91,14.20,44.50,252]],
+        "TW 4": [[7.28,4.87,14.00,42.00,241],[7.48,4.89,14.10,42.00,272],[7.36,4.94,14.00,42.30,279],[7.08,4.81,13.60,41.70,228]]
+      }
+    },
+    "Kimia Klinik": {}
+  };
+  const PARAMS = {
+    "Hematologi": ["Leukosit", "Eritrosit", "Hemoglobin", "Hematokrit", "Trombosit"],
+    "Kimia Klinik": ["Gula darah", "Kolesterol", "Asam urat"]
+  };
+  const KIMIA_COLS = { "Gula darah": [0, 1], "Kolesterol": [4, 5], "Asam urat": [8, 9] };
+
+  const el = id => document.getElementById("sd-" + id);
+  const show = (id, on) => el(id).classList.toggle("sd-hidden", !on);
+  const isKimia = () => el("kelompok").value === "Kimia Klinik";
+  const paramKey = () => PARAMS["Kimia Klinik"][Number(el("param").value)];
+  let chart = null, KIMIA = {}, SRC = { hematologi: "cadangan", kimia: "belum dimuat" };
+
+  const f = (x, d = 2) => (x === null || x === undefined || isNaN(x)) ? "–" : x.toLocaleString("id-ID", {minimumFractionDigits: d, maximumFractionDigits: d});
+  function fillSelect(sel, options, keep) {
+    const prev = keep ?? sel.value;
+    sel.innerHTML = options.map(o => `<option value="${o.v}">${o.t}</option>`).join("");
+    if (options.some(o => o.v === prev)) sel.value = prev;
+  }
+  function parseDate(s) {
+    const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec((s || "").trim());
+    return m ? new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1])) : null;
+  }
+  function toNum(s) {
+    if (s === undefined || s === null) return null;
+    const t = String(s).trim().replace(/\s+/g, "").replace(",", ".");
+    return (t !== "" && /^-?\d+(\.\d+)?$/.test(t)) ? Number(t) : null;
+  }
+  function parseCsv(text) {
+    const rows = []; let row = [], cur = "", q = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (q) { if (c === '"' && text[i + 1] === '"') { cur += '"'; i++; } else if (c === '"') q = false; else cur += c; }
+      else if (c === '"') q = true;
+      else if (c === ",") { row.push(cur); cur = ""; }
+      else if (c === "\n") { row.push(cur); rows.push(row); row = []; cur = ""; }
+      else if (c !== "\r") cur += c;
+    }
+    if (cur !== "" || row.length) { row.push(cur); rows.push(row); }
+    return rows;
+  }
+  async function fetchTab(name) {
+    const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(name)}`);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return res.text();
+  }
+  /* Kiri (kolom 0–5) = TAHUN 2026, kanan (kolom 7–12) = TAHUN 2025 */
+  function parseHemato(rows) {
+    const out = { "2025": {}, "2026": {} };
+    let L = null, R = null;
+    for (const r of rows) {
+      const c0 = (r[0] || "").trim(), c7 = (r[7] || "").trim();
+      const mL = /^TW\s*(\d)$/i.exec(c0), mR = /^TW\s*(\d)$/i.exec(c7);
+      if (mL) L = "TW " + mL[1];
+      else if (L && /^\d+$/.test(c0)) { const v = [1,2,3,4,5].map(i => toNum(r[i])); if (v.every(x => x !== null)) (out["2026"][L] ||= []).push(v); }
+      if (mR) R = "TW " + mR[1];
+      else if (R && /^\d+$/.test(c7)) { const v = [8,9,10,11,12].map(i => toNum(r[i])); if (v.every(x => x !== null)) (out["2025"][R] ||= []).push(v); }
+    }
+    return out;
+  }
+  const hasHemato = d => Object.values(d).some(y => Object.values(y).some(t => t.length));
+  function parseKimia(rows) {
+    const out = {};
+    for (const [param, [dc, vc]] of Object.entries(KIMIA_COLS)) {
+      out[param] = {};
+      let lot = null;
+      for (const r of rows) {
+        const dCell = (r[dc] || "").trim(), vCell = (r[vc] || "").trim();
+        if (/^no\s*lot$/i.test(dCell)) { lot = vCell.replace(/,0$/, "") || null; continue; }
+        if (!lot || /^tanggal$/i.test(dCell)) continue;
+        const value = toNum(vCell);
+        if (value === null) continue;
+        (out[param][lot] ||= []).push({label: dCell || "–", tgl: parseDate(dCell), value});
+      }
+      for (const l of Object.keys(out[param])) out[param][l].sort((a, b) => (a.tgl && b.tgl) ? a.tgl - b.tgl : a.tgl ? -1 : b.tgl ? 1 : 0);
+    }
+    return out;
+  }
+  const countKimia = d => Object.values(d).reduce((a, lots) => a + Object.keys(lots).length, 0);
+
+  async function syncAll() {
+    el("sumber").textContent = "Memuat data dari Google Sheets…";
+    const notes = [];
+    try {
+      const d = parseHemato(parseCsv(await fetchTab(TAB_HEMATO)));
+      if (!hasHemato(d)) throw new Error("kosong");
+      RAW.Hematologi = d; SRC.hematologi = "live";
+    } catch (e) { SRC.hematologi = "cadangan"; notes.push("Hematologi memakai data cadangan"); }
+    try {
+      const d = parseKimia(parseCsv(await fetchTab(TAB_KIMIA)));
+      if (countKimia(d) === 0) throw new Error("kosong");
+      KIMIA = d; SRC.kimia = "live";
+    } catch (e) { SRC.kimia = "gagal"; notes.push("Kimia Klinik gagal dibaca, gunakan Tempel CSV manual"); show("pasteWrap", true); }
+    el("sumber").textContent =
+      `Hematologi: ${SRC.hematologi === "live" ? "live dari sheet" : "cadangan"} · Kimia Klinik: ${SRC.kimia === "live" ? "live dari sheet" : "belum tersedia"}` +
+      (notes.length ? ` · ${notes.join(" · ")}` : "") + ` · diperbarui ${new Date().toLocaleTimeString("id-ID")}`;
+    refreshDependent();
+    if (isKimia()) bantuLot(true); else render();
+  }
+
+  function lotSummary(p) {
+    return Object.entries(KIMIA[p] || {}).map(([lot, pts]) => ({
+      lot, n: pts.length, first: pts[0].label, last: pts[pts.length - 1].label,
+      lastDate: pts.reduce((m, x) => (x.tgl && (!m || x.tgl > m)) ? x.tgl : m, null)
+    }));
+  }
+  function refreshLot() {
+    const sums = lotSummary(paramKey());
+    fillSelect(el("lot"), sums.length ? sums.map(s => ({v: s.lot, t: `Lot ${s.lot} (${s.n} data)`})) : [{v: "", t: "—"}]);
+  }
+  function bantuLot(auto = false) {
+    refreshLot();
+    const sums = lotSummary(paramKey());
+    if (!sums.length) {
+      el("kimiaStatus").textContent = "Belum ada data untuk parameter ini. Periksa sheet atau gunakan Tempel CSV manual.";
+      show("lotInfo", false); render(); return;
+    }
+    sums.sort((a, b) => (b.n - a.n) || ((b.lastDate || 0) - (a.lastDate || 0)));
+    const best = sums[0];
+    el("lot").value = best.lot;
+    show("lotInfo", true);
+    el("lotInfo").innerHTML =
+      `<strong>Bantu Lot:</strong> dipilih lot <strong>${best.lot}</strong> (${best.n} data, ${best.first} s.d. ${best.last}).<br>` +
+      sums.map(s => `Lot ${s.lot}: ${s.n} data · ${s.first} s.d. ${s.last}`).join("<br>") +
+      `<br><span style="color:#6b7a8c">Ganti lot lewat menu di atas bila ingin melihat lot lain.</span>`;
+    if (!auto) el("kimiaStatus").textContent = "";
+    render();
+  }
+
+  function refreshDependent() {
+    const k = el("kelompok").value;
+    fillSelect(el("param"), PARAMS[k].map((p, i) => ({v: String(i), t: p})));
+    if (k === "Kimia Klinik") {
+      show("wrapTahun", false); show("wrapTw", false); show("wrapLot", true); show("kimiaBox", true);
+      refreshLot(); show("lotInfo", false);
+      if (!countKimia(KIMIA)) el("kimiaStatus").textContent = "Belum ada data kimia klinik. Klik Sinkronkan atau tempel CSV manual.";
+    } else {
+      show("wrapTahun", true); show("wrapTw", true); show("wrapLot", false); show("kimiaBox", false);
+      fillSelect(el("tahun"), Object.keys(RAW[k] || {}).sort().map(y => ({v: y, t: y})));
+      refreshTw();
+    }
+  }
+  function refreshTw() {
+    const y = el("tahun").value;
+    const tws = Object.keys((RAW[el("kelompok").value] || {})[y] || {});
+    fillSelect(el("tw"), [{v: "all", t: "Semua triwulan"}, ...tws.map(t => ({v: t, t}))]);
+  }
+  function getPoints() {
+    if (isKimia()) {
+      return ((KIMIA[paramKey()] || {})[el("lot").value] || []).map((r, i) => ({label: r.label, tw: r.label, no: i + 1, value: r.value}));
+    }
+    const yr = (RAW[el("kelompok").value] || {})[el("tahun").value];
+    if (!yr) return [];
+    const idx = Number(el("param").value), tw = el("tw").value;
+    const pts = [];
+    (tw === "all" ? Object.keys(yr) : [tw]).forEach(t => (yr[t] || []).forEach((row, i) =>
+      pts.push({label: `${t} #${i + 1}`, tw: t, no: i + 1, value: row[idx]})));
+    return pts;
+  }
+  function stats(vals) {
+    const n = vals.length;
+    if (!n) return null;
+    const mean = vals.reduce((a, b) => a + b, 0) / n;
+    const sd = n > 1 ? Math.sqrt(vals.reduce((a, b) => a + (b - mean) ** 2, 0) / (n - 1)) : 0;
+    return {n, mean, sd, cv: mean ? (sd / Math.abs(mean)) * 100 : 0, min: Math.min(...vals), max: Math.max(...vals)};
+  }
+  function statusOf(z, n, sd) {
+    if (n < 2 || sd === 0) return {t: "Data kurang", c: "sd-na"};
+    const a = Math.abs(z);
+    if (a > 3) return {t: "Di luar ±3 SD", c: "sd-bad"};
+    if (a > 2) return {t: "Di luar ±2 SD", c: "sd-warn"};
+    return {t: "Dalam ±2 SD", c: "sd-ok"};
+  }
+
+  async function render() {
+    const pts = getPoints();
+    const s = stats(pts.map(p => p.value));
+    if (!s) {
+      ["c-n","c-mean","c-sd","c-cv","c-min","c-max","c-out2","c-out3"].forEach(id => el(id).textContent = "–");
+      el("tbl").innerHTML = `<tr><td colspan="6" class="sd-empty">${isKimia() ? "Pilih lot, atau klik Bantu Lot setelah data dimuat." : "Tidak ada data untuk pilihan ini."}</td></tr>`;
+      if (chart) { chart.destroy(); chart = null; }
+      return;
+    }
+    const rows = pts.map(p => {
+      const dev = p.value - s.mean, z = s.sd ? dev / s.sd : 0;
+      return {...p, dev, z, st: statusOf(z, s.n, s.sd)};
+    });
+    el("c-n").textContent = s.n;
+    el("c-mean").textContent = f(s.mean);
+    el("c-sd").textContent = f(s.sd);
+    el("c-cv").textContent = f(s.cv) + " %";
+    el("c-min").textContent = f(s.min);
+    el("c-max").textContent = f(s.max);
+    el("c-out2").textContent = rows.filter(r => Math.abs(r.z) > 2).length;
+    el("c-out3").textContent = rows.filter(r => Math.abs(r.z) > 3).length;
+    el("tbl").innerHTML = rows.map((r, i) => `
+      <tr><td>${i + 1}</td><td>${r.tw}</td><td>${f(r.value)}</td><td>${f(r.dev)}</td><td>${f(r.z)}</td>
+      <td><span class="sd-tag ${r.st.c}">${r.st.t}</span></td></tr>`).join("");
+
+    await ensureChart();
+    const line = v => rows.map(() => v);
+    const title = isKimia() ? `${paramKey()} · Lot ${el("lot").value}` : el("param").selectedOptions[0].text;
+    const cfg = {
+      type: "line",
+      data: { labels: rows.map(r => r.label), datasets: [
+        {label: "Hasil", data: rows.map(r => r.value), borderColor: "#1f5fa8", backgroundColor: "#1f5fa8",
+         pointRadius: rows.map(r => Math.abs(r.z) > 2 ? 6 : 3),
+         pointBackgroundColor: rows.map(r => Math.abs(r.z) > 3 ? "#c0392b" : Math.abs(r.z) > 2 ? "#d98e04" : "#1f5fa8"),
+         borderWidth: 2, tension: 0.2},
+        {label: "Mean", data: line(s.mean), borderColor: "#1d2733", borderDash: [6, 4], pointRadius: 0, borderWidth: 1.5},
+        {label: "+1 SD", data: line(s.mean + s.sd), borderColor: "#9fb3c8", pointRadius: 0, borderWidth: 1},
+        {label: "−1 SD", data: line(s.mean - s.sd), borderColor: "#9fb3c8", pointRadius: 0, borderWidth: 1},
+        {label: "+2 SD", data: line(s.mean + 2 * s.sd), borderColor: "#d98e04", pointRadius: 0, borderWidth: 1.2},
+        {label: "−2 SD", data: line(s.mean - 2 * s.sd), borderColor: "#d98e04", pointRadius: 0, borderWidth: 1.2},
+        {label: "+3 SD", data: line(s.mean + 3 * s.sd), borderColor: "#c0392b", pointRadius: 0, borderWidth: 1.2},
+        {label: "−3 SD", data: line(s.mean - 3 * s.sd), borderColor: "#c0392b", pointRadius: 0, borderWidth: 1.2}
+      ]},
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: {mode: "index", intersect: false},
+        plugins: {
+          title: {display: true, text: title},
+          legend: {position: "bottom", labels: {boxWidth: 12}},
+          tooltip: {callbacks: {label: c => `${c.dataset.label}: ${f(c.parsed.y)}`}}
+        },
+        scales: {
+          x: {ticks: {maxRotation: 60, autoSkip: true, font: {size: 10}}},
+          y: {title: {display: true, text: isKimia() ? paramKey() : el("param").selectedOptions[0].text}}
+        }
+      }
+    };
+    if (chart) chart.destroy();
+    chart = new Chart(el("lj"), cfg);
+  }
+
+  function ensureChart() {
+    return new Promise(res => {
+      if (window.Chart) return res();
+      const s = document.createElement("script");
+      s.src = "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js";
+      s.onload = res;
+      document.head.appendChild(s);
+    });
+  }
+
+  function init() {
+    fillSelect(el("kelompok"), Object.keys(RAW).map(k => ({v: k, t: k})));
+    refreshDependent();
+    el("kelompok").addEventListener("change", () => { refreshDependent(); if (isKimia()) bantuLot(true); else render(); });
+    el("param").addEventListener("change", () => { if (isKimia()) bantuLot(true); else render(); });
+    el("tahun").addEventListener("change", () => { refreshTw(); render(); });
+    el("tw").addEventListener("change", render);
+    el("lot").addEventListener("change", render);
+    el("bantuLot").addEventListener("click", () => bantuLot(false));
+    el("syncBtn").addEventListener("click", syncAll);
+    el("tampelToggle").addEventListener("click", () => show("pasteWrap", el("pasteWrap").classList.contains("sd-hidden")));
+    el("prosesTempel").addEventListener("click", () => {
+      const d = parseKimia(parseCsv(el("paste").value));
+      if (countKimia(d) === 0) { el("kimiaStatus").textContent = "Tidak ada data lot yang terbaca dari teks tempel."; return; }
+      KIMIA = d; SRC.kimia = "tempel";
+      el("kimiaStatus").textContent = "Data tempel berhasil diproses.";
+      refreshDependent(); bantuLot(true);
+    });
+    render();
+    syncAll();
+  }
+  init();
 })();
 </script>
+</div>
+</section>
+<!-- ===== DASHBOARD STANDAR DEVIASI (QC) : SELESAI ===== -->
 
 
 </body>
