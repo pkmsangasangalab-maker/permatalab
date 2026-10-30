@@ -3990,10 +3990,11 @@ var PANDUAN = [
       for (const r of rows) {
         const dCell = (r[dc] || "").trim(), vCell = (r[vc] || "").trim();
         if (/^no\s*lot$/i.test(dCell)) { lot = vCell.replace(/,0$/, "") || null; continue; }
-        if (!lot || /^tanggal$/i.test(dCell)) continue;
+        if (/^tanggal$/i.test(dCell)) continue;
+        const key = lot || "tanpa-nomor-lot";
         const value = toNum(vCell);
         if (value === null) continue;
-        (out[param][lot] ||= []).push({label: dCell || "–", tgl: parseDate(dCell), value});
+        (out[param][key] ||= []).push({label: dCell || "–", tgl: parseDate(dCell), value});
       }
       for (const l of Object.keys(out[param])) out[param][l].sort((a, b) => (a.tgl && b.tgl) ? a.tgl - b.tgl : a.tgl ? -1 : b.tgl ? 1 : 0);
     }
@@ -4021,6 +4022,8 @@ var PANDUAN = [
     const d = parseKimia(parseCsv(kimiaText));
       if (countKimia(d) === 0) throw new Error("kosong");
       KIMIA = d; SRC.kimia = "live";
+      notes.push("Kimia: " + Object.entries(d).map(([p, lots]) =>
+        `${p} ${Object.keys(lots).length} lot/${Object.values(lots).reduce((a, x) => a + x.length, 0)} data`).join(", "));
     } catch (e) { SRC.kimia = "gagal"; notes.push("Kimia Klinik gagal dibaca, gunakan Tempel CSV manual"); show("pasteWrap", true); }
     el("sumber").textContent =
       `Hematologi: ${SRC.hematologi === "live" ? "live dari sheet" : "cadangan"} · Kimia Klinik: ${SRC.kimia === "live" ? "live dari sheet" : "belum tersedia"}` +
