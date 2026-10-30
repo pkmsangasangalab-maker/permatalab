@@ -3896,6 +3896,7 @@ var PANDUAN = [
   const SHEET_ID = "1EjhqFF-AkdaHBIsNeOaozPOoH-36YYgIY3zCEk5oxm4";
   const TAB_HEMATO = "data kontrol heamtologi";
   const TAB_KIMIA = "data kontrol kimia klinik";
+  const GID_KIMIA = "1252703038"; // tab kimia klinik (gid dari link sumber)
 
   /* Cadangan jika sheet tidak terbaca. Urutan kolom: [Leukosit, Eritrosit, Hemoglobin, Hematokrit, Trombosit] */
   const RAW = {
@@ -3955,6 +3956,11 @@ var PANDUAN = [
     if (cur !== "" || row.length) { row.push(cur); rows.push(row); }
     return rows;
   }
+  async function fetchGid(gid) {
+    const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${gid}`);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return res.text();
+  }
   async function fetchTab(name) {
     const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(name)}`);
     if (!res.ok) throw new Error("HTTP " + res.status);
@@ -4003,7 +4009,7 @@ var PANDUAN = [
       RAW.Hematologi = d; SRC.hematologi = "live";
     } catch (e) { SRC.hematologi = "cadangan"; notes.push("Hematologi memakai data cadangan"); }
     try {
-      const d = parseKimia(parseCsv(await fetchTab(TAB_KIMIA)));
+      const d = parseKimia(parseCsv(await fetchGid(GID_KIMIA)));
       if (countKimia(d) === 0) throw new Error("kosong");
       KIMIA = d; SRC.kimia = "live";
     } catch (e) { SRC.kimia = "gagal"; notes.push("Kimia Klinik gagal dibaca, gunakan Tempel CSV manual"); show("pasteWrap", true); }
